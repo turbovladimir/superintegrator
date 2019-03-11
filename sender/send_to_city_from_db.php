@@ -1,6 +1,6 @@
 <?php
     include_once '../Classes/SPEED_EXEC_TEST.php';
-    include_once '../db_connect/connect_vars.php';
+    include_once '../config.php';
     include_once '../Classes/POSTMAN.php';
 
     $my_test = new SPEED_EXEC_TEST('local test db to city','log_file');

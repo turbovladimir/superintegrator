@@ -1,0 +1,8 @@
+<?php
+    $host   =   '';
+    $dbuser =   '';
+    $dbpass =   '';
+    $dbname =   'sk8kilay_test';
+    $table  =   'postbacktable';
+    $LogTableName = 'table_log';
+?>
