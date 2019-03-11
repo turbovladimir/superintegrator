@@ -1,0 +1,81 @@
+
+body { background: #061b31 url(../images/geo_back.jpg) no-repeat;
+  -moz-background-size: 100%; /* Firefox 3.6+ */
+      -webkit-background-size: 100%; /* Safari 3.1+ и Chrome 4.0+ */
+      -o-background-size: 100%; /* Opera 9.6+ */
+      background-size: 100%; /* Современные браузеры */
+ }
+
+th {font-family: Georgia, serif;
+font-size: 33px;
+letter-spacing: 2.2px;
+word-spacing: 0px;
+color: #FFFFFF;
+font-weight: 400;
+text-decoration: none solid rgb(68, 68, 68);
+font-style: normal;
+font-variant: small-caps;
+text-transform: capitalize;
+
+
+}
+
+td {font-family: Georgia, serif;
+    font-size: 15px;
+    letter-spacing: 2.2px;
+    word-spacing: 0px;
+    color: #FFFFFF;
+    font-weight: 400;
+    font-style: normal;
+    font-variant: small-caps;
+    text-transform: capitalize;
+
+}
+
+p { font-family: Georgia, serif;
+    font-size: 15px;
+    letter-spacing: 2.2px;
+    word-spacing: 0px;
+    color: #FFFFFF;
+    font-weight: 400;
+    font-style: normal;
+    font-variant: small-caps;
+    text-transform: capitalize;
+
+}
+a {
+    color: red;
+    /* Цвет ссылок */
+    text-decoration: none;
+}
+
+a:visited {
+    color: red;
+    /* Цвет посещенных ссылок */;
+}
+
+a:hover {
+    color: #ffff00;
+    /* Цвет активных ссылок */;
+}
+
+
+
+.block {
+ display: inline-flex;
+    margin-left: 20px;
+}
+
+.data {
+    margin-left: 20%;
+}
+
+#finish { color: #70c0ff;
+  font-size: 33px;
+
+}
+
+#error { color: #70c0ff;
+  font-size: 33px;
+}
+

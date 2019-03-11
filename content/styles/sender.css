@@ -1,0 +1,54 @@
+body{ background: #000000 url(../images/planet-plyto.jpg) no-repeat;
+    margin: 0;
+}
+
+p{
+    color: #f8f7ff;
+    margin: fill;
+    font-family: Georgia, serif;
+    letter-spacing: 2.2px;
+    word-spacing: 0px;
+    font-variant: small-caps;
+    text-transform: capitalize;
+
+}
+
+p:hover {
+    color: rgb(252, 255, 141);
+}
+
+
+a{
+    color: #f8f7ff;
+    margin: fill;
+    text-align: center;
+    font-family: Georgia, serif;
+    letter-spacing: 2.2px;
+    word-spacing: 0px;
+    font-variant: small-caps;
+    text-transform: capitalize;
+
+}
+
+a:hover {
+    color: red;
+}
+
+
+div.info {
+    height: 200px;
+    width: 1200px;
+    margin-top: 20px;
+    margin-left: 10px;
+}
+div.form {
+    height: 100px;
+    width: 1200px;
+    margin-left: 10px;
+}
+
+div.report {
+    height: 100px;
+    width: 1200px;
+    margin-left: 10px;
+}

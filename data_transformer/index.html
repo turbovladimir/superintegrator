@@ -1,0 +1,43 @@
+<html>
+	<head>
+	    <meta charset="UTF-8">
+	<script src="script.js"></script>
+		<link async href="http://fonts.googleapis.com/css?family=Antic" data-generated="http://enjoycss.com" rel="stylesheet" type="text/css"/>
+	<link rel="stylesheet" href="../content/styles/data_transformer.css">
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+	</head>
+	<body>
+<div class="block">
+	<div class="table">
+		<p>Date converter</p>
+	<table border="0" cellspacing="5" cellpadding="0">
+		<tr>
+			<td>
+				<textarea placeholder="USA date format" name="data" id="US_date" oninput="date_pars()"></textarea>
+			</td>
+			<td>
+				<textarea placeholder="Euro date format" name="data" id="EU_date" oninput="date_pars2()"></textarea>
+			</td>
+		</tr>
+	</table>
+	</div>
+	<div class="table">
+		<p>string to column</p>
+	<table border="0" cellspacing="5" cellpadding="0">
+		<tr>
+			<td>
+				<textarea placeholder="Строка" name="data" id="string" oninput="transport_str_to_column()"></textarea>
+			</td>
+			<td>
+				<textarea placeholder="Столбец" name="data" id="column" oninput="transport_column_to_str()"></textarea>
+			</td>
+		</tr>
+	</table>
+	</div>
+	<p>
+		<a href="../index.php">Назад</a>
+	</p>
+</div>
+	
+	</body>
+</html>
