@@ -13,7 +13,7 @@
 
         protected $report;
 
-        public function __construct($nodes, $reportMODE)
+        public function __construct($nodes, $reportMODE = 0)
         {
             $this->nodes = $nodes;
             $this->reportMODE = $reportMODE;

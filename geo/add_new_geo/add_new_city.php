@@ -3,23 +3,35 @@ header('Content-Type: text/html; charset=utf-8');
 if (isset($_POST['city'])) { $city = $_POST['city']; if ($city == '') { unset($city);} }
 if (isset($_POST['id'])) { $id = $_POST['id']; if ($id == '') { unset($id);} }
 
+include '../../autoload.php';
+include_once '../../config.php';
+
+//подключаемся к бд и тянем таблицу
+$db = new simpleQuery($connectParams);
+$table = 'geo_table';
+$array = $db->selectAllFromTable($table, 100000000);
+
 $city = trim($city);
 $id = trim($id);
-$table = 'geo_table';
-//Подключаемся к базе данных.
-include_once '../../db_connect/db.php';
-//проверка на уже заведенное гео
-$check_id = $db->getAll("SELECT * FROM ?n WHERE id= ?i", $table, $id);
+$counter = count($array);
+$find = 0;
 
-if (!empty($check_id)) {
-
-    $sql_insert_table ="INSERT INTO  ?n (`city`, `id`) VALUES (?s, ?i)";
-    $db->query($sql_insert_table, $table, $city, $id);
-    echo "Добавили новое название"."</br>";
-} else {
-    echo "ID не из списка"."</br>";
+for ($i= 0; $i < $counter; $i++){
+    if ($array[$i]['id'] === $id){
+        if ($array[$i]['city'] !== $city){
+            echo 'Добавили новое название'.'</br>';
+            $db->insertToTable($table, 'city', $city);
+            $find = 1;
+        }else if ($array[$i]['city'] === $city){
+            echo 'Такое название уже есть в списке'.'</br>';
+            $find = 1;
+        }
+    }
 }
 
+if ($find === 0){
+    echo 'ID не из списка'.'</br>';
+}
 
 echo "<a href='index.php'>Назад</a>";
 

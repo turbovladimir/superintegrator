@@ -3,9 +3,12 @@
 session_start();
 header('Content-Type: text/html; charset=utf-8');
 //Подключаемся к базе данных.
+include '../../autoload.php';
+include_once '../../config.php';
 
-include_once '../../db_connect/db.php';
-include_once '../get_data.php';
+$db = new simpleQuery($connectParams);
+$table = 'geo_table';
+$table = $db->selectAllFromTable($table, 100000000);
 
 function build_table($table){
     // start table

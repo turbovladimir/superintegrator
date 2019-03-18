@@ -1,14 +1,12 @@
 <?php
 header('Content-Type: text/html; charset=utf-8');
-include_once '../db_connect/db.php';
-$Tables_in_my_db = $db->getAll("SHOW TABLES");
-for ($i= 0; $i < count($Tables_in_my_db); $i++){
-    foreach ($Tables_in_my_db[$i] as $key => $value) {
-        if ($value == 'geo_table') $geo_table_exist = 1;
-    }
-}
-if ($geo_table_exist == 1) include_once 'get_data.php';
-else include_once 'insert_table.php';
+include '../autoload.php';
+include_once '../config.php';
+
+$db = new simpleQuery($connectParams);
+$table = 'geo_table';
+$table = $db->selectAllFromTable($table, 100000000);
+
 echo '<script>var city_table ='. json_encode($table) .'</script>';
 echo '
 <html>

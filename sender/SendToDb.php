@@ -1,20 +1,54 @@
 <?php
-    include_once '../Classes/SPEED_EXEC_TEST.php';
-    include_once '../config.php';
-    include_once '../Classes/POSTMAN.php';
+/**
+ * Created by PhpStorm.
+ * User: v.sadovnikov
+ * Date: 14.03.2019
+ * Time: 13:43
+ */
 
-    $table  =   'postbacktable';
-    $LogTableName = 'table_log';
+include '../autoload.php';
+include_once '../config.php';
+try{
     $files = $_FILES;
 
-    $my_test = new SPEED_EXEC_TEST('SendToDb.php','log_file');
-    $my_test->start_test();
+    $files2arr = new ExcelToPhp($files);
 
-    $little_postman = new POSTMAN($host, $dbname, $dbuser, $dbpass, $table, $LogTableName);
+    if ($files2arr->ExcelChecker('archive', 'application/vnd.ms-excel')){
+
+        $array = $files2arr->toArray();
+
+        // преобразуем массив с данными файла в массив с http реквестами
+
+        $transform = new arrayTransform($array);
+        $postbacks = $transform->getPostbackArray();
+        print_r($postbacks);
+
+        //коннектимся к бд и заливаем данные
+        $db = new simpleQuery($connectParams);
+
+        //перед этим отчищаем таблицу `postbacktable`
+        $db->clearTable($tablePostbacks);
+
+        // заливаем:
+        $count = count($postbacks);
+
+        for ($i = 0; $i < $count; $i++){
+            $db->insertToTable($tablePostbacks,'url', $postbacks[$i]);
+        }
+
+        // Обновляем таблицу с логами
+        $db->updateCellInTable($tableLog, 'url_amount', $count, 1);
+
+    }else {
+        echo 'invalid files';
+    }
+}catch(dataBaseException $dbEx){
+    echo $dbEx->getMessage();
+}catch(fileException $fEx){
+    echo $fEx->getMessage();
+}
 
 
 
-    $little_postman->SendtoDb('archive', $files);
 
-    $my_test->end_test();
 ?>

@@ -1,17 +1,29 @@
 <?php
-    include_once '../Classes/SPEED_EXEC_TEST.php';
-    include_once '../config.php';
-    include_once '../Classes/POSTMAN.php';
+include '../autoload.php';
+include_once '../config.php';
 
+
+    // пишем в логи в папку скорость выполнения скрипта
     $my_test = new SPEED_EXEC_TEST('local test db to city','log_file');
     $my_test->start_test();
 
-    $little_postman = new POSTMAN($host, $dbname, $dbuser, $dbpass, $table);
+    // подключаемся к бд и забираем данные
+try {
+    $db = new simpleQuery($connectParams);
+    $urls = $db->selectColumnFromTable($tablePostbacks, 'url', 3000);
+    $db->deleteRowsFromTable($tablePostbacks, 3000);
 
+    // отправляем мультикурлом
+    $multCurl = new MultiCurl($urls);
+    $multCurl->Start();
 
-    $LogReport = $little_postman->SendFromDb(3000,1);
-
-    $my_test->SetReport($LogReport);
+    //апдейтим таблицуу с логами
+    $count = $db->CountRowsOfTable($tablePostbacks); // посчитали остаток реквестов
+    $db->updateCellInTable($tableLog, 'url_amount', $count, 1); // обновили
+    }catch (dataBaseException $ex) {
+        //Выводим сообщение об исключении.
+        echo $ex->getMessage();
+    }
     $my_test->end_test();
     # Рабочий крон
     # %progdir%\modules\wget\bin\wget.exe -q --no-cache http://test/city_dooDOS/send_to_city_from_db.php

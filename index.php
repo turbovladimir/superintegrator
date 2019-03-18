@@ -6,7 +6,6 @@ echo '
 <head>
     <!--<meta charset="utf-8"> -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-    <script src="script.js"></script>
     <link rel="stylesheet" href="content/styles/menu.css">
     <link rel="shortcut icon" href="content/images/favicon.ico" type="image/x-icon">
 </head>

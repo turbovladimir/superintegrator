@@ -14,9 +14,7 @@ function request(){
         data: "refresh=1",
         success: function (data) {
             if (data !== "") {
-                var parameters = data.replace(/<\/br>/g, ";");
-                parameters_arr = parameters.split(';');
-                url_amount = parameters_arr[1].replace(/[a-z_]+=+\s/g,'');
+                url_amount = data.trim();
             }
         }
     });
