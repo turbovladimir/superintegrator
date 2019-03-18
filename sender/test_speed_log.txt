@@ -11,3 +11,4 @@ log:[2019-03-15 14:16:00] script_name:[local test db to city] report:[] speed:[0
 log:[2019-03-15 14:16:37] script_name:[local test db to city] report:[] speed:[0.001749 сек.]
 log:[2019-03-15 14:21:44] script_name:[local test db to city] report:[] speed:[0.001816 сек.]
 log:[2019-03-15 16:15:36] script_name:[local test db to city] report:[] speed:[2.369550 сек.]
+log:[2019-03-18 14:24:53] script_name:[local test db to city] report:[] speed:[1.594737 сек.]

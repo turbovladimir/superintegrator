@@ -2,6 +2,7 @@
 if (isset($_POST['refresh'])) {
     include '../autoload.php';
     include_once '../config.php';
+    // $connectParams берется из файла конфига
     try{
 
         $log = new simpleQuery($connectParams);

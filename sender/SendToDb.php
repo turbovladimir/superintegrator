@@ -8,6 +8,7 @@
 
 include '../autoload.php';
 include_once '../config.php';
+// $connectParams берется из файла конфига
 try{
     $files = $_FILES;
 
@@ -21,7 +22,6 @@ try{
 
         $transform = new arrayTransform($array);
         $postbacks = $transform->getPostbackArray();
-        print_r($postbacks);
 
         //коннектимся к бд и заливаем данные
         $db = new simpleQuery($connectParams);

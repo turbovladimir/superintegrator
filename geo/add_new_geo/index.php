@@ -39,19 +39,18 @@ echo '
 <head>
     <title>Таблица гео</title>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script src="script.js"></script>
     <link rel="stylesheet" href="../../content/styles/geo.css">
     <link rel="shortcut icon" href="../../content/images/favicon.ico" type="image/x-icon">
 </head>
 <body>
 <div class="data">
 <span class="block">
-    <div>
+    <div id="form">
     <p>Попробуй найти регион в таблице и добавь новое название для него</p>
-    <form action="add_new_city.php" method="post">
-       <input type="text" size="40"  name="city" placeholder="Новое название города">
-        <input type="text" size="40"  name="id" placeholder="Id из списка">
-        <input type="submit" value="Отправить">
-    </form>
+       <input type="text" size="40"  name="city" id="city" placeholder="Новое название города">
+        <input type="text" size="40"  name="id" id="id" placeholder="Id из списка">
+        <input type="submit" onclick="$.addNewCity()" value="Отправить" name="send">
     <p><a href="../index.php">Назад</a></p>
     </div>
 </span>';

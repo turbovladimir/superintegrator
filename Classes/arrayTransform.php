@@ -36,6 +36,7 @@ class arrayTransform
             $str .= sprintf('`%s`',$key).', ';
         }
         $str = mb_substr($str, 0, -2);
+        $str = sprintf('(%s)', $str);
         return $str;
     }
 

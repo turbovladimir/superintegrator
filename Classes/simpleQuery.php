@@ -88,19 +88,9 @@ class simpleQuery
         $this->Db->query($queryInsert, $table, $columnName, $value);
     }
 
-    /** добавляет данные в конец таблицы с выбором колонок и значений
-     *@param string $table название таблицы
-     * @param array $data ассоциативный массив где ключи это названия столбцов содержат вложенные массивы с данными
-     */
-    public function insertValuesInColumnsToTable(string $table, array $array)
+    public function rowQuery(string $query)
     {
-
-        $transform = new arrayTransform($array);
-        $colums = $transform->printColumnName();
-        $cells =
-
-        $queryInsert = 'INSERT INTO ?n (?n, ?n) VALUES (?s, ?s);';
-        $this->Db->query($queryInsert, $table, $columnName, $value);
+        $this->Db->query($query);
     }
 
     /** удаляет данные из таблицы
