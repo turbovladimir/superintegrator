@@ -6,8 +6,12 @@ if (!empty($_POST['data'])){
 
         $data = $_POST['data'];
         $data = explode(',', $data);
+        $result = '';
+
+        // разделяем 2 сценария , если свыше 100 ордеров и наоборот
         if (count($data) > 100){
 
+            // дробим по 100 ордеров и отправляем в алибабу
             $data = array_chunk($data, 100);
 
             for ($i = 0; $i < count($data); $i++){
@@ -20,8 +24,21 @@ if (!empty($_POST['data'])){
                 $str = substr($str, 1);
                 $url = "https://gw.api.alibaba.com/openapi/param2/2/portals.open/api.getOrderStatus/30056?appSignature=9FIO77dDIidM&orderNumbers=". $str;
 
-             $result =  curl($url);
+             $responses =  curl($url);
+             // ответ алибабы преобразуем в массив
+             $responseArr[] = json_decode($responses, TRUE);
+
+
             }
+
+            $array = [];
+
+            // преобразуем массив и склеиваем чанки
+            foreach ($responseArr as $response){
+                $array[]= $response['result']['orders'];
+            }
+            $array = array_merge(...$array); // отличное решение, элементы массива = подмассивы через оператор ... встраиваются в функцию мерж
+
         } else{
             $str = '';
             for ($i = 0; $i < count($data); $i++){
@@ -32,13 +49,11 @@ if (!empty($_POST['data'])){
             $url = "https://gw.api.alibaba.com/openapi/param2/2/portals.open/api.getOrderStatus/30056?appSignature=9FIO77dDIidM&orderNumbers=". $str;
 
             $result =  curl($url);
-
+            $result = json_decode($result, TRUE);
+            $array = $result['result']['orders'];
         }
 
-        $result = json_decode($result, TRUE);
-
-        $array = $result['result']['orders'];
-
-        echo array2csv($array);
+        // преобразуем массив в цсв
+    echo array2csv($array);
     }
 ?>

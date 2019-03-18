@@ -3,3 +3,4 @@ config.php
 a
 *.swo
 *.swp
+id_rsa
