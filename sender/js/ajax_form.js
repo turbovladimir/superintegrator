@@ -25,7 +25,7 @@ function ajax_form (){
         // Отправляем запрос
 
         $.ajax({
-            url: './SendToDb.php',
+            url: './server2db.php',
             type: 'POST',
             data: data,
             cache: false,

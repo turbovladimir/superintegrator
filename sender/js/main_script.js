@@ -10,7 +10,7 @@ function check_element (id_element){ // проверка дом элементо
 function request(){
     $.ajax({
         type: "POST",
-        url: "../../sender/get_info_from_db.php",
+        url: "../../sender/updateTable.php",
         data: "refresh=1",
         success: function (data) {
             if (data !== "") {
@@ -49,7 +49,7 @@ if (url_amount !== undefined) {
         cat_load();
     }
 }
-    }, 2000);
+    }, 3000);
 
 
 

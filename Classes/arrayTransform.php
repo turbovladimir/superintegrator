@@ -80,17 +80,18 @@ class arrayTransform
                 $type  = $line[5];
                 $params   = $line[16];
                 $params    = trim($params, '"');
-                $params    =  str_replace('""','"', $params);
-                $params    = $this->encodeJsonBasket($params);
+                $params    = str_replace('""','"', $params);
 
                 if ($type === 'postback'){
                     $urlPath = "http://cityads.ru";
                     $url = $urlPath . $params;
+                    $url = $this->paramEncode($url);
                     $urls[] = $url;
 
                 } elseif ($type === 'pixel'){
                     $urlPath = "http://cityadspix.com";
                     $url = $urlPath . $params;
+                    $url = $this->paramEncode($url);
                     $urls[] = $url;
                 }
 
@@ -100,28 +101,15 @@ class arrayTransform
         return $urls;
     }
 
+    protected function paramEncode($url)
+    {
+        $urlArr = explode('?', $url);
+        $encodeParams = urlencode($urlArr[1]);
+        return $urlArr[0].'?'.$encodeParams;
+
+    }
+
     /** @return string   возвращает ссылку с закодированной корзиной
      * @param string   $originalUrl исходная ссылка
      */
-    protected function encodeJsonBasket($originalUrl):string
-    {
-        if((stripos($originalUrl, '&basket=') === false)){
-
-            return $originalUrl;
-
-        } else{
-            // basket encode start
-            $linkArr = explode('&basket=', $originalUrl);
-
-            $encode_bas = urlencode($linkArr[1]);
-
-            $url = $linkArr[0].'&basket='.$encode_bas;
-
-            // basket encode end
-
-            return $url;
-        }
-
-
-    }
 }

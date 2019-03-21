@@ -26,12 +26,12 @@ class SPEED_EXEC_TEST
   {
       if ($this->mode == 'print')
       {
-          printf($this->script_name.' çàíÿë %.4F ñåê.', $this->count_time());
+          printf($this->script_name.' ÑÐºÑ€Ð¸Ð¿Ñ‚ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÑÐ»ÑÑ %.4F ÑÐµÐº.', $this->count_time());
       } elseif ($this->mode == 'log_file')
       {
           $fp = fopen('test_speed_log.txt', 'a');
           $log_date =  date("Y-m-d H:i:s");
-          $string = sprintf("log:[%s] script_name:[%s] report:[%s] speed:[%F ñåê.]", $log_date, $this->script_name, $this->report, $this->count_time());
+          $string = sprintf("log:[%s] script_name:[%s] report:[%s] speed:[%F ï¿½ï¿½ï¿½.]", $log_date, $this->script_name, $this->report, $this->count_time());
 
           fwrite($fp, $string . PHP_EOL);
           fclose($fp);
