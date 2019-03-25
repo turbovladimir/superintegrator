@@ -23,6 +23,7 @@ try{
         $transform = new arrayTransform($array);
         $postbacks = $transform->getPostbackArray();
 
+        //print_r($postbacks);
         //коннектимся к бд и заливаем данные
         $db = new simpleQuery($connectParams);
 
@@ -32,12 +33,13 @@ try{
         // заливаем:
         $count = count($postbacks);
 
+        // Обновляем таблицу с логами
+        $db->updateCellInTable($tableLog, 'url_amount', (string)$count, 'id', '1'); // обновили
+
         for ($i = 0; $i < $count; $i++){
             $db->insertToTable($tablePostbacks,'url', $postbacks[$i]);
         }
 
-        // Обновляем таблицу с логами
-        $db->updateCellInTable($tableLog, 'url_amount', $count, 1);
 
     }else {
         echo 'invalid files';

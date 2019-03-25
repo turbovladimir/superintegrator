@@ -135,6 +135,11 @@ class SafeMySQL
 	 * @param mixed  $arg,... unlimited number of arguments to match placeholders in the query
 	 * @return resource|FALSE whatever mysqli_query returns
 	 */
+    public function getConn()
+    {
+        return $this->conn;
+    }
+
 	public function query()
 	{	
 		return $this->rawQuery($this->prepareQuery(func_get_args()));

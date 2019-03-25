@@ -12,7 +12,7 @@
 class simpleQuery
 {
     protected $Db;
-    protected $errorConnect = 0;
+    public $errorConnect = 0;
 
     public function __construct($connectParams)
     {
@@ -71,10 +71,10 @@ class simpleQuery
      * @param string $value новое значение ячейки
      * @param int $id айди строки в таблице
      */
-    public function updateCellInTable(string $table, string $columnName,string $value, int $id)
+    public function updateCellInTable(string $table, string $whereColumn, string $whereValue, string $setColumn, string $setValue)
     {
-        $queryUpdate = 'UPDATE ?n SET ?n= ?s where `id`= ?i;';
-        $this->Db->query($queryUpdate, $table, $columnName, $value, $id);
+        $queryUpdate = 'UPDATE ?n SET ?n= ?s where ?n= ?s;';
+        $this->Db->query($queryUpdate, $table, $setColumn , $setValue, $whereColumn, $whereValue);
     }
 
     /** добавляет данные в конец таблицы если таблица в виде списка со столбцом id autoinc, primary key
@@ -112,18 +112,30 @@ class simpleQuery
         $this->Db->query($queryClean, $table);
     }
 
+    public function checkConnect():bool
+    {
+        $connect = $this->Db->getConn();
+        if($connect->error === 'MySQL server has gone away'){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
 }
 // Some tests...
-/*
-$test = new DatabaseExec($host, $database, $user, $pass);
-$tablePostbacks = 'postbacktable_test';
-$columnName = 'url';
-$tableLog = 'table_log_test';
-$columnNameTestLog = 'url_amount';
 
-$test->updateCellInTable($tableLog, 'url_amount', 110, 1);
-echo $test->CountRowsOfTable($tableLog);
+/*
+include_once '../config.php';
+include '../autoload.php';
+$test = new simpleQuery($connectParams);
+$count = 2;
+//$test->insertToTable($tablePostbacks, 'url', 'http://test.ru');
+$test->updateCellInTable($tableLog, 'url_amount', (string)$count, 'id', '1'); // обновили
 */
+//$test->updateCellInTable($tableLog, 'url_amount', 110, 1);
+//echo $test->CountRowsOfTable($tableLog);
+
 //$test->insertToTable($tableLog,$columnNameTestLog, '0');
 
 /*
