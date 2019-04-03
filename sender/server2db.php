@@ -18,23 +18,16 @@
             
             $array = $files2arr->toArray();
             
-            // преобразуем массив с данными файла в массив с http реквестами
-            
-            $transform = new arrayTransform($array);
-            $postbacks = $transform->getPostbackArray();
-            
-            //print_r($postbacks);
-            //коннектимся к бд и заливаем данные
             $db = new simpleQuery($connectParams);
             
             //перед этим отчищаем таблицу `postbacktable`
             $db->clearTable($tablePostbacks);
             
             // заливаем:
-            $count = count($postbacks);
+            $count = count($array);
             
             for ($i = 0; $i < $count; $i++) {
-                $db->insertToTable($tablePostbacks, 'url', $postbacks[$i]);
+                $db->insertToTable($tablePostbacks, 'url', $array[$i]);
             }
             
             
