@@ -2,11 +2,6 @@
 include '../autoload.php';
 include_once '../config.php';
 
-
-// пишем в логи в папку скорость выполнения скрипта
-$my_test = new SPEED_EXEC_TEST('local test db to city','log_file');
-$my_test->start_test();
-
 // подключаемся к бд и забираем данные
 try {
     $db = new simpleQuery($connectParams);
@@ -53,7 +48,6 @@ try {
     //Выводим сообщение об исключении.
     echo $ex->getMessage();
 }
-$my_test->end_test();
 # Рабочий крон
 # %progdir%\modules\wget\bin\wget.exe -q --no-cache http://test/city_dooDOS/send_to_city_from_db.php
 # public_html/sender/send_to_city_from_db.php
