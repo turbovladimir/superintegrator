@@ -16,7 +16,7 @@ while (true) {
     }
     
     $fd = fopen($fileName , 'a+');
-    $str = "start sending: ". date("Y-m-d H:i:s") . '\r';
+    $str = "start sending: ". date("Y-m-d H:i:s") . '\n';
     fputs($fd, $str);
     fclose($fd);
     
@@ -69,12 +69,4 @@ while (true) {
     sleep(SLEEP_TIME_SECONDS);
     $cycles --;
 }
-# Рабочий крон
-# %progdir%\modules\wget\bin\wget.exe -q --no-cache http://test/city_dooDOS/send_to_city_from_db.php
-# public_html/sender/send_to_city_from_db.php
-# wget -O /dev/null https://superintegrator.tk/sender/send_to_city_from_db.php
-#запись типа «1 * * * *» будет означать запуск задачи каждую первую минуту часа, т.е. она будет выполняться каждый час;
-#запись «*/2 * * * *» будет запускать задачу через каждые две минуты;
-#запись «2-4 * * * *» будет соответствовать запуску задачи 3 раза в течении каждого часа во 2,3 и 4 минуту;
-#запись «* * 1 * *» будет соответствовать ежемесячному запуску задачи первого числа месяца.
 ?>
