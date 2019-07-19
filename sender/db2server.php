@@ -1,9 +1,12 @@
 <?php
 ini_set('max_execution_time', '600');
+date_default_timezone_set('Europe/Moscow');
+$fileName = 'log/sending_to_city['.date("Y-m-d").'].log';
 include '../autoload.php';
 include_once '../config.php';
 
-const SLEEP_TIME_SECONDS = 30;
+const SLEEP_TIME_SECONDS = 5;
+const AMOUNT_OF_ORDERS_PER_CYCLE = 500;
 $cycles = 20;
 
 while (true) {
@@ -12,10 +15,15 @@ while (true) {
         break;
     }
     
+    $fd = fopen($fileName , 'a+');
+    $str = "start sending: ". date("Y-m-d H:i:s") . '\r';
+    fputs($fd, $str);
+    fclose($fd);
+    
 // подключаемся к бд и забираем данные
     try {
         $db   = new simpleQuery($connectParams);
-        $urls = $db->selectColumnFromTable($tablePostbacks, 'url', 1000);
+        $urls = $db->selectColumnFromTable($tablePostbacks, 'url', AMOUNT_OF_ORDERS_PER_CYCLE);
         
         function CheckOkResponse($responseStr, $info, RollingCurlRequest $request)
         {
