@@ -37,17 +37,26 @@ a:hover {
 
 div.info {
     width: 1200px;
+    height: 90px;
     margin-top: 5%;
     margin-left: 8%;
 }
 div.form {
     width: 1200px;
+    height: 150px;
     margin-top: 2%;
     margin-left: 8%;
 }
 
 div.report {
     width: 1200px;
+    height: 90px;
     margin-top: 2%;
+    margin-left: 8%;
+}
+div.cat {
+    width: 1200px;
+    height: 100px;
+    margin-top: 1%;
     margin-left: 8%;
 }

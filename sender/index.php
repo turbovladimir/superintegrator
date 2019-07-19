@@ -20,12 +20,9 @@ echo '
 
 </head>
 <body>
-<div class="info">
-<p><span class="typein"></span></p>
-</div>
-
-<div class="form" data-period="2000">
-</div>
+<div class="info"><p><span class="typein"></span></p></div>
+<div class="form" data-period="2000"></div>
+<div class="cat" data-period="2000"></div>
 </body>
 </html>
 ';

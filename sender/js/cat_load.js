@@ -12,14 +12,14 @@ function cat_remove_all() {
 }
 
 function cat_load() {
-    if (check_element(".menu_button")){
-        $('.menu_button').remove();
-    }
+    // if (check_element(".menu_button")){
+    //     $('.menu_button').remove();
+    // }
 
 
     if (cat_count <5){
 
-            $('.form').append('<img id="cat" src="https://i.gifer.com/19wN.gif"/>');
+            $('.cat').append('<img id="cat" src="https://i.gifer.com/19wN.gif"/>');
         cat_count++;
 
     } else {

@@ -1,6 +1,7 @@
 var table_count;
 var url_amount;
 var files; // Переменная куда будут располагаться данные файлов
+var enableUploading = false; // Разрешает загрузку файлов аяксом
 
 function check_element (id_element){ // проверка дом элементов
    if (document.querySelector(id_element) === null) return false;
@@ -32,6 +33,7 @@ jQuery(document).ready(function(){
        //loop: true
    });
     getInfo();
+    upload_form();
 });
 
 
@@ -42,8 +44,7 @@ if (url_amount !== undefined) {
     $('#url_amount').text(url_amount);
     log_report();
     if (url_amount == '0') {
-        upload_form();
-
+        enableUploading = true;
     } else {
         cat_load();
     }
