@@ -7,7 +7,7 @@ function check_element (id_element){ // проверка дом элементо
    else return true;
 }
 
-function request(){
+function getInfo(){
     $.ajax({
         type: "POST",
         url: "../../sender/updateTable.php",
@@ -26,18 +26,17 @@ jQuery(document).ready(function(){
    var typed = new Typed(".typein", {
     strings: ["Приветствую интегратор.\<\/br\> Этот инструмент создан для переотправки пикселей и постбэков.\<\/br> Для того чтобы переотправить данные из архива процессинга, скачай файлы с нужными неделями.\<\/br> Есть поддержка мультизагрузки файлов, для этого выдели нужные файлы и нажми кнопку \"Отправить\""
     + "</br>"
-    + "Раз в 2 минуты мы будем отправлять по 3000 запросов..."
-    + "</br>" + "</br>" + "###########################################################################################################"],
-    typeSpeed: 10,
+    + "Раз в несколько минут мы будем переотправлять данные..."],
+    typeSpeed: 3,
        //backSpeed: 5,
        //loop: true
    });
+    getInfo();
 });
 
 
 
 setInterval(function () {
-    request();
 
 if (url_amount !== undefined) {
     $('#url_amount').text(url_amount);

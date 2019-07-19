@@ -19,6 +19,12 @@ function upload_form () {
             '        <span>Отправить</span>\n' +
             '        </label>\n' +
             '        </div>\n' +
+            '    <div class="menu_button" id="div_send_files">\n' +
+            '        <label  class="button_send" id="check_status">\n' +
+            '        <input type="button" class="button_send" value="Send" />\n' +
+            '        <span>Обновить статус</span>\n' +
+            '        </label>\n' +
+            '        </div>\n' +
             '        </form>');
 
 

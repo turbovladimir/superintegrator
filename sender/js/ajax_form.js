@@ -4,6 +4,9 @@ function ajax_form (){
     });
 
 // Вешаем функцию не событие click и отправляем AJAX запрос с данными файлов
+    $('#check_status').click(function(){
+        getInfo();
+    });
 
     $('#send_files').click(function( event ){
 
