@@ -1,4 +1,5 @@
 <?php
+ini_set('max_execution_time', '600');
 include '../autoload.php';
 include_once '../config.php';
 
