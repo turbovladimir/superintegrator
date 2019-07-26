@@ -29,15 +29,3 @@ function cat_load() {
 
 
 }
-
-
-
-/*
-$('#cat').each(function() { // удаляет все элементы с выбранным айди
-    var idAttr = $(this).attr('id'),
-        selector = '[id=' + idAttr + ']';
-    if ($(selector).length > 0) {
-        $(selector).not(':first').remove();   // удалит все кроме первого
-    }
-});
- */

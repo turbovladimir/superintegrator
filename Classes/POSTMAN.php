@@ -1,7 +1,6 @@
 <?php
 
     include_once '../db_connect/safemysql.class.php';
-    include_once 'MultiCurl.php';
 
     class POSTMAN
     {
@@ -10,7 +9,7 @@
         public      $DbConnect;
 
         protected   $urls; // массив с урлами
-        protected   $url_amount;
+        protected   $waitingPostbacks;
         protected   $LogTableName;
         protected   $FILE_SOURCE;
 
@@ -28,14 +27,14 @@
         public function SendFromDb($ChunkLength, $reportMODE= 0) //логировать отправку если $reportMODE= 1
         {
             // check count table
-            $getCount= $this->DbConnect->getCol("SELECT COUNT(*) FROM ?n;", $this->TableName);
-            $this->url_amount = $getCount[0];
+            $getCount               = $this->DbConnect->getCol("SELECT COUNT(*) FROM ?n;", $this->TableName);
+            $this->waitingPostbacks = $getCount[0];
 
             // update log table:
-            $this->UpdateLogTable( $this->opt['db'], $this->LogTableName,'url_amount', $this->url_amount);
+            $this->UpdateLogTable( $this->opt['db'], $this->LogTableName,'waitingPostbacks', $this->waitingPostbacks);
 
             // sent to city
-            if ($this->url_amount != 0){
+            if ($this->waitingPostbacks !== 0){
                 $this->urls = $this->DbConnect->getCol("SELECT `url` FROM ?n LIMIT ?i", $this->TableName, $ChunkLength);
 
                 //delete chunk
@@ -49,11 +48,11 @@
             }
 
             // check count table
-            $getCount= $this->DbConnect->getCol("SELECT COUNT(*) FROM ?n;", $this->TableName);
-            $this->url_amount = $getCount[0];
+            $getCount               = $this->DbConnect->getCol("SELECT COUNT(*) FROM ?n;", $this->TableName);
+            $this->waitingPostbacks = $getCount[0];
 
             // update log table:
-            $this->UpdateLogTable( $this->opt['db'], $this->LogTableName,'url_amount', $this->url_amount);
+            $this->UpdateLogTable( $this->opt['db'], $this->LogTableName,'waitingPostbacks', $this->waitingPostbacks);
         }
 
         public function SendtoDb($checkword, $FILE_SOURCE){
@@ -77,7 +76,7 @@
 
                 }
 ## пишем логи
-                $sql_update = "UPDATE ?n SET `url_amount`= ?i where `id`= 1";
+                $sql_update = "UPDATE ?n SET `waitingPostbacks`= ?i where `id`= 1";
                 $this->DbConnect->query($sql_update, $this->LogTableName, count($this->urls));
             } else{
                 echo 'test FileChecker error';

@@ -1,21 +1,21 @@
 var table_count;
-var url_amount;
+var waitingPostbacks;
 var files; // Переменная куда будут располагаться данные файлов
 var enableUploading = false; // Разрешает загрузку файлов аяксом
 
-function check_element (id_element){ // проверка дом элементов
-   if (document.querySelector(id_element) === null) return false;
-   else return true;
+function check_element(id_element) { // проверка дом элементов
+    if (document.querySelector(id_element) === null) return false;
+    else return true;
 }
 
-function getInfo(){
+function getInfo() {
     $.ajax({
         type: "POST",
         url: "../../sender/updateTable.php",
         data: "refresh=1",
         success: function (data) {
             if (data !== "") {
-                url_amount = data.trim();
+                waitingPostbacks = data.trim();
             }
         }
     });
@@ -23,33 +23,36 @@ function getInfo(){
 }
 
 
-jQuery(document).ready(function(){
-   var typed = new Typed(".typein", {
-    strings: ["Приветствую интегратор.\<\/br\> Этот инструмент создан для переотправки пикселей и постбэков.\<\/br> Для того чтобы переотправить данные из архива процессинга, скачай файлы с нужными неделями.\<\/br> Есть поддержка мультизагрузки файлов, для этого выдели нужные файлы и нажми кнопку \"Отправить\""
-    + "</br>"
-    + "Раз в несколько минут мы будем переотправлять данные..."],
-    typeSpeed: 3,
-       //backSpeed: 5,
-       //loop: true
-   });
+jQuery(document).ready(function () {
+    var typed = new Typed(".typein", {
+        strings: ["Приветствую интегратор.\<\/br\> Этот инструмент создан для переотправки пикселей и постбэков.\<\/br> Для того чтобы переотправить данные из архива процессинга, скачай файлы с нужными неделями.\<\/br> Есть поддержка мультизагрузки файлов, для этого выдели нужные файлы и нажми кнопку \"Отправить\""
+        + "</br>"
+        + "Раз в несколько минут мы будем переотправлять данные..."],
+        typeSpeed: 3,
+        //backSpeed: 5,
+        //loop: true
+    });
     getInfo();
     upload_form();
 });
 
 
-
 setInterval(function () {
 
-if (url_amount !== undefined) {
-    $('#url_amount').text(url_amount);
-    log_report();
-    if (url_amount == '0') {
-        enableUploading = true;
-    } else {
-        cat_load();
+    if (waitingPostbacks) {
+        $('#waitingPostbacks').text(waitingPostbacks);
+        log_report();
+
+        if (waitingPostbacks > 0) {
+            cat_load();
+            $.get( "./db2server.php", function( data ) {console.log('sending ajax to db2server')
+            });
+        } else {
+            enableUploading = true;
+        }
+
     }
-}
-    }, 3000);
+}, 3000);
 
 
 

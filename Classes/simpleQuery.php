@@ -131,9 +131,9 @@ include '../autoload.php';
 $test = new simpleQuery($connectParams);
 $count = 2;
 //$test->insertToTable($tablePostbacks, 'url', 'http://test.ru');
-$test->updateCellInTable($tableLog, 'url_amount', (string)$count, 'id', '1'); // обновили
+$test->updateCellInTable($tableLog, 'waitingPostbacks', (string)$count, 'id', '1'); // обновили
 */
-//$test->updateCellInTable($tableLog, 'url_amount', 110, 1);
+//$test->updateCellInTable($tableLog, 'waitingPostbacks', 110, 1);
 //echo $test->CountRowsOfTable($tableLog);
 
 //$test->insertToTable($tableLog,$columnNameTestLog, '0');
