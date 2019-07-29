@@ -1,5 +1,5 @@
 <?php
-include_once '../Classes/func.php';
+include_once '../vendor/func.php';
 download_send_headers("ali_data_export_" . date("Y-m-d H:i:s") . ".csv");
 
 function fetchOrdersFromApiAlibaba($orders) {
