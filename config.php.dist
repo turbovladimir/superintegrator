@@ -1,0 +1,20 @@
+<?php
+    // подключение к бд
+    $host   =   '';
+    //$host   =   '';
+    $user =   '';
+    $pass =   '';
+    $database =   '';
+
+    //имена таблиц
+    $tableLog = 'table_log_test'; // тестовые таблицы постфикс _test, боевые без постфикса
+    $tablePostbacks = 'postbacktable'; // тестовые таблицы постфикс _test, боевые без постфикса
+
+    define('HOST', $host);
+    define('DATABASE', $database);
+    define('USER', $user);
+    define('PASSWORD', $pass);
+    define('LOG_TABLE', $tableLog);
+    $connectParams = array('host' => HOST, 'db' => DATABASE, 'user' => USER, 'pass' => PASSWORD, 'charset' => 'utf8');
+
+?>
