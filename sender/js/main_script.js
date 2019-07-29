@@ -33,26 +33,32 @@ jQuery(document).ready(function () {
         //loop: true
     });
     getInfo();
-    upload_form();
+    reload_form();
 });
 
 
 setInterval(function () {
 
-    if (waitingPostbacks) {
-        $('#waitingPostbacks').text(waitingPostbacks);
-        log_report();
+    var countPostbacks = parseInt(waitingPostbacks);
+    $('#waitingPostbacks').text(waitingPostbacks);
+    log_report();
 
-        if (waitingPostbacks > 0) {
-            cat_load();
-            $.get( "./db2server.php", function( data ) {console.log('sending ajax to db2server')
-            });
-        } else {
-            enableUploading = true;
-        }
-
+    if (countPostbacks === 0) {
+        enableUploading = true;
+        cat_remove_all();
+        reload_form();
     }
-}, 3000);
+
+    if (countPostbacks > 0) {
+        enableUploading = false;
+        cat_load();
+        reload_form();
+        $.get("./db2server.php", function (data) {
+            console.log('sending ajax to db2server')
+        });
+        getInfo();
+    }
+}, 5000);
 
 
 

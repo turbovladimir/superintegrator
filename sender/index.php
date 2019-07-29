@@ -13,7 +13,7 @@ echo '
     <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.6/typed.min.js"></script>
     <script src="js/cat_load.js"></script>
     <script src="js/log_report.js"></script>
-    <script src="js/upload_form.js"></script>
+    <script src="js/reload_form.js"></script>
     <script src="js/ajax_form.js"></script>
     <script src="js/main_script.js"></script>
 
@@ -21,7 +21,7 @@ echo '
 </head>
 <body>
 <div class="info"><p><span class="typein"></span></p></div>
-<div class="form" data-period="2000"></div>
+<div class="main" data-period="2000"></div>
 <div class="cat" data-period="2000"></div>
 </body>
 </html>

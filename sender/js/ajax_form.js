@@ -10,7 +10,6 @@ function ajax_form() {
 
     $('#send_files').click(function (event) {
 
-        if (enableUploading) {
             // загрузка
             $('#div_send_files').remove();
             $('.form').append('<img id="load" style="margin-left: 5%; height: 50px; width: 50px" src="../../content/images/loading2.gif"/>');
@@ -44,11 +43,6 @@ function ajax_form() {
                     }
                 }
             });
-        } else {
-            alert('Очередь еще не разобрана');
-        }
-
-
     });
 
 }
