@@ -40,6 +40,4 @@ function reload_form() {
             $(updateButton).appendTo(".form");
         }
     }
-
-    ajax_form(); // Imultifile ajax init
 }

@@ -1,3 +1,4 @@
+// Todo: переделать вызовы и этот бардак
 function ajax_form() {
     $('input[type=file]').change(function () { // Вешаем функцию на событие
         files = this.files; // Получим данные файлов и добавим их в переменную

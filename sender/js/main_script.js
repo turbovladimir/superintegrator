@@ -34,6 +34,7 @@ jQuery(document).ready(function () {
     });
     getInfo();
     reload_form();
+    ajax_form()
 });
 
 
