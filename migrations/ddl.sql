@@ -1,5 +1,3 @@
-use sk8kilay_test;
-
 create table IF NOT EXISTS Authors
 (
   AuthorID int auto_increment

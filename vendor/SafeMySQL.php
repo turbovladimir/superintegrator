@@ -457,16 +457,19 @@ class SafeMySQL
 	{
 		return $this->stats;
 	}
+    
 
-	/**
-	 * protected function which actually runs a query against Mysql server.
-	 * also logs some stats like profiling info and error message
-	 * 
-	 * @param string $query - a regular SQL query
-	 * @return mysqli result resource or FALSE on error
-	 */
+     /**
+     * @param $query
+     *
+     * @return bool|mysqli_result
+     */
 	protected function rawQuery($query)
 	{
+	    if (empty($query)) {
+	        return true;
+        }
+	    
 		$start = microtime(TRUE);
 		$res   = mysqli_query($this->conn, $query);
 		$timer = microtime(TRUE) - $start;

@@ -11,15 +11,26 @@ class MigrationApplyer
     
     public static function start($fileName)
     {
-        try {
-            $query = new simpleQuery();
+            $simpleQ = new simpleQuery();
             $fullPath = MIGRATION_FOLDER . $fileName;
             $handler = fopen($fullPath, 'rb');
             $contents = fread($handler, filesize($fullPath));
-            $query->rawQuery($contents);
+            $contents = str_replace("\n", '', $contents);
+            $queries = explode(';', $contents);
+            
+            foreach ($queries as $query) {
+                try {
+                    $simpleQ->rawQuery($query);
+                } catch (\Exception $dbException) {
+                    $errors[] =  $dbException->getMessage();
+                }
+                
+            }
+            
             fclose($handler);
-        } catch (\Exception $exception) {
-            echo $exception->getMessage();
-        }
+            
+            if (!empty($errors)) {
+                print_r($errors);
+            }
     }
 }
