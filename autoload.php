@@ -6,6 +6,9 @@
  * Time: 10:54
  */
 
+define('ROOT_DIR', __DIR__);
+define('MIGRATION_FOLDER', ROOT_DIR . 'migrations/');
+
 spl_autoload_register(function ($class) {
     include  'vendor/'.$class .'.php';
 });

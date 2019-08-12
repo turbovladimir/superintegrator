@@ -19,7 +19,7 @@ if (isset($_POST['city'], $_POST['id'])){
                 echo 'Добавили новое название';
                 $values = sprintf('(\'%s\', \'%s\')', $id, $city);
                 $query = 'INSERT INTO '.$table.'(`id`, `city`) VALUES '.$values.';';
-                $db->rowQuery($query);
+                $db->rawQuery($query);
                 $find = 1;
                 break;
             }else if ($array[$i]['city'] === $city){

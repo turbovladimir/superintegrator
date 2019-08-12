@@ -14,8 +14,9 @@ class simpleQuery
     protected $Db;
     public $errorConnect = 0;
 
-    public function __construct($connectParams)
+    public function __construct()
     {
+        $connectParams = array('host' => HOST, 'db' => DATABASE, 'user' => USER, 'pass' => PASSWORD, 'charset' => 'utf8');
         $error = 'Отсутствуют параметры: ';
         $missingParameters =[];
 
@@ -88,7 +89,7 @@ class simpleQuery
         $this->Db->query($queryInsert, $table, $columnName, $value);
     }
 
-    public function rowQuery(string $query)
+    public function rawQuery(string $query)
     {
         $this->Db->query($query);
     }

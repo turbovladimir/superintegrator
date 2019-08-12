@@ -1,20 +1,20 @@
-create schema sk8kilay_test collate utf8_general_ci;
+use sk8kilay_test;
 
-create table Authors
+create table IF NOT EXISTS Authors
 (
   AuthorID int auto_increment
     primary key,
   AuthorName varchar(30) null
 );
 
-create table Books
+create table IF NOT EXISTS Books
 (
   BookID int auto_increment
     primary key,
   BookName varchar(100) null
 );
 
-create table Product
+create table IF NOT EXISTS Product
 (
   maker varchar(20) null,
   model varchar(20) not null,
@@ -26,7 +26,7 @@ create table Product
 alter table Product
   add primary key (model);
 
-create table Laptop
+create table IF NOT EXISTS Laptop
 (
   code tinyint not null
     primary key,
@@ -39,7 +39,7 @@ create table Laptop
     foreign key (model) references Product (model)
 );
 
-create table PC
+create table IF NOT EXISTS PC
 (
   code tinyint not null
     primary key,
@@ -55,7 +55,7 @@ create table PC
     foreign key (model) references Product (model)
 );
 
-create table Printer
+create table IF NOT EXISTS Printer
 (
   code tinyint not null
     primary key,
@@ -67,20 +67,20 @@ create table Printer
     foreign key (model) references Product (model)
 );
 
-create table Ru_city_coordinats
+create table IF NOT EXISTS Ru_city_coordinats
 (
   city_name varchar(50) null,
   x_cor varchar(50) null,
   y_cor varchar(50) null
 );
 
-create table authorIDtoBookID
+create table IF NOT EXISTS authorIDtoBookID
 (
   BookID int null,
   AuthorID int null
 );
 
-create table city
+create table IF NOT EXISTS city
 (
   city_id int(11) unsigned auto_increment
     primary key,
@@ -96,7 +96,7 @@ create index country_id
 create index region_id
   on city (region_id);
 
-create table country
+create table IF NOT EXISTS country
 (
   country_id int(11) unsigned auto_increment
     primary key,
@@ -108,7 +108,7 @@ create table country
 create index city_id
   on country (city_id);
 
-create table files
+create table IF NOT EXISTS files
 (
   id int auto_increment
     primary key,
@@ -118,14 +118,14 @@ create table files
   source longblob not null
 );
 
-create table geo_table
+create table IF NOT EXISTS geo_table
 (
   city varchar(40) charset utf8 not null,
   id int not null
 )
   charset=armscii8;
 
-create table postbacktable
+create table IF NOT EXISTS postbacktable
 (
   id int auto_increment
     primary key,
@@ -133,7 +133,7 @@ create table postbacktable
   sended int default 0 null
 );
 
-create table postbacktable_test
+create table IF NOT EXISTS postbacktable_test
 (
   id int auto_increment
     primary key,
@@ -142,7 +142,7 @@ create table postbacktable_test
 )
   comment 'for tests';
 
-create table region
+create table IF NOT EXISTS region
 (
   region_id int unsigned auto_increment
     primary key,

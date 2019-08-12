@@ -8,7 +8,7 @@ $sendedPostbacks = [];
 $db   = new simpleQuery($connectParams);
 
 try {
-    $db->rowQuery('DELETE FROM '.$tablePostbacks.' WHERE sended = 1');
+    $db->rawQuery('DELETE FROM '.$tablePostbacks.' WHERE sended = 1');
 } catch (\Exception $e) {
     $e->getMessage();
 }
