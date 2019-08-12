@@ -1,5 +1,5 @@
 config.php
-./idea/
+idea/*
 a
 *.swo
 *.swp
