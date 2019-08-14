@@ -1,3 +1,19 @@
-#index:
-#    path: /
-#    controller: App\Controller\DefaultController::index
+main:
+    path: /
+    controller: App\Controller\BaseController::main
+
+geo:
+  path: /geo
+  controller: App\Controller\BaseController::geo
+
+data_transformer:
+                path: /data_transformer
+                controller: App\Controller\BaseController::dataTransformer
+
+ali_orders:
+  path: /ali_orders
+  controller: App\Controller\BaseController::aliOrders
+
+sender:
+  path: /sender
+  controller: App\Controller\BaseController::sender
