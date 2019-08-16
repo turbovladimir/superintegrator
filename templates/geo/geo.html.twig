@@ -3,5 +3,26 @@
 {% block title %}Geo searching{% endblock %}
 
 {% block body %}
-<p>Geo search</p>
+    <div class=geo_menu>
+        <table>
+            <tr>
+                <th>Geo search:</th>
+                <th>
+                    <select>
+                        <option selected>Choose format</option>
+                        <option value="1">Regions full name(Russia, China, Brazil)</option>
+                        <option value="2">Country code (US,UA,MX)</option>
+                        <option value="3">Cities of Russia</option>
+                    </select>
+                </th>
+                <th>
+                    <div class=input>
+                        <input id="country_id" type="text" size="40">
+                        <input type="button" onclick="send()" value="Send">
+                        <input type="reset" onclick="clear()" value="Reset">
+                    </div>
+                </th>
+            </tr>
+        </table>
+    </div>
 {% endblock %}

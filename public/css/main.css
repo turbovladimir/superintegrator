@@ -1,0 +1,165 @@
+html{
+    height: 100%;
+}
+
+body {
+    display: flex;
+    min-height: 100%;
+    justify-content: stretch;
+    padding: 0;
+    margin: 0;
+
+    background: #061b31 url(../images/geo_back.jpg) no-repeat;
+    -moz-background-size: 100%; /* Firefox 3.6+ */
+    -webkit-background-size: 100%; /* Safari 3.1+ и Chrome 4.0+ */
+    -o-background-size: 100%; /* Opera 9.6+ */
+    background-size: 100%; /* Современные браузеры */
+    font-family: Source Sans Pro, Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 1.42857143;
+
+}
+
+div {
+    display: inline-block;
+}
+
+p, span, tr, td {
+    color: white;
+}
+
+.logo {
+    margin-top: 10px;
+
+    font-size: 24px;
+    color: #C9C9C9;
+}
+
+.logo img {
+    margin-left: 5px;
+    height: 30px;
+    width: 40px;
+}
+
+.sidebar {
+    position: relative;
+    margin-top: 10px;
+    float: left;
+    width: 270px;
+    border-radius: 15px;
+    background: rgba(56, 52, 52, 0.8);
+}
+
+.sidebar ul {
+    list-style: none;
+    /*list-style-image: url('http://giphygifs.s3.amazonaws.com/media/3N5r5Ks7vo3f2/giphy.gif');*/
+}
+
+.sidebar li:before{
+    content: '';
+    display: inline-block;
+    height: 30px;
+    width: 30px;
+    background-image: url('http://giphygifs.s3.amazonaws.com/media/3N5r5Ks7vo3f2/giphy.gif');
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.sidebar a {
+    color: #b50000;
+    /* Цвет ссылок */
+    text-decoration: none;
+}
+
+.sidebar a:visited {
+    color: #9b0000;
+    /* Цвет посещенных ссылок */;
+}
+
+.sidebar a:hover {
+    color: #eb2f00;
+    /* Цвет активных ссылок */;
+}
+
+
+.content {
+    background: rgba(244, 27, 9, 0.06);
+    flex: 1 1;
+
+    margin-left: 20px;
+    margin-top: 20px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*th {*/
+    /*font-family: Georgia, serif;*/
+    /*font-size: 33px;*/
+    /*letter-spacing: 2.2px;*/
+    /*word-spacing: 0px;*/
+    /*color: #FFFFFF;*/
+    /*font-weight: 400;*/
+    /*text-decoration: none solid rgb(68, 68, 68);*/
+    /*font-style: normal;*/
+    /*font-variant: small-caps;*/
+    /*text-transform: capitalize;*/
+
+
+/*}*/
+
+/*td {*/
+    /*font-family: Georgia, serif;*/
+    /*font-size: 15px;*/
+    /*letter-spacing: 2.2px;*/
+    /*word-spacing: 0px;*/
+    /*color: #FFFFFF;*/
+    /*font-weight: 400;*/
+    /*font-style: normal;*/
+    /*font-variant: small-caps;*/
+    /*text-transform: capitalize;*/
+
+/*}*/
+
+/*p {*/
+    /*font-family: Georgia, serif;*/
+    /*font-size: 15px;*/
+    /*letter-spacing: 2.2px;*/
+    /*word-spacing: 0px;*/
+    /*color: #FFFFFF;*/
+    /*font-weight: 400;*/
+    /*font-style: normal;*/
+    /*font-variant: small-caps;*/
+    /*text-transform: capitalize;*/
+
+/*}*/
+
+.block {
+    display: inline-flex;
+    margin-left: 20px;
+}
+
+.data {
+    margin-left: 20%;
+}
+
+#finish {
+    color: #70c0ff;
+    font-size: 33px;
+
+}
+
+#error {
+    color: #70c0ff;
+    font-size: 33px;
+}

@@ -11,20 +11,26 @@
     {% endblock %}
 </head>
 <body>
-<div id="sidebar">
-    {% block sidebar %}
-        <ul>
-            <li><a href="/">Tools</a></li>
-            <li><a href="/geo">Geo search</a></li>
-            <li><a href="/data_transformer">Transform data</a></li>
-            <li><a href="/ali_orders">Aliexpress orders</a></li>
-            <li><a href="/sender">Sender</a></li>
-        </ul>
-    {% endblock %}
+{% block sidebar %}
+    <div class="sidebar">
+        <div class="logo">
+            <img src="https://media.giphy.com/media/3o7aCVzTmaVkDWpXYk/giphy.gif"/>
+            <span class="logo">Super integrator</span>
+        </div>
+        <div>
+            <ul>
+                <li><a href="/geo"><span>Geo search</span></a></li>
+                <li><a href="/data_transformer"><span>Transform data</span></a></li>
+                <li><a href="/ali_orders"><span>Aliexpress orders</span></a></li>
+                <li><a href="/sender"><span>Sender</span></a></li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+<div id="content" class="content">
+    {% block body %}<span>some content</span>{% endblock %}
 </div>
 
-<div id="content">
-    {% block body %}{% endblock %}
-</div>
 </body>
 </html>
