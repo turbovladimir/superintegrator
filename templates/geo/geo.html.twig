@@ -8,8 +8,8 @@
             <tr>
                 <th>Geo search:</th>
                 <th>
-                    <select>
-                        <option selected>Choose format</option>
+                    <select id="geo_selector">
+                        <option selected value="0">Choose format</option>
                         <option value="1">Regions full name(Russia, China, Brazil)</option>
                         <option value="2">Country code (US,UA,MX)</option>
                         <option value="3">Cities of Russia</option>
@@ -18,8 +18,8 @@
                 <th>
                     <div class=input>
                         <input id="country_id" type="text" size="40">
-                        <input type="button" onclick="send()" value="Send">
-                        <input type="reset" onclick="clear()" value="Reset">
+                        <input type="button" onclick="geo_send()" value="Send">
+                        <input type="reset" onclick="geo_clear()" value="Reset">
                     </div>
                 </th>
             </tr>

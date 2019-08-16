@@ -67,4 +67,19 @@ class BaseController extends AbstractController
         
         return $this->render('sender/sender.html.twig');
     }
+    
+    /**
+     * @return mixed
+     */
+    public function getData()
+    {
+        $response = new Response(
+            'Content',
+            Response::HTTP_OK,
+            ['content-type' => 'text/html']
+        );
+    
+        $response->setContent($_POST['data']);
+        $response->send();
+    }
 }

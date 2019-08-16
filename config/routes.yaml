@@ -1,19 +1,30 @@
 main:
-    path: /
-    controller: App\Controller\BaseController::main
+  methods: get
+  path: /
+  controller: App\Controller\BaseController::main
 
-geo:
+geo_get:
+  methods: get
   path: /geo
   controller: App\Controller\BaseController::geo
 
 data_transformer:
-                path: /data_transformer
-                controller: App\Controller\BaseController::dataTransformer
+  methods: get
+  path: /data_transformer
+  controller: App\Controller\BaseController::dataTransformer
 
 ali_orders:
+  methods: get
   path: /ali_orders
   controller: App\Controller\BaseController::aliOrders
 
 sender:
+  methods: get
   path: /sender
   controller: App\Controller\BaseController::sender
+
+
+request:
+  methods: post
+  path: /
+  controller: App\Controller\BaseController::getData
