@@ -2,10 +2,16 @@ create schema sk8kilay_test collate utf8_general_ci;
 
 create table cityads_country_russia
 (
-  city varchar(40) charset utf8 not null,
-  id int not null
+  id int auto_increment,
+  city_name varchar(40) charset utf8 not null,
+  cityads_id int not null,
+  constraint id
+    unique (id)
 )
-  charset=armscii8;
+  charset=utf8;
+
+alter table cityads_country_russia
+  add primary key (id);
 
 create table cityads_world_region
 (

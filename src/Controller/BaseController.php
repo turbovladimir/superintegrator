@@ -8,8 +8,9 @@
 
 namespace App\Controller;
 
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Doctrine\ORM\EntityManagerInterface;
+use App\Services\GeoSearchService;
 
 class BaseController extends AbstractController
 {
@@ -71,15 +72,9 @@ class BaseController extends AbstractController
     /**
      * @return mixed
      */
-    public function getData()
+    public function getData(EntityManagerInterface $entityManager)
     {
-        $response = new Response(
-            'Content',
-            Response::HTTP_OK,
-            ['content-type' => 'text/html']
-        );
-    
-        $response->setContent($_POST['data']);
-        $response->send();
+        $searchGeo = new GeoSearchService($entityManager);
+        $searchGeo->sendResponse();
     }
 }
