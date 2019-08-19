@@ -1,0 +1,5 @@
+#Superintegrator
+
+#processing.orm.submissions:
+#  class: Cityads\Processing\Orm\Model\Orders\Submission
+#  factory: 'processing.deprecated.model_factory:Orders_Submission'
