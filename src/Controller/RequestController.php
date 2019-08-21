@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use \App\Services\GeoSearchService;
 use \App\Services\AliOrdersService;
+use \App\Services\XmlEmulatorService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class RequestController extends AbstractController
@@ -19,6 +20,7 @@ class RequestController extends AbstractController
     const MANDATORY_REQUEST_PARAMETERS = ['tool', 'parameters'];
     const GEO_TOOL = 'geo';
     const ALI_ORDERS_TOOL = 'ali_orders';
+    const XML_EMULATOR_TOOL = 'xml_emulator';
     
     private $requestData;
     
@@ -59,6 +61,9 @@ class RequestController extends AbstractController
                 break;
             case self::ALI_ORDERS_TOOL:
                 AliOrdersService::sendResponse($parameters);
+                break;
+            case self::XML_EMULATOR_TOOL:
+                XmlEmulatorService::sendResponse($entityManager, $parameters);
                 break;
         }
     }

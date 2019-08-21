@@ -35,34 +35,5 @@ class CityadsCountryRussia
      */
     private $cityadsId;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): self
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    public function getCityadsId(): ?int
-    {
-        return $this->cityadsId;
-    }
-
-    public function setCityadsId(int $cityadsId): self
-    {
-        $this->cityadsId = $cityadsId;
-
-        return $this;
-    }
-
 
 }

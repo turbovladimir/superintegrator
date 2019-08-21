@@ -3,7 +3,15 @@ var printResponse = false;
 
 ////////////////xml emulator////////////////
 function generate_link() {
-    $('#xml').val();
+    var xml = $('#xml').val();
+    var requestObj = {
+        tool: 'xml_emulator',
+        parameters: {
+            xml: xml.trim()
+        }
+    };
+    printResponse = true;
+    push('/', requestObj);
 }
 
 ////////////////xml emulator////////////////
@@ -125,7 +133,6 @@ function print(responseData) {
     }
 
     for (var key in response) {
-        var value = response[key];
-        $('<p class="response">' + key + ': ' + value.join() + '</p>').appendTo($('.content'))
+        $('<p class="response">' + key + ': ' + response[key] + '</p>').appendTo($('.content'))
     }
 }

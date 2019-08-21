@@ -35,34 +35,5 @@ class Postbacktable
      */
     private $sended = '0';
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function getUrl(): ?string
-    {
-        return $this->url;
-    }
-
-    public function setUrl(?string $url): self
-    {
-        $this->url = $url;
-
-        return $this;
-    }
-
-    public function getSended(): ?int
-    {
-        return $this->sended;
-    }
-
-    public function setSended(?int $sended): self
-    {
-        $this->sended = $sended;
-
-        return $this;
-    }
-
 
 }
