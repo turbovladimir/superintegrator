@@ -1,4 +1,14 @@
 var content = $('.content');
+var printResponse = false;
+
+////////////////xml emulator////////////////
+function generate_link() {
+    $('#xml').val();
+}
+
+////////////////xml emulator////////////////
+
+////////////////geo////////////////
 
 function geo_send() {
 
@@ -8,35 +18,114 @@ function geo_send() {
     }
 
     var geoList = $('#country_id').val();
-    geoList.trim();
-    var geoArray = geoList.split(',');
-    geoArray = $.map(geoArray, $.trim);
-    var data = getRequestJsonData('geo', geoArray);
+    geoList = Input2Array(geoList, ',');
+    var requestObj = {
+        tool: 'geo',
+        parameters: {
+            geoType: $('#geo_selector').val(),
+            geoList: geoList
+        }
+    };
 
+    printResponse = true;
+    push('/', requestObj);
+}
+
+////////////////geo////////////////
+
+////////////////ali orders////////////////
+function get_csv_file() {
+    var orders = $('#ali_orders').val();
+    orders = Input2Array(orders, /\s*\n/);
+    var requestObj = {
+        tool: 'ali_orders',
+        parameters: {
+            orders: orders
+        }
+    };
+
+    $('<form>', {
+        id: 'form',
+        action: '/',
+        method: "post"
+
+    }).appendTo('.geo_menu');
+
+    $('<input>', {
+        type: 'text',
+        name:"data",
+        method: "post",
+        value: JSON.stringify(requestObj)
+
+    }).appendTo('#form');
+
+    $('form').submit().remove();
+
+    //push('/', requestObj);
+}
+
+////////////////ali orders////////////////
+
+
+
+
+//todo доделать
+function Input2Array(string, splitRegExp) {
+    string.trim();
+
+    if (string === '') {
+        alert('Incorrect input values');
+        return string;
+    }
+
+    var array = string.split(splitRegExp);
+
+    if (array.length === 0 || array === undefined){
+        alert('Incorrect input values');
+        return array;
+    }
+
+    array = $.map(array, $.trim);
+    array = $.map(array, function (element) {
+        if (element !== '') {
+            return element;
+        }
+    });
+
+    return array;
+}
+
+function push(url, data) {
+    if (Object.prototype.toString.call(data) !== '[object Object]') {
+        console.log('data not an object');
+        return null;
+    }
+
+    data = JSON.stringify(data);
+
+    sendToServer(url, data);
+}
+
+function sendToServer(url, requestData) {
     $.post(
-        '/', {'data': data}, function (response) {
-            response = JSON.parse(response);
-
-            var responseElementExisting = '<p class="response">' + 'Existing: ' + response.existing.join() + '</p>';
-            var responseElementMissing = '<p class="response">' + 'Missing: ' + response.missing.join() + '</p>';
-
-            if ($('.response')) {
-                $('.response').remove();
+        url, {'data': requestData},
+        function (responseData) {
+            if (printResponse){
+                print(responseData);
             }
-            $(responseElementExisting).appendTo($('.content'));
-            $(responseElementMissing).appendTo($('.content'));
         }
     );
 }
 
-function getRequestJsonData(toolName, data) {
-    var responseData = {
-        tool: toolName,
-        parameters: {
-            geoType: $('#geo_selector').val(),
-            geoList: data
-        }
-    };
+function print(responseData) {
+    var response = jQuery.parseJSON(responseData);
 
-    return JSON.stringify(responseData);
+    if ($('.response')) {
+        $('.response').remove();
+    }
+
+    for (var key in response) {
+        var value = response[key];
+        $('<p class="response">' + key + ': ' + value.join() + '</p>').appendTo($('.content'))
+    }
 }

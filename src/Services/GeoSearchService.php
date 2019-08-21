@@ -16,88 +16,46 @@ use App\Entity\CityadsWorldRegionCodes;
 
 class GeoSearchService
 {
-    const MANDATORY_REQUEST_PARAMETERS = ['tool', 'parameters'];
-    const TOOLS = ['geo', 'ali_orders'];
-    
     const GEO_TYPE_WORLD_REGIONS = 1;
     const GEO_TYPE_WORLD_REGIONS_CODES = 2;
     const GEO_TYPE_RUSSIA_CITIES = 3;
     
     /**
-     * @var Response
-     */
-    private $responseService;
-    
-    /**
-     * @var string
-     */
-    private $requestData;
-    
-    /**
      * @var EntityManagerInterface
      */
-    private $entityManager;
+    private static $entityManager;
     
     /**
-     * GeoSearchService constructor.
-     *
-     * @param $entityManager
+     * @param EntityManagerInterface $entityManager
+     * @param                        $parameters
      */
-    public function __construct(EntityManagerInterface $entityManager)
+    public static function sendResponse(EntityManagerInterface $entityManager, $parameters)
     {
-        $this->entityManager = $entityManager;
-        $this->responseService = new Response(
-            '',
-            Response::HTTP_OK,
-            ['content-type' => 'text/html']
-        );
-        $this->requestData = $_POST['data'] ?: '';
-    }
-    
-    public function sendResponse()
-    {
-        $data = $this->requestData;
-        
-        if (empty($data)) {
-            $this->responseService->setStatusCode(Response::HTTP_BAD_REQUEST)->send();
-            exit();
-        }
-        
-        $data = json_decode($data, true);
-        
-        foreach (self::MANDATORY_REQUEST_PARAMETERS as $parameter) {
-            if (!array_key_exists($parameter, $data)) {
-                $this->responseService->setStatusCode(Response::HTTP_NOT_ACCEPTABLE)->send();
-                exit();
-            }
-        }
-        
-        $response = $this->fetchGeoIds($data['parameters']['geoType'], $data['parameters']['geoList']);
-        
-        if ($response === null) {
-            $response = 'Undefined geo...';
-        }
-        
-        $this->responseService->setContent($response)->send();
+        self::$entityManager = $entityManager;
+        $response = self::fetchGeoIds($parameters['geoType'], $parameters['geoList']);
+        $responseService = new Response($response);
+        $responseService->send();
     }
     
     /**
      * @param $geoType
      * @param $geoList
+     *
+     * @return false|string|null
      */
-    private function fetchGeoIds($geoType, $geoList)
+    private static function fetchGeoIds($geoType, $geoList)
     {
         $cityadsIds = [];
         
         switch ((int)$geoType) {
             case self::GEO_TYPE_WORLD_REGIONS:
-                $repository = $this->entityManager->getRepository(CityadsWorldRegion::class);
+                $repository = self::$entityManager->getRepository(CityadsWorldRegion::class);
                 break;
             case self::GEO_TYPE_WORLD_REGIONS_CODES:
-                $repository = $this->entityManager->getRepository(CityadsWorldRegionCodes::class);
+                $repository = self::$entityManager->getRepository(CityadsWorldRegionCodes::class);
                 break;
             case self::GEO_TYPE_RUSSIA_CITIES:
-                $repository = $this->entityManager->getRepository(CityadsCountryRussia::class);
+                $repository = self::$entityManager->getRepository(CityadsCountryRussia::class);
                 break;
         }
     

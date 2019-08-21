@@ -42,7 +42,7 @@ p, span, tr, td {
     width: 40px;
 }
 
-.sidebar {
+.layout {
     position: relative;
     margin-top: 10px;
     float: left;
@@ -51,12 +51,12 @@ p, span, tr, td {
     background: rgba(56, 52, 52, 0.8);
 }
 
-.sidebar ul {
+.layout ul {
     list-style: none;
     /*list-style-image: url('http://giphygifs.s3.amazonaws.com/media/3N5r5Ks7vo3f2/giphy.gif');*/
 }
 
-.sidebar li:before{
+.layout li:before{
     content: '';
     display: inline-block;
     height: 30px;
@@ -66,18 +66,34 @@ p, span, tr, td {
     background-repeat: no-repeat;
 }
 
-.sidebar a {
+#logo a {
+    color: #c7c7c2;
+    /* Цвет ссылок */
+    text-decoration: none;
+}
+
+/*.logo a:visited {*/
+    /*color: #b50000;*/
+    /*!* Цвет посещенных ссылок *!;*/
+/*}*/
+
+#logo a:hover {
+    color: #ebe400;
+    /* Цвет активных ссылок */;
+}
+
+a {
     color: #b50000;
     /* Цвет ссылок */
     text-decoration: none;
 }
 
-.sidebar a:visited {
-    color: #9b0000;
+a:visited {
+    color: #b50000;
     /* Цвет посещенных ссылок */;
 }
 
-.sidebar a:hover {
+a:hover {
     color: #eb2f00;
     /* Цвет активных ссылок */;
 }

@@ -23,8 +23,13 @@ sender:
   path: /sender
   controller: App\Controller\BaseController::sender
 
+xml_emulator:
+  methods: get
+  path: /xml_emulator
+  controller: App\Controller\BaseController::xmlEmulator
+
 
 request:
   methods: post
   path: /
-  controller: App\Controller\BaseController::getData
+  controller: App\Controller\RequestController::handle

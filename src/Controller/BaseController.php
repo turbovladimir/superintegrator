@@ -9,14 +9,10 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Doctrine\ORM\EntityManagerInterface;
-use App\Services\GeoSearchService;
 
 class BaseController extends AbstractController
 {
     /**
-     *
-     * @return Response
      * @throws \Exception
      */
     public function main()
@@ -26,8 +22,6 @@ class BaseController extends AbstractController
     }
     
     /**
-     *
-     * @return Response
      * @throws \Exception
      */
     public function geo()
@@ -37,8 +31,6 @@ class BaseController extends AbstractController
     }
     
     /**
-     *
-     * @return Response
      * @throws \Exception
      */
     public function dataTransformer()
@@ -48,8 +40,6 @@ class BaseController extends AbstractController
     }
     
     /**
-     *
-     * @return Response
      * @throws \Exception
      */
     public function aliOrders()
@@ -60,7 +50,6 @@ class BaseController extends AbstractController
     
     /**
      *
-     * @return Response
      * @throws \Exception
      */
     public function sender()
@@ -70,11 +59,11 @@ class BaseController extends AbstractController
     }
     
     /**
-     * @return mixed
+     * @throws \Exception
      */
-    public function getData(EntityManagerInterface $entityManager)
+    public function xmlEmulator()
     {
-        $searchGeo = new GeoSearchService($entityManager);
-        $searchGeo->sendResponse();
+        
+        return $this->render('xml_emulator/xml_emulator.html.twig');
     }
 }
