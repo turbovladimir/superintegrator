@@ -34,6 +34,14 @@ class CityadsCountryRussia
      * @ORM\Column(name="cityads_id", type="integer", nullable=false)
      */
     private $cityadsId;
+    
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
 
 
 }

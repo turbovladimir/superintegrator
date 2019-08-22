@@ -34,6 +34,13 @@ class CityadsWorldRegionCodes
      * @ORM\Column(name="cityads_id", type="integer", nullable=true)
      */
     private $cityadsId;
-
-
+    
+    
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
 }
