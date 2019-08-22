@@ -51,6 +51,15 @@ class TestXml
         $this->data = $xml;
     }
     
+    
+    /**
+     * @return string|null
+     */
+    public function getXmlData()
+    {
+        return $this->data;
+    }
+    
     /**
      * @param $hash
      */

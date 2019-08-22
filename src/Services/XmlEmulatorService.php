@@ -41,9 +41,19 @@ class XmlEmulatorService
             $entityManager->persist($entityXml);
             $entityManager->flush();
             
-            $response = new Response(json_encode(['url' => 'http://'.$_SERVER["HTTP_HOST"].'/xml_emulator/?key='.$key]));
+            $response = new Response(json_encode(['url' => 'http://'.$_SERVER["HTTP_HOST"].'/xml/?key='.$key]));
             $response->send();
         }
+    }
+    
+    public static function getXmlPageByKey(EntityManagerInterface $entityManager, $key)
+    {
+        $repository = $entityManager->getRepository(TestXml::class);
+        $xmlEntity = $repository->findOneBy(['hash' => $key]);
+        $xml = $xmlEntity->getXmlData();
+        $response = new Response($xml, 200, ['Content-Type' => 'text/xml']);
+        $response->send();
+        
     }
     
     /**

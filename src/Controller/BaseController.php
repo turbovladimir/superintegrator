@@ -9,61 +9,46 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use \App\Services\XmlEmulatorService;
+use Doctrine\ORM\EntityManagerInterface;
 
 class BaseController extends AbstractController
 {
     /**
-     * @throws \Exception
+     * @var EntityManagerInterface
      */
-    public function main()
-    {
-    
-        return $this->render('base.html.twig');
-    }
+    private $entityManager;
     
     /**
-     * @throws \Exception
-     */
-    public function geo()
-    {
-        
-        return $this->render('geo/geo.html.twig');
-    }
-    
-    /**
-     * @throws \Exception
-     */
-    public function dataTransformer()
-    {
-        
-        return $this->render('data_transformer/data_transformer.html.twig');
-    }
-    
-    /**
-     * @throws \Exception
-     */
-    public function aliOrders()
-    {
-        
-        return $this->render('ali_orders/ali_orders.html.twig');
-    }
-    
-    /**
+     * @param                        $page
+     * @param EntityManagerInterface $entityManager
      *
-     * @throws \Exception
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function sender()
+    public function main($page, EntityManagerInterface $entityManager)
     {
+        $this->entityManager = $entityManager;
         
-        return $this->render('sender/sender.html.twig');
+        if ($page === '/') {
+            return $this->render('base.html.twig');
+        } elseif ($page === 'xml') {
+            $this->getXmlPage();
+        } else {
+            return $this->render("{$page}.html.twig");
+        }
     }
     
     /**
-     * @throws \Exception
+     * @param EntityManagerInterface $entityManager
      */
-    public function xmlEmulator()
+    public function getXmlPage()
     {
+        $key = !empty($_GET['key']) ? $_GET['key'] : null;
         
-        return $this->render('xml_emulator/xml_emulator.html.twig');
+        if ($key === null) {
+            exit();
+        }
+        
+        XmlEmulatorService::getXmlPageByKey($this->entityManager, $key);
     }
 }
