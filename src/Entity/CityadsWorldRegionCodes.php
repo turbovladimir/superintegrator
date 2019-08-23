@@ -43,4 +43,12 @@ class CityadsWorldRegionCodes
     {
         return $this->name;
     }
+    
+            /**
+     * @return string
+     */
+    public function getCityadsId()
+    {
+        return $this->cityadsId;
+    }
 }
