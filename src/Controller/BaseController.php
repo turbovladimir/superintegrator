@@ -32,7 +32,7 @@ class BaseController extends AbstractController
         if ($page === '/') {
             return $this->render('base.html.twig');
         } elseif ($page === 'xml') {
-            $this->getXmlPage();
+            return $this->getXmlPage();
         } else {
             return $this->render("{$page}.html.twig");
         }
@@ -46,9 +46,10 @@ class BaseController extends AbstractController
         $key = !empty($_GET['key']) ? $_GET['key'] : null;
         
         if ($key === null) {
+            //todo доделать
             exit();
         }
         
-        XmlEmulatorService::getXmlPageByKey($this->entityManager, $key);
+        return XmlEmulatorService::getXmlPageByKey($this->entityManager, $key);
     }
 }

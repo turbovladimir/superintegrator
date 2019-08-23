@@ -22,8 +22,6 @@ class RequestController extends AbstractController
     const ALI_ORDERS_TOOL = 'ali_orders';
     const XML_EMULATOR_TOOL = 'xml_emulator';
     
-    private $requestData;
-    
     public function handle(EntityManagerInterface $entityManager)
     {
         $responseService = new Response(
@@ -33,8 +31,7 @@ class RequestController extends AbstractController
         );
         
         if (empty($_POST['data'])) {
-            $responseService->setStatusCode(Response::HTTP_BAD_REQUEST)->send();
-            exit();
+            return $responseService->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
     
         $requestData = $_POST['data'];
@@ -42,29 +39,29 @@ class RequestController extends AbstractController
     
         foreach (self::MANDATORY_REQUEST_PARAMETERS as $parameter) {
             if (!array_key_exists($parameter, $requestData)) {
-                $responseService->setStatusCode(Response::HTTP_NOT_ACCEPTABLE)->send();
-                exit();
+                return $responseService->setStatusCode(Response::HTTP_NOT_ACCEPTABLE);
             }
         }
         
-        $this->requestData = $requestData;
-        $this->useService($entityManager);
+        $this->useService($entityManager, $requestData, $responseService);
     }
     
-    private function useService(EntityManagerInterface $entityManager)
+    private function useService(EntityManagerInterface $entityManager, $requestData, $responseService)
     {
-        $toolName = $this->requestData['tool'];
-        $parameters = $this->requestData['parameters'];
+        $toolName = $requestData['tool'];
+        $parameters = $requestData['parameters'];
         switch ($toolName) {
             case self::GEO_TOOL:
-                GeoSearchService::sendResponse($entityManager, $parameters);
+                $response = GeoSearchService::sendResponse($entityManager, $parameters);
                 break;
             case self::ALI_ORDERS_TOOL:
-                AliOrdersService::sendResponse($parameters);
+                $response = AliOrdersService::sendResponse($parameters);
                 break;
             case self::XML_EMULATOR_TOOL:
-                XmlEmulatorService::sendResponse($entityManager, $parameters);
+                $response = XmlEmulatorService::sendResponse($entityManager, $parameters);
                 break;
         }
+        
+        return $response;
     }
 }

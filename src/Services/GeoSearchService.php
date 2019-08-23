@@ -33,8 +33,13 @@ class GeoSearchService
     {
         self::$entityManager = $entityManager;
         $response = self::fetchGeoIds($parameters['geoType'], $parameters['geoList']);
-        $responseService = new Response($response);
-        $responseService->send();
+        if ($response) {
+            return new Response('Test', 200, ['content-type' => 'text/html']);
+            //$responseService = new Response($response);
+            //return $responseService;
+        } else {
+            return new Response('Some error', 403, ['content-type' => 'text/html']);
+        }
     }
     
     /**
