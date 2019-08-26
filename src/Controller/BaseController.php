@@ -11,6 +11,7 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use \App\Services\XmlEmulatorService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 class BaseController extends AbstractController
 {
@@ -38,10 +39,8 @@ class BaseController extends AbstractController
         }
     }
     
-    /**
-     * @param EntityManagerInterface $entityManager
-     */
-    public function getXmlPage()
+    
+    public function getXmlPage(EntityManagerInterface $entityManager)
     {
         $key = !empty($_GET['key']) ? $_GET['key'] : null;
         
@@ -49,7 +48,9 @@ class BaseController extends AbstractController
             //todo доделать
             exit();
         }
+        $service = new XmlEmulatorService($entityManager);
+        $xml = $service->getXmlPageByKey($key);
         
-        return XmlEmulatorService::getXmlPageByKey($this->entityManager, $key);
+        return new Response($xml, 200, ['Content-Type' => 'text/xml']);
     }
 }

@@ -43,7 +43,7 @@ class XmlEmulatorService extends AbstractService
             throw new \Exception('Invalid xml');
         } else {
             $entityXml = new TestXml();
-            $key = self::generateHashKey($xmlstr);
+            $key = $this->generateHashKey($xmlstr);
             $entityXml->setXmlData($xmlstr);
             $entityXml->setHashCode($key);
             $this->entityManager->persist($entityXml);
@@ -53,14 +53,12 @@ class XmlEmulatorService extends AbstractService
         }
     }
     
-    public static function getXmlPageByKey(EntityManagerInterface $entityManager, $key)
+    public function getXmlPageByKey($key)
     {
-        $repository = $entityManager->getRepository(TestXml::class);
+        $repository = $this->entityManager->getRepository(TestXml::class);
         $xmlEntity = $repository->findOneBy(['hash' => $key]);
-        $xml = $xmlEntity->getXmlData();
-        $response = new Response($xml, 200, ['Content-Type' => 'text/xml']);
-        $response->send();
         
+        return $xmlEntity->getXmlData();
     }
     
     /**
@@ -68,7 +66,7 @@ class XmlEmulatorService extends AbstractService
      *
      * @return string
      */
-    private static function generateHashKey($xmlstr)
+    private function generateHashKey($xmlstr)
     {
         return md5(time().substr($xmlstr, 0, 10));
     }
