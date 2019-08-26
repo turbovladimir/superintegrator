@@ -12,9 +12,15 @@ use App\Entity\TestXml;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-class XmlEmulatorService
+class XmlEmulatorService extends AbstractService
 {
-    public static function sendResponse(EntityManagerInterface $entityManager, $parameters)
+    /**
+     * @param $parameters
+     *
+     * @return false|string
+     * @throws \Exception
+     */
+    public function process($parameters)
     {
         if (empty($parameters['xml'])) {
             exit();
@@ -33,16 +39,17 @@ class XmlEmulatorService
             }
         
             libxml_clear_errors();
+            
+            throw new \Exception('Invalid xml');
         } else {
             $entityXml = new TestXml();
             $key = self::generateHashKey($xmlstr);
             $entityXml->setXmlData($xmlstr);
             $entityXml->setHashCode($key);
-            $entityManager->persist($entityXml);
-            $entityManager->flush();
+            $this->entityManager->persist($entityXml);
+            $this->entityManager->flush();
             
-            $response = new Response(json_encode(['url' => 'http://'.$_SERVER["HTTP_HOST"].'/xml/?key='.$key]));
-            $response->send();
+            return json_encode(['url' => 'http://'.$_SERVER["HTTP_HOST"].'/xml/?key='.$key]);
         }
     }
     

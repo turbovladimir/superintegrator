@@ -42,26 +42,52 @@ class RequestController extends AbstractController
                 return $responseService->setStatusCode(Response::HTTP_NOT_ACCEPTABLE);
             }
         }
-        
-        $this->useService($entityManager, $requestData, $responseService);
-    }
     
-    private function useService(EntityManagerInterface $entityManager, $requestData, $responseService)
-    {
         $toolName = $requestData['tool'];
         $parameters = $requestData['parameters'];
-        switch ($toolName) {
+        $service = $this->useService($toolName, $entityManager);
+        
+        try {
+            $processedData = $service->process($parameters);
+            
+            if ($service->isFileService()) {
+                $disposition = $responseService->headers->makeDisposition(
+                    ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                    $service->fileName
+                );
+                $responseService->headers->set('Content-Disposition', $disposition);
+            } else {
+                $responseService->setContent($processedData);
+            }
+            
+        } catch (\Exception $e) {
+            $responseService->setContent($e->getMessage());
+            $responseService->setStatusCode(403);
+        }
+    
+        return $responseService;
+    }
+    
+    /**
+     * @param $tool
+     * @param $entityManager
+     *
+     * @return AliOrdersService|GeoSearchService|XmlEmulatorService
+     */
+    private function useService($tool, $entityManager)
+    {
+        switch ($tool) {
             case self::GEO_TOOL:
-                $response = GeoSearchService::sendResponse($entityManager, $parameters);
+                $service = new GeoSearchService($entityManager);
                 break;
             case self::ALI_ORDERS_TOOL:
-                $response = AliOrdersService::sendResponse($parameters);
+                $service = new AliOrdersService($entityManager);
                 break;
             case self::XML_EMULATOR_TOOL:
-                $response = XmlEmulatorService::sendResponse($entityManager, $parameters);
+                $service = new XmlEmulatorService($entityManager);
                 break;
         }
         
-        return $response;
+        return $service;
     }
 }

@@ -8,59 +8,45 @@
 
 namespace App\Services;
 
-use Symfony\Component\HttpFoundation\Response;
-use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\CityadsCountryRussia;
 use App\Entity\CityadsWorldRegion;
 use App\Entity\CityadsWorldRegionCodes;
 
-class GeoSearchService
+class GeoSearchService extends AbstractService
 {
     const GEO_TYPE_WORLD_REGIONS = 1;
     const GEO_TYPE_WORLD_REGIONS_CODES = 2;
     const GEO_TYPE_RUSSIA_CITIES = 3;
     
     /**
-     * @var EntityManagerInterface
+     * @param $parameters
+     *
+     * @return false|string|null
      */
-    private static $entityManager;
-    
-    /**
-     * @param EntityManagerInterface $entityManager
-     * @param                        $parameters
-     */
-    public static function sendResponse(EntityManagerInterface $entityManager, $parameters)
+    public function process($parameters)
     {
-        self::$entityManager = $entityManager;
-        $response = self::fetchGeoIds($parameters['geoType'], $parameters['geoList']);
-        if ($response) {
-            return new Response('Test', 200, ['content-type' => 'text/html']);
-            //$responseService = new Response($response);
-            //return $responseService;
-        } else {
-            return new Response('Some error', 403, ['content-type' => 'text/html']);
-        }
+        return $this->fetchGeoIds($parameters['geoType'], $parameters['geoList']);
     }
     
     /**
      * @param $geoType
      * @param $geoList
      *
-     * @return false|string|null
+     * @return string|null
      */
-    private static function fetchGeoIds($geoType, $geoList)
+    private function fetchGeoIds($geoType, $geoList)
     {
         $cityadsIds = [];
         
         switch ((int)$geoType) {
             case self::GEO_TYPE_WORLD_REGIONS:
-                $repository = self::$entityManager->getRepository(CityadsWorldRegion::class);
+                $repository = $this->entityManager->getRepository(CityadsWorldRegion::class);
                 break;
             case self::GEO_TYPE_WORLD_REGIONS_CODES:
-                $repository = self::$entityManager->getRepository(CityadsWorldRegionCodes::class);
+                $repository = $this->entityManager->getRepository(CityadsWorldRegionCodes::class);
                 break;
             case self::GEO_TYPE_RUSSIA_CITIES:
-                $repository = self::$entityManager->getRepository(CityadsCountryRussia::class);
+                $repository = $this->entityManager->getRepository(CityadsCountryRussia::class);
                 break;
         }
     
