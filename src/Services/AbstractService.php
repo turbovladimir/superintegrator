@@ -12,7 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 abstract class AbstractService
 {
-    const FILE_SERVICE = false;
+    protected $isFileService = false;
     
     protected $entityManager;
     
@@ -28,6 +28,6 @@ abstract class AbstractService
      */
     public function isFileService()
     {
-        return self::FILE_SERVICE;
+        return $this->isFileService;
     }
 }

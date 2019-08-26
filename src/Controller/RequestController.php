@@ -9,10 +9,12 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use \App\Services\GeoSearchService;
 use \App\Services\AliOrdersService;
 use \App\Services\XmlEmulatorService;
+use \App\Exceptions\ExpectedException;
 use Doctrine\ORM\EntityManagerInterface;
 
 class RequestController extends AbstractController
@@ -33,19 +35,19 @@ class RequestController extends AbstractController
         if (empty($_POST['data'])) {
             return $responseService->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
-    
+        
         $requestData = $_POST['data'];
         $requestData = json_decode($requestData, true);
-    
+        
         foreach (self::MANDATORY_REQUEST_PARAMETERS as $parameter) {
             if (!array_key_exists($parameter, $requestData)) {
                 return $responseService->setStatusCode(Response::HTTP_NOT_ACCEPTABLE);
             }
         }
-    
-        $toolName = $requestData['tool'];
+        
+        $toolName   = $requestData['tool'];
         $parameters = $requestData['parameters'];
-        $service = $this->useService($toolName, $entityManager);
+        $service    = $this->useService($toolName, $entityManager);
         
         try {
             $processedData = $service->process($parameters);
@@ -56,15 +58,15 @@ class RequestController extends AbstractController
                     $service->fileName
                 );
                 $responseService->headers->set('Content-Disposition', $disposition);
-            } else {
-                $responseService->setContent($processedData);
             }
             
-        } catch (\Exception $e) {
+            $responseService->setContent($processedData);
+            
+            } catch (ExpectedException $e) {
             $responseService->setContent($e->getMessage());
             $responseService->setStatusCode(403);
-        }
-    
+            }
+        
         return $responseService;
     }
     

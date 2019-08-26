@@ -13,7 +13,7 @@ use Symfony\Component\HttpClient\HttpClient;
 //todo реализовать нормально файловый сервис
 class AliOrdersService extends AbstractService
 {
-    const FILE_SERVICE = true;
+    protected $isFileService = true;
     const URL = 'https://gw.api.alibaba.com/openapi/param2/2/portals.open/api.getOrderStatus/30056?appSignature=9FIO77dDIidM&orderNumbers=';
     const LIMIT_OF_ORDERS_PER_REQUEST = 100;
     

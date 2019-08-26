@@ -9,8 +9,7 @@
 namespace App\Services;
 
 use App\Entity\TestXml;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Response;
+use App\Exceptions\ExpectedException;
 
 class XmlEmulatorService extends AbstractService
 {
@@ -40,7 +39,7 @@ class XmlEmulatorService extends AbstractService
         
             libxml_clear_errors();
             
-            throw new \Exception('Invalid xml');
+            throw new ExpectedException('Invalid xml');
         } else {
             $entityXml = new TestXml();
             $key = $this->generateHashKey($xmlstr);
@@ -57,6 +56,11 @@ class XmlEmulatorService extends AbstractService
     {
         $repository = $this->entityManager->getRepository(TestXml::class);
         $xmlEntity = $repository->findOneBy(['hash' => $key]);
+        
+        
+        if ($xmlEntity === null) {
+            throw new ExpectedException('Incorrect or expired key');
+        }
         
         return $xmlEntity->getXmlData();
     }
