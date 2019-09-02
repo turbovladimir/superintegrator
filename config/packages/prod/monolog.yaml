@@ -3,12 +3,16 @@ monolog:
         main:
             type: fingers_crossed
             action_level: error
-            handler: nested
+            handler: [nested, emergency]
             excluded_http_codes: [404, 405]
         nested:
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%.log"
             level: debug
+        emergency:
+            type: stream
+            path: "%kernel.logs_dir%/emergency-%kernel.environment%.log"
+            level: emergency
         console:
             type: console
             process_psr_3_messages: false

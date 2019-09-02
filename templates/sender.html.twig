@@ -3,5 +3,16 @@
 {% block title %}Sender{% endblock %}
 
 {% block body %}
-<p>Sender</p>
+    <table>
+        <tr>
+            <th>Send archive file:</th>
+            <th>
+                <form action="{{ path('fileUpload') }}" method="post"enctype="multipart/form-data">
+                    <input type="file" name="file" required multiple
+                           title="Загрузите один или несколько оригинальных файлов архива"/>
+                    <input type="submit" value="Отправить"  class="btn btn-primary">
+                </form>
+            </th>
+        </tr>
+    </table>
 {% endblock %}

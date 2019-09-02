@@ -1,7 +1,7 @@
-main:
+index:
   methods: get
   path: /{page}
-  controller: App\Controller\BaseController::main
+  controller: App\Controller\PageController::index
   defaults:
     page: /
 
@@ -9,3 +9,9 @@ request:
   methods: post
   path: /
   controller: App\Controller\RequestController::handle
+
+#todo доделать
+fileUpload:
+  methods: post
+  path: /sender
+  controller: App\Controller\RequestController::temporaryUploadAction

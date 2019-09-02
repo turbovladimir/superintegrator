@@ -10,21 +10,19 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use \App\Services\GeoSearchService;
 use \App\Services\AliOrdersService;
 use \App\Services\XmlEmulatorService;
 use \App\Exceptions\ExpectedException;
-use Doctrine\ORM\EntityManagerInterface;
 
-class RequestController extends AbstractController
+class RequestController extends BaseController
 {
     const MANDATORY_REQUEST_PARAMETERS = ['tool', 'parameters'];
     const GEO_TOOL = 'geo';
     const ALI_ORDERS_TOOL = 'ali_orders';
     const XML_EMULATOR_TOOL = 'xml_emulator';
     
-    public function handle(EntityManagerInterface $entityManager)
+    public function handle()
     {
         $responseService = new Response(
             '',
@@ -47,7 +45,7 @@ class RequestController extends AbstractController
         
         $toolName   = $requestData['tool'];
         $parameters = $requestData['parameters'];
-        $service    = $this->useService($toolName, $entityManager);
+        $service    = $this->useService($toolName, $this->entityManager);
         
         try {
             $processedData = $service->process($parameters);
@@ -70,23 +68,28 @@ class RequestController extends AbstractController
         return $responseService;
     }
     
+//    public function temporaryUploadAction(Request $request)
+//    {
+//        $files = $request->files->get('files');
+//        return $files;
+//    }
+    
     /**
      * @param $tool
-     * @param $entityManager
      *
      * @return AliOrdersService|GeoSearchService|XmlEmulatorService
      */
-    private function useService($tool, $entityManager)
+    private function useService($tool)
     {
         switch ($tool) {
             case self::GEO_TOOL:
-                $service = new GeoSearchService($entityManager);
+                $service = new GeoSearchService($this->entityManager);
                 break;
             case self::ALI_ORDERS_TOOL:
-                $service = new AliOrdersService($entityManager);
+                $service = new AliOrdersService($this->entityManager);
                 break;
             case self::XML_EMULATOR_TOOL:
-                $service = new XmlEmulatorService($entityManager);
+                $service = new XmlEmulatorService($this->entityManager);
                 break;
         }
         

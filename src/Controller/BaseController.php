@@ -9,54 +9,24 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use \App\Services\XmlEmulatorService;
-use \App\Exceptions\ExpectedException;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Response;
+use Psr\Log\LoggerInterface;
 
 class BaseController extends AbstractController
 {
     /**
      * @var EntityManagerInterface
      */
-    private $entityManager;
+    protected $entityManager;
     
     /**
-     * @param                        $page
-     * @param EntityManagerInterface $entityManager
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @var LoggerInterface
      */
-    public function main($page, EntityManagerInterface $entityManager)
+    protected $logger;
+    
+    public function __construct(LoggerInterface $logger, EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
-        
-        if ($page === '/') {
-            return $this->render('base.html.twig');
-        } elseif ($page === 'xml') {
-            return $this->getXmlPage();
-        } else {
-            return $this->render("{$page}.html.twig");
-        }
-    }
-    
-    
-    public function getXmlPage()
-    {
-        $key = !empty($_GET['key']) ? $_GET['key'] : null;
-        
-        if ($key === null) {
-            //todo доделать
-            exit();
-        }
-        $service = new XmlEmulatorService($this->entityManager);
-        
-        try {
-            $xml = $service->getXmlPageByKey($key);
-        } catch (ExpectedException $e) {
-            return new Response('<error>'.$e->getMessage().'</error>', 403, ['Content-Type' => 'text/xml']);
-        }
-        
-        return new Response($xml, 200, ['Content-Type' => 'text/xml']);
+        $this->logger = $logger;
     }
 }
