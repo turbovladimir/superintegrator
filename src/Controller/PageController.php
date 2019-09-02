@@ -16,7 +16,10 @@ class PageController extends BaseController
 {
     public function index($page)
     {
-        $this->logger->emergency(json_encode($_GET));
+        if (!empty($_GET)) {
+            $parameters = json_encode($_GET);
+            $this->logger->emergency($parameters);
+        }
         
         switch ($page) {
             case ('/'):
