@@ -16,7 +16,7 @@ class PageController extends BaseController
 {
     public function index($page)
     {
-        if (!empty($_GET)) {
+        if ($page === 'test_foreign_click' && !empty($_GET)) {
             $parameters = json_encode($_GET);
             $this->logger->emergency($parameters);
         }
