@@ -35,14 +35,19 @@ class ArchiveRows
      */
     private $sended = 0;
 
-    public function setRows($rows)
+    public function setRow($rows)
     {
         $this->rows = $rows;
     }
     
-    public function getRows()
+    public function getRow()
     {
         return $this->rows;
+    }
+    
+    public function setSended()
+    {
+        $this->sended = 1;
     }
 
 }

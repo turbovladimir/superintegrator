@@ -11,6 +11,7 @@ namespace App\Commands;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputOption;
 
 abstract class BaseDaemon extends Command
 {
@@ -30,6 +31,8 @@ abstract class BaseDaemon extends Command
             ->setDescription('Команда базового демона')
             ->setHelp('Помощи ждать неоткуда')
         ;
+        
+        $this->addOption('daemonMode',      null, InputOption::VALUE_REQUIRED, 'Запуск в режиме демона', false);
     }
     
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -42,24 +45,31 @@ abstract class BaseDaemon extends Command
             '',
         ]);
         
-        $this->start();
+        $this->start($input, $output);
         
         $output->write('И ложится спать');
         exit();
     }
     
-    private function start()
+    private function start(InputInterface $in, OutputInterface $out)
     {
+        $daemonMode = (bool)$in->getOption('daemonMode');
         $startedAt = time();
         
         while (true) {
             
             if (self::DEFAULT_LIFETIME < (time() - $startedAt)) {
-                $this->stop();
+                //todo надо доделать для мультипоточности
+                //$this->stop();
                 break;
             }
-            
-            $this->startMultiThread();
+    
+            //todo зарезолвить екстеншен для пхп
+            if ($daemonMode && extension_loaded('pcntl')) {
+                $this->startMultiThread();
+            } else {
+                $this->gainServiceMethods();
+            }
         }
     }
     
@@ -87,13 +97,13 @@ abstract class BaseDaemon extends Command
         
         while (self::WORKER_LIFETIME < (time() - $workerStartTime)) {
             sleep(1);
-            $this->gainServiceMethod();
+            $this->gainServiceMethods();
         }
         
         exit();
     }
     
-    abstract protected function gainServiceMethod();
+    abstract protected function gainServiceMethods();
     
     
     

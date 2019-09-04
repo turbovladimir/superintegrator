@@ -22,8 +22,9 @@ class SenderCommand extends BaseDaemon
         parent::__construct(self::COMMAND_NAME);
     }
     
-    protected function gainServiceMethod()
+    protected function gainServiceMethods()
     {
+        $this->service->clearDb();
         $this->service->sendFromDb();
     }
     
