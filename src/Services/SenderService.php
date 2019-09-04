@@ -160,7 +160,11 @@ class SenderService extends AbstractService
     
     private function validateFile($file)
     {
-        if (stripos($file->getClientOriginalName(), self::FILE_NAME_CONTAINS) || $file->getClientOriginalExtension() !== self::FILE_TYPE) {
+        if (stripos($file->getClientOriginalName(), self::FILE_NAME_CONTAINS)) {
+            throw new ExpectedException('This is not archive files');
+        }
+    
+        if ($file->getClientOriginalExtension() !== self::FILE_TYPE) {
             throw new ExpectedException('Invalid file type');
         }
         
