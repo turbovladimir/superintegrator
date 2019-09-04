@@ -13,7 +13,9 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use \App\Services\GeoSearchService;
 use \App\Services\AliOrdersService;
 use \App\Services\XmlEmulatorService;
+use \App\Services\SenderService;
 use \App\Exceptions\ExpectedException;
+use Symfony\Component\HttpFoundation\Request;
 
 class RequestController extends BaseController
 {
@@ -21,6 +23,7 @@ class RequestController extends BaseController
     const GEO_TOOL = 'geo';
     const ALI_ORDERS_TOOL = 'ali_orders';
     const XML_EMULATOR_TOOL = 'xml_emulator';
+    const SENDER = 'sender';
     
     public function handle()
     {
@@ -68,11 +71,25 @@ class RequestController extends BaseController
         return $responseService;
     }
     
-//    public function temporaryUploadAction(Request $request)
-//    {
-//        $files = $request->files->get('files');
-//        return $files;
-//    }
+    public function loadFilesOnServer(Request $request)
+    {
+        try {
+            $service = new SenderService($this->entityManager);
+            $responseMessage = $service->sendDataFromFiles2Server($request);
+        } catch (ExpectedException $e) {
+            return new Response(
+                $e->getMessage(),
+                Response::HTTP_OK,
+                ['content-type' => 'text/html']
+            );
+        }
+        
+        return new Response(
+            $responseMessage,
+            Response::HTTP_OK,
+            ['content-type' => 'text/html']
+        );
+    }
     
     /**
      * @param $tool
@@ -90,6 +107,9 @@ class RequestController extends BaseController
                 break;
             case self::XML_EMULATOR_TOOL:
                 $service = new XmlEmulatorService($this->entityManager);
+                break;
+            case self::SENDER:
+                $service = new SenderService($this->entityManager);
                 break;
         }
         

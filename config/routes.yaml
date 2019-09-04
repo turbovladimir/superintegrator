@@ -13,5 +13,5 @@ request:
 #todo доделать
 fileUpload:
   methods: post
-  path: /sender
-  controller: App\Controller\RequestController::temporaryUploadAction
+  path: /multipart
+  controller: App\Controller\RequestController::loadFilesOnServer

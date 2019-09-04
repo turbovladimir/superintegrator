@@ -1,18 +1,25 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Sender{% endblock %}
-
+{% block javascripts %}
+    <script src="{{ asset('js/sender.js') }}"></script>
+{% endblock %}
 {% block body %}
     <table>
         <tr>
             <th>Send archive file:</th>
             <th>
-                <form action="{{ path('fileUpload') }}" method="post"enctype="multipart/form-data">
-                    <input type="file" name="file" required multiple
+                <form action="/multipart" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="token" value="{{ csrf_token('upload') }}" />
+                    <input type="file" name="file[]" required multiple
                            title="Загрузите один или несколько оригинальных файлов архива"/>
-                    <input type="submit" value="Отправить"  class="btn btn-primary">
+                    <input type="submit" value="Отправить" class="btn btn-primary">
                 </form>
             </th>
+        </tr>
+        <tr>
+            <th>Request in process :</th>
+            <th id='requestsInProcess'></th>
         </tr>
     </table>
 {% endblock %}

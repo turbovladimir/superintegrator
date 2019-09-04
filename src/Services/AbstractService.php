@@ -15,6 +15,7 @@ abstract class AbstractService
     protected $isFileService = false;
     
     protected $entityManager;
+    protected $request;
     
     public function __construct(EntityManagerInterface $entityManager)
     {
