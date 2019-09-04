@@ -7,10 +7,10 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Postbacktable
  *
- * @ORM\Table(name="postbacktable")
+ * @ORM\Table(name="archive_rows")
  * @ORM\Entity
  */
-class Postbacktable
+class ArchiveRows
 {
     /**
      * @var int
@@ -24,16 +24,25 @@ class Postbacktable
     /**
      * @var string|null
      *
-     * @ORM\Column(name="url", type="string", length=10000, nullable=true)
+     * @ORM\Column(name="rows", type="text")
      */
-    private $url;
+    private $rows;
 
     /**
      * @var int|null
      *
      * @ORM\Column(name="sended", type="integer", nullable=true)
      */
-    private $sended = '0';
+    private $sended = 0;
 
+    public function setRows($rows)
+    {
+        $this->rows = $rows;
+    }
+    
+    public function getRows()
+    {
+        return $this->rows;
+    }
 
 }

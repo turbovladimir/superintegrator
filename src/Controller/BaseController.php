@@ -9,47 +9,24 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use \App\Services\XmlEmulatorService;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 
 class BaseController extends AbstractController
 {
     /**
      * @var EntityManagerInterface
      */
-    private $entityManager;
+    protected $entityManager;
     
     /**
-     * @param                        $page
-     * @param EntityManagerInterface $entityManager
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @var LoggerInterface
      */
-    public function main($page, EntityManagerInterface $entityManager)
+    protected $logger;
+    
+    public function __construct(LoggerInterface $logger, EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
-        
-        if ($page === '/') {
-            return $this->render('base.html.twig');
-        } elseif ($page === 'xml') {
-            return $this->getXmlPage();
-        } else {
-            return $this->render("{$page}.html.twig");
-        }
-    }
-    
-    /**
-     * @param EntityManagerInterface $entityManager
-     */
-    public function getXmlPage()
-    {
-        $key = !empty($_GET['key']) ? $_GET['key'] : null;
-        
-        if ($key === null) {
-            //todo доделать
-            exit();
-        }
-        
-        return XmlEmulatorService::getXmlPageByKey($this->entityManager, $key);
+        $this->logger = $logger;
     }
 }

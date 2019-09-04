@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="b392c776-3bfe-49a6-baaf-0ae961ac0998" name="beget" url="http://sk8kilay.beget.tech">
+        <fileTransfer host="sk8kilay.beget.tech" port="22" rootFolder="/home/s/sk8kilay" accessType="SFTP">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

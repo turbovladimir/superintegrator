@@ -9,12 +9,17 @@
 namespace App\Services;
 
 use App\Entity\TestXml;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Response;
+use App\Exceptions\ExpectedException;
 
-class XmlEmulatorService
+class XmlEmulatorService extends AbstractService
 {
-    public static function sendResponse(EntityManagerInterface $entityManager, $parameters)
+    /**
+     * @param $parameters
+     *
+     * @return false|string
+     * @throws \Exception
+     */
+    public function process($parameters)
     {
         if (empty($parameters['xml'])) {
             exit();
@@ -33,27 +38,31 @@ class XmlEmulatorService
             }
         
             libxml_clear_errors();
+            
+            throw new ExpectedException('Invalid xml');
         } else {
             $entityXml = new TestXml();
-            $key = self::generateHashKey($xmlstr);
+            $key = $this->generateHashKey($xmlstr);
             $entityXml->setXmlData($xmlstr);
             $entityXml->setHashCode($key);
-            $entityManager->persist($entityXml);
-            $entityManager->flush();
+            $this->entityManager->persist($entityXml);
+            $this->entityManager->flush();
             
-            $response = new Response(json_encode(['url' => 'http://'.$_SERVER["HTTP_HOST"].'/xml/?key='.$key]));
-            $response->send();
+            return json_encode(['url' => 'http://'.$_SERVER["HTTP_HOST"].'/xml/?key='.$key]);
         }
     }
     
-    public static function getXmlPageByKey(EntityManagerInterface $entityManager, $key)
+    public function getXmlPageByKey($key)
     {
-        $repository = $entityManager->getRepository(TestXml::class);
+        $repository = $this->entityManager->getRepository(TestXml::class);
         $xmlEntity = $repository->findOneBy(['hash' => $key]);
-        $xml = $xmlEntity->getXmlData();
-        $response = new Response($xml, 200, ['Content-Type' => 'text/xml']);
-        $response->send();
         
+        
+        if ($xmlEntity === null) {
+            throw new ExpectedException('Incorrect or expired key');
+        }
+        
+        return $xmlEntity->getXmlData();
     }
     
     /**
@@ -61,7 +70,7 @@ class XmlEmulatorService
      *
      * @return string
      */
-    private static function generateHashKey($xmlstr)
+    private function generateHashKey($xmlstr)
     {
         return md5(time().substr($xmlstr, 0, 10));
     }

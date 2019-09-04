@@ -8,16 +8,26 @@
 
 namespace App\Services;
 
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpClient\HttpClient;
 
-class AliOrdersService
+//todo реализовать нормально файловый сервис
+class AliOrdersService extends AbstractService
 {
+    protected $isFileService = true;
     const URL = 'https://gw.api.alibaba.com/openapi/param2/2/portals.open/api.getOrderStatus/30056?appSignature=9FIO77dDIidM&orderNumbers=';
     const LIMIT_OF_ORDERS_PER_REQUEST = 100;
     
-    public static function sendResponse($parameters)
+    /**
+     * @var
+     */
+    public $fileName;
+    
+    /**
+     * @param $parameters
+     *
+     * @return string
+     */
+    public function process($parameters)
     {
         $orders = $parameters['orders'];
         
@@ -35,11 +45,11 @@ class AliOrdersService
             ); // отличное решение, элементы массива = подмассивы через оператор ... встраиваются в функцию мерж
             
         } else {
-            $advertiserOrders = self::fetchOrders($orders);
+            $advertiserOrders = $this->fetchOrders($orders);
         }
         
-        $date     = date('y-m-d h:i:s');
-        $fileName = "Aliexpress_orders_{$date}.csv";
+        $date           = date('y-m-d h:i:s');
+        $this->fileName = "Aliexpress_orders_{$date}.csv";
         
         foreach ($advertiserOrders as $order) {
             if (!isset($fileContent)) {
@@ -48,28 +58,22 @@ class AliOrdersService
             $fileContent .= implode(',', $order)."\n";
         }
         
-        $response    = new Response($fileContent);
-        $disposition = $response->headers->makeDisposition(
-            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            $fileName
-        );
-        $response->headers->set('Content-Disposition', $disposition);
-        $response->send();
+        return $fileContent;
     }
     
-    private static function fetchOrders($orders)
+    private function fetchOrders($orders)
     {
         $httpClient = HttpClient::create();
         $response   = $httpClient->request('GET', self::URL.implode(',', $orders));
         $content    = $response->toArray();
         $orders     = $content['result']['orders'];
         foreach ($orders as $order) {
-            $sortOrders[] = self::fixTransactionTime($order);
+            $sortOrders[] = $this->fixTransactionTime($order);
         }
         return $sortOrders;
     }
     
-    private static function fixTransactionTime($order)
+    private function fixTransactionTime($order)
     {
         if (!isset($order['transactionTime'])) {
             $order['transactionTime'] = '';
