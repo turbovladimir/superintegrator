@@ -8,9 +8,9 @@
 
 namespace App\Services;
 
-use App\Entity\CityadsCountryRussia;
-use App\Entity\CityadsWorldRegion;
-use App\Entity\CityadsWorldRegionCodes;
+use App\Entity\Superintegrator\CityadsCountryRussia;
+use App\Entity\Superintegrator\CityadsWorldRegion;
+use App\Entity\Superintegrator\CityadsWorldRegionCodes;
 
 class GeoSearchService extends AbstractService
 {

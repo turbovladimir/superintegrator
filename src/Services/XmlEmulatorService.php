@@ -8,7 +8,7 @@
 
 namespace App\Services;
 
-use App\Entity\TestXml;
+use App\Entity\Superintegrator\TestXml;
 use App\Exceptions\ExpectedException;
 
 class XmlEmulatorService extends AbstractService

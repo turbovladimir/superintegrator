@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Superintegrator;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * CityadsWorldRegionCodes
+ * CityadsCountryRussia
  *
- * @ORM\Table(name="cityads_world_region_codes", uniqueConstraints={@ORM\UniqueConstraint(name="cityads_world_region_codes_id_uindex", columns={"id"})})
+ * @ORM\Table(name="cityads_country_russia", uniqueConstraints={@ORM\UniqueConstraint(name="id", columns={"id"})})
  * @ORM\Entity
  */
-class CityadsWorldRegionCodes
+class CityadsCountryRussia
 {
     /**
      * @var int
@@ -24,17 +24,16 @@ class CityadsWorldRegionCodes
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=2, nullable=false)
+     * @ORM\Column(name="name", type="string", length=40, nullable=false)
      */
     private $name;
 
     /**
-     * @var int|null
+     * @var int
      *
-     * @ORM\Column(name="cityads_id", type="integer", nullable=true)
+     * @ORM\Column(name="cityads_id", type="integer", nullable=false)
      */
     private $cityadsId;
-    
     
     /**
      * @return string
@@ -44,11 +43,13 @@ class CityadsWorldRegionCodes
         return $this->name;
     }
     
-            /**
+        /**
      * @return string
      */
     public function getCityadsId()
     {
         return $this->cityadsId;
     }
+
+
 }

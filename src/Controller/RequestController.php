@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use \App\Services\GeoSearchService;
 use \App\Services\AliOrdersService;
 use \App\Services\XmlEmulatorService;
-use \App\Services\SenderService;
+use \App\Services\CitySenderService;
 use \App\Exceptions\ExpectedException;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -74,7 +74,7 @@ class RequestController extends BaseController
     public function loadFilesOnServer(Request $request)
     {
         try {
-            $service = new SenderService($this->entityManager);
+            $service = new CitySenderService($this->entityManager);
             $responseMessage = $service->sendDataFromFiles2Server($request);
         } catch (ExpectedException $e) {
             return new Response(
@@ -109,7 +109,7 @@ class RequestController extends BaseController
                 $service = new XmlEmulatorService($this->entityManager);
                 break;
             case self::SENDER:
-                $service = new SenderService($this->entityManager);
+                $service = new CitySenderService($this->entityManager);
                 break;
         }
         

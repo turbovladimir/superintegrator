@@ -8,7 +8,7 @@
 
 namespace App\Commands;
 
-use App\Services\SenderService;
+use App\Services\CitySenderService;
 
 class SenderCommand extends BaseDaemon
 {
@@ -16,7 +16,7 @@ class SenderCommand extends BaseDaemon
     
     private $service;
     
-    public function __construct(SenderService $service)
+    public function __construct(CitySenderService $service)
     {
         $this->service = $service;
         parent::__construct(self::COMMAND_NAME);
