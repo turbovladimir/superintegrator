@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20190819082952 extends AbstractMigration
+final class Version20190917163231 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -21,19 +21,8 @@ final class Version20190819082952 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
-        $files = ['vendor\sk8kilay_test_cityads_country_russia.sql', 'vendor/sk8kilay_test_cityads_world_region.sql', 'vendor/sk8kilay_test_cityads_world_region_codes.sql'];
-        
-        foreach ($files as $filename) {
-            $handler = fopen($filename, 'rb');
-            $sqlStr = fread($handler, filesize($filename));
-            fclose($handler);
-            $sqlArr = explode(';', $sqlStr);
-    
-            foreach ($sqlArr as $sql) {
-                $this->addSql($sql);
-            }
-        }
 
+        $this->addSql('CREATE TABLE csv (id INT AUTO_INCREMENT NOT NULL, file_name VARCHAR(255) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
     }
 
     public function down(Schema $schema) : void
@@ -41,9 +30,6 @@ final class Version20190819082952 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('TRUNCATE TABLE cityads_world_region;');
-        $this->addSql('TRUNCATE TABLE cityads_world_region_codes;');
-        $this->addSql('TRUNCATE TABLE cityads_country_russia;');
-        $this->addSql('TRUNCATE TABLE postbacktable;');
+        $this->addSql('DROP TABLE csv');
     }
 }

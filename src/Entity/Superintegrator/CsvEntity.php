@@ -18,11 +18,20 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class CsvEntity
 {
-    
     /**
      * @var int
      *
-     * @ORM\Column(name="file_name", type="string", ength=40 , nullable=false)
+     * @ORM\Column(name="id", type="integer", nullable=false)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     */
+    private $id;
+    
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="file_name", type="string" , nullable=false)
      */
     private $filename;
     

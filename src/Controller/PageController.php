@@ -22,8 +22,6 @@ class PageController extends BaseController
                 return $this->render('base.html.twig');
             case ('xml'):
                 return $this->getXmlPage();
-            case ('test-aggregator'):
-                return $this->testAgggregator();
             default:
                 return $this->render("{$page}.html.twig");
         }
@@ -46,12 +44,5 @@ class PageController extends BaseController
         }
         
         return new Response($xml, 200, ['Content-Type' => 'text/xml']);
-    }
-    
-    //todo убрать
-    public function testAgggregator()
-    {
-        $service = new OmarsysDataAggregator($this->entityManager);
-        $service->process([]);
     }
 }
