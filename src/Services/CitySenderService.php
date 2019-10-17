@@ -13,7 +13,7 @@ use App\Exceptions\ExpectedException;
 use Symfony\Component\HttpFoundation\Request;
 use \GuzzleHttp\Client;
 
-class CitySenderService extends AbstractService
+class CitySenderService extends AbstractService implements TaskServiceInterface
 {
     const FILE_NAME_CONTAINS = 'archive';
     const FILE_TYPE = 'csv';
@@ -23,6 +23,15 @@ class CitySenderService extends AbstractService
     const URL_POSTBACK_DOMAIN = 'http://cityads.ru';
     
     const URLS_LIMIT = 50;
+    
+    /**
+     * @return mixed|void
+     */
+    public function start()
+    {
+        $this->clearDb();
+        $this->sendFromDb();
+    }
     
     /**
      * @param $parameters

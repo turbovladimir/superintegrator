@@ -1,0 +1,7 @@
+services:
+  cron_command:
+    class: App\Commands\CronCommand
+    arguments:
+      - '@service_factory'
+    tags:
+      - { name: console.command }

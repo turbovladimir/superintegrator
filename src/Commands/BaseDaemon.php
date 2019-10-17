@@ -25,6 +25,9 @@ abstract class BaseDaemon extends Command
     
     protected $output;
     
+    /**
+     *
+     */
     protected function configure()
     {
         $this
