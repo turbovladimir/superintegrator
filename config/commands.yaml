@@ -10,5 +10,6 @@ services:
     class: App\Commands\TestCommand
     arguments:
       - '@postback_collector'
+      - '@sender'
     tags:
       - { name: console.command }

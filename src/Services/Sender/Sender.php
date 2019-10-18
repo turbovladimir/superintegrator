@@ -8,6 +8,7 @@
 
 namespace App\Services\Sender;
 use App\Entity\File;
+use App\Entity\Message;
 use \GuzzleHttp\Client;
 use \GuzzleHttp\Exception\GuzzleException;
 use \App\Services\AbstractService;
@@ -34,23 +35,25 @@ class Sender extends AbstractService implements TaskServiceInterface
     public function send($sendingPerTask)
     {
         $client = new Client();
-        $messages = $this->entityManager->createQuery('select * from messages where sended = 0 and attempts <= ' . self::NUMBER_OF_ATTEMPTS . ' limit ' . $sendingPerTask);
-        if (!$messages) {
+        $query = $this->entityManager->createQuery('select m from '. Message::class .' m where m.sended = 0 and m.attempts <= ?1');
+        $query->setParameter(1,  self::NUMBER_OF_ATTEMPTS);
+        $query->setMaxResults($sendingPerTask);
+        $messages = $query->getResult();
+        if (!$messages && empty($messages)) {
             return;
         }
         
-        foreach ($messages as $messageEntity) {
+        foreach ($messages as $message) {
             try {
-                $message = json_decode($messageEntity->getMessage(), true);
-                $response = $client->request($message['method'], $message['url']);
+                $response = $client->request($message->getMethod(), $message->getUrl());
         
                 if ($response->getStatusCode() === 200) {
-                    $messageEntity->setSended();
+                    $message->setSended();
                 }
             } catch (GuzzleException $e) {
-                $attempts = $messageEntity->getAttempts();
-                $messageEntity->setAttempts($attempts++);
-                $messageEntity->setErrorText($e->getMessage());
+                $attempts = $message->getAttempts();
+                $message->setAttempts($attempts++);
+                $message->setErrorText($e->getMessage());
                 sleep(1);
                 continue;
             }
@@ -64,7 +67,7 @@ class Sender extends AbstractService implements TaskServiceInterface
      */
     public function clear($deletingPerTask)
     {
-        $sendedUrls = $this->entityManager->getRepository(File::class)->findBy(['sended' => 1], [], $deletingPerTask);
+        $sendedUrls = $this->entityManager->getRepository(Message::class)->findBy(['sended' => 1], [], $deletingPerTask);
         
         if (empty($sendedUrls)) {
             return;

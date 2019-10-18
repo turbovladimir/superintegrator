@@ -98,6 +98,22 @@ class Message extends BaseEntity
     /**
      * @return string|null
      */
+    public function getMethod() : ?string
+    {
+        return $this->method;
+    }
+    
+    /**
+     * @return string|null
+     */
+    public function getHeaders() : ?string
+    {
+        return $this->headers;
+    }
+    
+    /**
+     * @return string|null
+     */
     public function getErrorText() : ?string
     {
         return $this->errorText;
@@ -114,7 +130,7 @@ class Message extends BaseEntity
     public function setSended()
     {
         $this->sended   = 1;
-        $this->sendedAt = date('Y-m-d H:i:s');
+        $this->sendedAt = new \DateTime('now');
     }
     
     /**
