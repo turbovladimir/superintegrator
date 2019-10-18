@@ -6,12 +6,18 @@
  * Time: 10:39
  */
 
-namespace App\Services;
+namespace App\Services\Superintegrator;
 
 use App\Entity\Superintegrator\CountryRussia;
 use App\Entity\Superintegrator\WorldRegion;
 use App\Entity\Superintegrator\WorldRegionCodes;
+use App\Services\AbstractService;
 
+/**
+ * Class GeoSearchService
+ *
+ * @package App\Services\Superintegrator
+ */
 class GeoSearchService extends AbstractService
 {
     const GEO_TYPE_WORLD_REGIONS = 1;

@@ -9,7 +9,7 @@
 namespace App\Factory;
 
 use App\Services\Sender\Sender;
-use App\Services\OmarsysDataAggregator;
+use App\Services\Fonbet\OmarsysDataAggregator;
 
 /**
  * Class ServiceFactory

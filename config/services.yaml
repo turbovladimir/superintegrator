@@ -36,7 +36,7 @@ services:
             - '@doctrine.orm.entity_manager'
 
     data_agregator:
-      class: App\Services\OmarsysDataAggregator
+      class: App\Services\Fonbet\OmarsysDataAggregator
       arguments:
         - '@doctrine.orm.entity_manager'
 

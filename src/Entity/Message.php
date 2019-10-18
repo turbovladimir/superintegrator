@@ -36,11 +36,11 @@ class Message implements EntityInterface
     private $sended = 0;
     
     /**
-     * @var string|null
+     * @var integer|null
      *
-     * @ORM\Column(name="has_error", type="integer")
+     * @ORM\Column(name="attempts", type="integer")
      */
-    private $hasError = 0;
+    private $attempts;
     
     /**
      * @var string|null
@@ -106,10 +106,18 @@ class Message implements EntityInterface
     }
     
     /**
-     *
+     * @param string|null $attempts
      */
-    public function setHasError()
+    public function setAttempts(?string $attempts) : void
     {
-        $this->hasError = 1;
+        $this->attempts = $attempts;
+    }
+    
+    /**
+     * @return integer|null
+     */
+    public function getAttempts()
+    {
+        return $this->attempts;
     }
 }

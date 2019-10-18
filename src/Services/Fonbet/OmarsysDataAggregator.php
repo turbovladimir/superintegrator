@@ -6,11 +6,13 @@
  * Time: 14:40
  */
 
-namespace App\Services;
+namespace App\Services\Fonbet;
 
 use \GuzzleHttp\Client;
 use App\Exceptions\ExpectedException;
 use App\Entity\Fonbet\PublishersStatistic;
+use App\Services\AbstractService;
+use App\Services\TaskServiceInterface;
 
 class OmarsysDataAggregator extends AbstractService implements TaskServiceInterface
 {

@@ -1,19 +1,19 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: v.sadovnikov
- * Date: 21.08.2019
- * Time: 19:24
- */
-
-namespace App\Services;
+namespace App\Services\Superintegrator;
 
 use App\Entity\Superintegrator\ArchiveRows;
 use App\Exceptions\ExpectedException;
 use Symfony\Component\HttpFoundation\Request;
-use \GuzzleHttp\Client;
+use App\Services\AbstractService;
 
-class CitySenderService extends AbstractService implements TaskServiceInterface
+/**
+ * Парсит файлы архива и отправляет в бд для последующей отправки
+ *
+ * Class PostbackCollector
+ *
+ * @package App\Services\Superintegrator
+ */
+class PostbackCollector extends AbstractService
 {
     const FILE_NAME_CONTAINS = 'archive';
     const FILE_TYPE = 'csv';
@@ -23,15 +23,6 @@ class CitySenderService extends AbstractService implements TaskServiceInterface
     const URL_POSTBACK_DOMAIN = 'http://cityads.ru';
     
     const URLS_LIMIT = 50;
-    
-    /**
-     * @return mixed|void
-     */
-    public function start()
-    {
-        $this->clearDb();
-        $this->sendFromDb();
-    }
     
     /**
      * @param $parameters
@@ -62,47 +53,11 @@ class CitySenderService extends AbstractService implements TaskServiceInterface
         return 'Files have been successfully added in queue';
     }
     
-    public function sendFromDb()
-    {
-        $client = new Client();
-        $repository = $this->entityManager->getRepository(ArchiveRows::class);
-        $urls = $repository->findBy(['sended' => 0], [], self::URLS_LIMIT);
-        
-        if (!empty($urls)) {
-            
-            foreach ($urls as $urlEntity) {
-                $url = $urlEntity->getRow();
-                
-                try {
-                    $response = $client->request('GET', $url);
-    
-                    if ($response->getStatusCode() === 200) {
-                        $urlEntity->setSended();
-                    }
-                } catch (\Exception $e) {
-                    sleep(1);
-                    continue;
-                }
-            }
-            $this->entityManager->flush();
-        }
-        
-        return true;
-    }
-    
-    public function clearDb()
-    {
-        $sendedUrls = $this->entityManager->getRepository(ArchiveRows::class)->findBy(['sended' => 1], [], 20);
-        
-        if (!empty($sendedUrls)) {
-            foreach ($sendedUrls as $urlEntity) {
-                $this->entityManager->remove($urlEntity);
-            }
-            $this->entityManager->flush();
-        }
-    }
-    
-    
+    /**
+     * @param $file
+     *
+     * @throws ExpectedException
+     */
     private function pushToDb($file)
     {
         $filePath = $file->getRealPath();

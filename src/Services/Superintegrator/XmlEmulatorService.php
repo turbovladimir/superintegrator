@@ -6,10 +6,11 @@
  * Time: 19:24
  */
 
-namespace App\Services;
+namespace App\Services\Superintegrator;
 
 use App\Entity\Superintegrator\TestXml;
 use App\Exceptions\ExpectedException;
+use App\Services\AbstractService;
 
 class XmlEmulatorService extends AbstractService
 {

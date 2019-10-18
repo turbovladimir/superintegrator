@@ -7,34 +7,35 @@
  */
 
 namespace App\Services\Sender;
+use App\Entity\Message;
 use \GuzzleHttp\Client;
 use \GuzzleHttp\Exception\GuzzleException;
 use \App\Services\AbstractService;
 use \App\Services\TaskServiceInterface;
-use \App\Entity\Message;
 
 class Sender extends AbstractService implements TaskServiceInterface
 {
-    public const DEFAULT_LIMIT = 50;
+    public const DEFAULT_SEND_PER_TASK = 50;
+    public const DEFAULT_DELETE_PER_TASK = 50;
+    public const NUMBER_OF_ATTEMPTS = 3;
     
     /**
      * @return mixed|void
      */
     public function start()
     {
-        $this->send(self::DEFAULT_LIMIT);
+        $this->send(self::DEFAULT_SEND_PER_TASK);
+        $this->clear(self::DEFAULT_DELETE_PER_TASK);
     }
     
     /**
-     * @param $limit
+     * @param $sendingPerTask
      */
-    public function send($limit)
+    public function send($sendingPerTask)
     {
         $client = new Client();
-        $repository = $this->entityManager->getRepository(Message::class);
-        $messages = $repository->findBy(['sended' => 0, 'error_text' =>''], [], $limit);
-        
-        if (empty($messages)) {
+        $messages = $this->entityManager->createQuery('select * from messages where sended = 0 and attempts <= ' . self::NUMBER_OF_ATTEMPTS . ' limit ' . $sendingPerTask);
+        if (!$messages) {
             return;
         }
         
@@ -47,13 +48,32 @@ class Sender extends AbstractService implements TaskServiceInterface
                     $messageEntity->setSended();
                 }
             } catch (GuzzleException $e) {
-                $messageEntity->setHasError();
+                $attempts = $messageEntity->getAttempts();
+                $messageEntity->setAttempts($attempts++);
                 $messageEntity->setErrorText($e->getMessage());
                 sleep(1);
                 continue;
             }
         }
     
+        $this->entityManager->flush();
+    }
+    
+    /**
+     * @param $deletingPerTask
+     */
+    public function clear($deletingPerTask)
+    {
+        $sendedUrls = $this->entityManager->getRepository(Message::class)->findBy(['sended' => 1], [], $deletingPerTask);
+        
+        if (empty($sendedUrls)) {
+            return;
+        }
+    
+        foreach ($sendedUrls as $urlEntity) {
+            $this->entityManager->remove($urlEntity);
+        }
+        
         $this->entityManager->flush();
     }
 }

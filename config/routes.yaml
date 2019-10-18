@@ -1,7 +1,7 @@
 index:
   methods: get
   path: /{page}
-  controller: App\Controller\PageController::index
+  controller: App\Controller\HttpController::index
   defaults:
     page: /
 
@@ -13,5 +13,5 @@ request:
 #todo доделать
 fileUpload:
   methods: post
-  path: /multipart
+  path: /fileUpload
   controller: App\Controller\RequestController::loadFilesOnServer

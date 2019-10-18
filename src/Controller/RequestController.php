@@ -10,10 +10,10 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use \App\Services\GeoSearchService;
-use \App\Services\AliOrdersService;
-use \App\Services\XmlEmulatorService;
-use \App\Services\CitySenderService;
+use \App\Services\Superintegrator\GeoSearchService;
+use \App\Services\Superintegrator\AliOrdersService;
+use \App\Services\Superintegrator\XmlEmulatorService;
+use \App\Services\Superintegrator\PostbackCollector;
 use \App\Exceptions\ExpectedException;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -74,7 +74,7 @@ class RequestController extends BaseController
     public function loadFilesOnServer(Request $request)
     {
         try {
-            $service = new CitySenderService($this->entityManager);
+            $service = new PostbackCollector($this->entityManager);
             $responseMessage = $service->sendDataFromFiles2Server($request);
         } catch (ExpectedException $e) {
             return new Response(
@@ -109,7 +109,7 @@ class RequestController extends BaseController
                 $service = new XmlEmulatorService($this->entityManager);
                 break;
             case self::SENDER:
-                $service = new CitySenderService($this->entityManager);
+                $service = new PostbackCollector($this->entityManager);
                 break;
         }
         

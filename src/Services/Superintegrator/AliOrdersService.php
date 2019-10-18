@@ -6,9 +6,10 @@
  * Time: 14:42
  */
 
-namespace App\Services;
+namespace App\Services\Superintegrator;
 
 use Symfony\Component\HttpClient\HttpClient;
+use App\Services\AbstractService;
 
 //todo реализовать нормально файловый сервис
 class AliOrdersService extends AbstractService
