@@ -5,3 +5,10 @@ services:
       - '@service_factory'
     tags:
       - { name: console.command }
+
+  test_command:
+    class: App\Commands\TestCommand
+    arguments:
+      - '@postback_collector'
+    tags:
+      - { name: console.command }

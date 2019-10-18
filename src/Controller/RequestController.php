@@ -71,26 +71,6 @@ class RequestController extends BaseController
         return $responseService;
     }
     
-    public function loadFilesOnServer(Request $request)
-    {
-        try {
-            $service = new PostbackCollector($this->entityManager);
-            $responseMessage = $service->sendDataFromFiles2Server($request);
-        } catch (ExpectedException $e) {
-            return new Response(
-                $e->getMessage(),
-                Response::HTTP_OK,
-                ['content-type' => 'text/html']
-            );
-        }
-        
-        return new Response(
-            $responseMessage,
-            Response::HTTP_OK,
-            ['content-type' => 'text/html']
-        );
-    }
-    
     /**
      * @param $tool
      *

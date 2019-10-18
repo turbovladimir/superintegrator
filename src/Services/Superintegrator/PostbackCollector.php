@@ -1,8 +1,12 @@
 <?php
+
 namespace App\Services\Superintegrator;
 
-use App\Entity\Superintegrator\ArchiveRows;
+use App\Entity\File;
+use App\Entity\Message;
 use App\Exceptions\ExpectedException;
+use App\Services\File\CsvHandler;
+use App\Services\TaskServiceInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Services\AbstractService;
 
@@ -13,9 +17,10 @@ use App\Services\AbstractService;
  *
  * @package App\Services\Superintegrator
  */
-class PostbackCollector extends AbstractService
+class PostbackCollector extends AbstractService implements TaskServiceInterface
 {
-    const FILE_NAME_CONTAINS = 'archive';
+    const DESTINATION = 'cityads';
+    const FILE_NAME = 'archive';
     const FILE_TYPE = 'csv';
     const FILE_SYZE_LIMIT = 4 * 1000000;
     
@@ -23,6 +28,14 @@ class PostbackCollector extends AbstractService
     const URL_POSTBACK_DOMAIN = 'http://cityads.ru';
     
     const URLS_LIMIT = 50;
+    
+    /**
+     * @return mixed|void
+     */
+    public function start()
+    {
+        $this->collect();
+    }
     
     /**
      * @param $parameters
@@ -37,111 +50,102 @@ class PostbackCollector extends AbstractService
         }
     }
     
-    public function sendDataFromFiles2Server(Request $request)
+    /**
+     * Ищет файлы архива и агрегирует данные для вставки в таблицу message
+     */
+    private function collect()
     {
-        $files = $request->files->all() ?: false;
-    
-        if ($files) {
-            $files = reset($files);
+        $urls = $this->getUrls();
         
-            foreach ($files as $file) {
-                $this->validateFile($file);
-                $this->pushToDb($file);
-            }
+        foreach ($urls as $url) {
+            $message = new Message(self::DESTINATION, $url);
+            $this->entityManager->persist($message);
         }
-    
-        return 'Files have been successfully added in queue';
+        
+        $this->entityManager->flush();
     }
     
     /**
-     * @param $file
-     *
-     * @throws ExpectedException
+     * @return array|null
      */
-    private function pushToDb($file)
+    private function getUrls()
     {
-        $filePath = $file->getRealPath();
-        $urls = $this->getUrls($filePath);
+        $urls       = [];
+        $repository = $this->entityManager->getRepository(File::class);
+        $files      = $repository->findBy(['type' => 'csv']);
         
-        if ($urls === null) {
-            throw new ExpectedException('There is no urls in file');
+        if (empty($files)) {
+            return null;
         }
-    
-        foreach ($urls as $url) {
-            $entityPostback = new ArchiveRows();
-            $entityPostback->setRow($url);
-            $this->entityManager->persist($entityPostback);
-            $this->entityManager->flush();
+        
+        foreach ($files as $file) {
+            if (strpos($file->getFileName(), self::FILE_NAME) !== false) {
+                $urls = array_merge($urls, $this->transform(stream_get_contents($file->getFileContent())));
+                $this->entityManager->remove($file);
+            }
         }
+        
+        return $urls;
     }
     
-    private function getUrls($filePath)
+    /**
+     * @param $content
+     *
+     * @return |null
+     */
+    private function transform($content)
     {
-        $handler = fopen($filePath, 'rb');
-        while(($row = fgetcsv($handler, 10000, "\n")) !== FALSE){
-            $content[] = $row;
+        if (!$content) {
+            return null;
         }
-    
-        fclose($handler);
+        $content = explode("\n", $content);
         $headers = reset($content);
-        $headers = array_flip(explode(';', $headers[0])) ;
+        $headers = array_flip(explode(';', $headers));
         array_shift($content);
         
         $requestTypeIndex = $headers['request_type'];
-        $requestUrlIndex = $headers['request_url'];
-    
-        foreach ($content as $row) {
-            if (empty($row)) {
-                continue;
-            }
-            $row = explode(';', reset($row));
+        $requestUrlIndex  = $headers['request_url'];
         
-            if ($row[$requestTypeIndex] === 'pixel') {
-                $url = self::URL_PIXEL_DOMAIN.$row[$requestUrlIndex];
-            } elseif ($row[$requestTypeIndex] === 'postback') {
-                $url = self::URL_POSTBACK_DOMAIN.$row[$requestUrlIndex];
-            } else {
-                continue;
+        foreach ($content as $row) {
+            if (!empty($row)) {
+                $row = explode(';', $row);
+                
+                if ($row[$requestTypeIndex] === 'pixel') {
+                    $url = self::URL_PIXEL_DOMAIN.$row[$requestUrlIndex];
+                } elseif ($row[$requestTypeIndex] === 'postback') {
+                    $url = self::URL_POSTBACK_DOMAIN.$row[$requestUrlIndex];
+                } else {
+                    continue;
+                }
+                
+                $urls[] = $this->paramEncode($url);
             }
-            
-            $urls[] = $this->paramEncode($url);
         }
         
         return !empty($urls) ? $urls : null;
     }
     
+    /**
+     * @param $url
+     *
+     * @return string
+     */
     private function paramEncode($url)
     {
-        $urlArr = explode('?', $url);
-        $urlPath = str_replace('"', '', trim($urlArr[0], '"'));
-        $urlParams = str_replace('""', '"', trim($urlArr[1], '"'));
+        $urlArr       = explode('?', $url);
+        $urlPath      = str_replace('"', '', trim($urlArr[0], '"'));
+        $urlParams    = str_replace('""', '"', trim($urlArr[1], '"'));
         $encodeParams = urlencode($urlParams);
         
         return $urlPath.'?'.$encodeParams;
         
     }
     
-    
-    private function validateFile($file)
-    {
-        if (stripos($file->getClientOriginalName(), self::FILE_NAME_CONTAINS)) {
-            throw new ExpectedException('This is not archive files');
-        }
-    
-        if ($file->getClientOriginalExtension() !== self::FILE_TYPE) {
-            throw new ExpectedException('Invalid file type');
-        }
-        
-        if ($file->getClientSize() > self::FILE_SYZE_LIMIT) {
-            throw new ExpectedException('To large file');
-        }
-    }
-    
     private function getNotSendedRequestCount()
     {
-        $repository = $this->entityManager->getRepository(ArchiveRows::class);
-        $requests = $repository->findBy(['sended' => 0]);
-    
+        $repository = $this->entityManager->getRepository(Message::class);
+        $requests   = $repository->findBy(['sended' => 0, 'destination' => 'cityads']);
+        
         return !empty($requests) ? count($requests) : 0;
     }
 }

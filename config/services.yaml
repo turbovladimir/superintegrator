@@ -35,6 +35,11 @@ services:
         arguments:
             - '@doctrine.orm.entity_manager'
 
+    postback_collector:
+        class: App\Services\Superintegrator\PostbackCollector
+        arguments:
+            - '@doctrine.orm.entity_manager'
+
     data_agregator:
       class: App\Services\Fonbet\OmarsysDataAggregator
       arguments:

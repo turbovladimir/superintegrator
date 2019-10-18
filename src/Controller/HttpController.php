@@ -8,7 +8,7 @@
 
 namespace App\Controller;
 
-use App\Services\File\FileUploader;
+use App\Services\File\CsvHandler;
 use \App\Services\Superintegrator\XmlEmulatorService;
 use \App\Exceptions\ExpectedException;
 use function GuzzleHttp\Psr7\parse_query;
@@ -53,7 +53,7 @@ class HttpController extends BaseController
                 }
     
                 $files = reset($files);
-                $uploader = new FileUploader($this->entityManager);
+                $uploader = new CsvHandler($this->entityManager);
                 
                 foreach ($files as $file) {
                     $uploader->uploadCSV($file);

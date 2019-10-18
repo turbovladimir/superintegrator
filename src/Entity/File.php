@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use http\Encoding\Stream;
 
 /**
  * File
@@ -10,16 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="files")
  * @ORM\Entity
  */
-class File implements EntityInterface
+class File extends BaseEntity
 {
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     */
-    private $id;
     
     /**
      * @var string|null
@@ -27,35 +20,27 @@ class File implements EntityInterface
      * @ORM\Column(name="file_name", type="text")
      */
     private $fileName;
-
+    
     /**
      * @var string|null
+     *
+     * @ORM\Column(name="type", type="text")
+     */
+    private $type;
+
+    /**
+     * @var Stream|null
      *
      * @ORM\Column(name="file_content", type="blob")
      */
     private $fileContent;
     
     /**
-     * @var string
-     *
-     * @ORM\Column(name="added_at", type="datetime")
+     * @param string|null $type
      */
-    private $addedAt;
-    
-    
-    /**
-     * @return int
-     */
-    public function getId()
+    public function setType(?string $type) : void
     {
-        return $this->id;
-    }
-    
-    /**
-     */
-    public function setAddedAt()
-    {
-        $this->addedAt = new \DateTime('now');
+        $this->type = $type;
     }
     
     /**
@@ -75,7 +60,7 @@ class File implements EntityInterface
     }
     
     /**
-     * @return string|null
+     * @return Stream|null
      */
     public function getFileContent()
     {

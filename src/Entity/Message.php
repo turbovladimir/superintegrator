@@ -10,23 +10,36 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="messages")
  * @ORM\Entity
  */
-class Message implements EntityInterface
+class Message extends BaseEntity
 {
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     */
-    private $id;
-
     /**
      * @var string|null
      *
-     * @ORM\Column(name="message", type="text")
+     * @ORM\Column(name="destination", type="text")
      */
-    private $message;
+    private $destination;
+    
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="url", type="text")
+     */
+    private $url;
+    
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="headers", type="text", nullable=true)
+     */
+    private $headers;
+    
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="method", type="text")
+     */
+    private $method;
+    
     
     /**
      * @var int|null
@@ -40,7 +53,7 @@ class Message implements EntityInterface
      *
      * @ORM\Column(name="attempts", type="integer")
      */
-    private $attempts;
+    private $attempts = 0;
     
     /**
      * @var string|null
@@ -48,13 +61,6 @@ class Message implements EntityInterface
      * @ORM\Column(name="error_text", type="text", nullable=true)
      */
     private $errorText;
-    
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="added_at", type="datetime")
-     */
-    private $addedAt;
     
     
     /**
@@ -64,23 +70,29 @@ class Message implements EntityInterface
      */
     private $sendedAt;
     
+    
     /**
-     * @return int
+     * Message constructor.
+     *
+     * @param $destination
+     * @param $url
+     * @param $headers
+     * @param $method
+     *
+     * @throws \Exception
      */
-    public function getId()
+    public function __construct($destination, $url, $headers = null, $method = 'GET')
     {
-        return $this->id;
-    }
-
-    public function setMessage($message)
-    {
-        $this->message = $message;
-        $this->addedAt = date('Y-m-d H:i:s');
+        $this->destination = $destination;
+        $this->url         = $url;
+        $this->headers     = $headers;
+        $this->method      = $method;
+        parent::__construct();
     }
     
-    public function getMessage()
+    public function getUrl()
     {
-        return $this->message;
+        return $this->url;
     }
     
     /**
@@ -101,7 +113,7 @@ class Message implements EntityInterface
     
     public function setSended()
     {
-        $this->sended = 1;
+        $this->sended   = 1;
         $this->sendedAt = date('Y-m-d H:i:s');
     }
     
