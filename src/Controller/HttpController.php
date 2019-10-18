@@ -8,18 +8,22 @@
 
 namespace App\Controller;
 
+use App\Services\File\FileUploader;
 use \App\Services\Superintegrator\XmlEmulatorService;
 use \App\Exceptions\ExpectedException;
 use function GuzzleHttp\Psr7\parse_query;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use \App\Services\Superintegrator\GeoSearchService;
+use \App\Services\Superintegrator\AliOrdersService;
+use \App\Services\Superintegrator\PostbackCollector;
 
 class HttpController extends BaseController
 {
     
     /**
      * @param Request  $request
-     * @param Response $response
      *
      * @return Response
      */
@@ -30,7 +34,7 @@ class HttpController extends BaseController
         if ($request->getMethod() === 'GET') {
             switch ($path) {
                 case ('/'):
-                    return $this->render('base.html.twig');
+                    return $this->render('base.html.twig', ['message' => 'Main page']);
                 case ('/xml'):
                     return $this->getXmlPage($request);
                 default:
@@ -38,8 +42,24 @@ class HttpController extends BaseController
                     return $this->render("{$page}.html.twig");
             }
         } else {
-            if (empty($_POST['data'])) {
-                return (new Response())->setStatusCode(Response::HTTP_BAD_REQUEST);
+            try{
+            $responseMessage = '';
+            
+            if ($path === '/fileUpload') {
+                $files = $request->files->all() ?: false;
+                
+                if (!$files) {
+                    throw new ExpectedException('Cant find files for save');
+                }
+    
+                $files = reset($files);
+                $uploader = new FileUploader($this->entityManager);
+                
+                foreach ($files as $file) {
+                    $uploader->uploadCSV($file);
+                }
+    
+                $responseMessage = 'Files have been successfully added';
             }
     
 //            $requestData = $_POST['data'];
@@ -74,7 +94,12 @@ class HttpController extends BaseController
 //            }
 //
 //            return $responseService;
-        }
+            } catch (ExpectedException $expectedException) {
+                $responseMessage = $expectedException->getMessage();
+            }
+    
+            return $this->render('base.html.twig', ['message' => $responseMessage]);
+       }
     }
     
     /**

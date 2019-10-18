@@ -7,7 +7,7 @@
  */
 
 namespace App\Services\Sender;
-use App\Entity\Message;
+use App\Entity\File;
 use \GuzzleHttp\Client;
 use \GuzzleHttp\Exception\GuzzleException;
 use \App\Services\AbstractService;
@@ -64,7 +64,7 @@ class Sender extends AbstractService implements TaskServiceInterface
      */
     public function clear($deletingPerTask)
     {
-        $sendedUrls = $this->entityManager->getRepository(Message::class)->findBy(['sended' => 1], [], $deletingPerTask);
+        $sendedUrls = $this->entityManager->getRepository(File::class)->findBy(['sended' => 1], [], $deletingPerTask);
         
         if (empty($sendedUrls)) {
             return;
