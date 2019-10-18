@@ -3,14 +3,14 @@
 namespace App\Entity\Superintegrator;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\BaseEntity;
+use App\Entity\EntityInterface;
 /**
  * TestXml
  *
  * @ORM\Table(name="test_xml", uniqueConstraints={@ORM\UniqueConstraint(name="id", columns={"id"})})
  * @ORM\Entity
  */
-class TestXml extends BaseEntity
+class TestXml implements EntityInterface
 {
     /**
      * @var int

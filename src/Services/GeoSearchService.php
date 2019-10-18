@@ -8,9 +8,9 @@
 
 namespace App\Services;
 
-use App\Entity\Superintegrator\CityadsCountryRussia;
-use App\Entity\Superintegrator\CityadsWorldRegion;
-use App\Entity\Superintegrator\CityadsWorldRegionCodes;
+use App\Entity\Superintegrator\CountryRussia;
+use App\Entity\Superintegrator\WorldRegion;
+use App\Entity\Superintegrator\WorldRegionCodes;
 
 class GeoSearchService extends AbstractService
 {
@@ -40,13 +40,13 @@ class GeoSearchService extends AbstractService
         
         switch ((int)$geoType) {
             case self::GEO_TYPE_WORLD_REGIONS:
-                $repository = $this->entityManager->getRepository(CityadsWorldRegion::class);
+                $repository = $this->entityManager->getRepository(WorldRegion::class);
                 break;
             case self::GEO_TYPE_WORLD_REGIONS_CODES:
-                $repository = $this->entityManager->getRepository(CityadsWorldRegionCodes::class);
+                $repository = $this->entityManager->getRepository(WorldRegionCodes::class);
                 break;
             case self::GEO_TYPE_RUSSIA_CITIES:
-                $repository = $this->entityManager->getRepository(CityadsCountryRussia::class);
+                $repository = $this->entityManager->getRepository(CountryRussia::class);
                 break;
         }
     

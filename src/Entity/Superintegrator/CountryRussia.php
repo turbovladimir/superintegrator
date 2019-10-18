@@ -2,16 +2,15 @@
 
 namespace App\Entity\Superintegrator;
 
-use App\Entity\BaseEntity;
 use Doctrine\ORM\Mapping as ORM;
-
+use App\Entity\EntityInterface;
 /**
  * CountryRussia
  *
  * @ORM\Table(name="cityads_country_russia", uniqueConstraints={@ORM\UniqueConstraint(name="id", columns={"id"})})
  * @ORM\Entity
  */
-class CountryRussia extends BaseEntity
+class CountryRussia implements EntityInterface
 {
     /**
      * @var int

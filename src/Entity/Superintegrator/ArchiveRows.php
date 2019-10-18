@@ -3,7 +3,7 @@
 namespace App\Entity\Superintegrator;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\BaseEntity;
+use App\Entity\EntityInterface;
 
 /**
  * Postbacktable
@@ -11,7 +11,7 @@ use App\Entity\BaseEntity;
  * @ORM\Table(name="archive_rows")
  * @ORM\Entity
  */
-class ArchiveRows extends BaseEntity
+class ArchiveRows implements EntityInterface
 {
     /**
      * @var int

@@ -9,14 +9,14 @@
 namespace App\Entity\Superintegrator;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\BaseEntity;
+use App\Entity\EntityInterface;
 /**
  * CsvEntity
  *
  * @ORM\Table(name="csv")
  * @ORM\Entity
  */
-class CsvEntity extends BaseEntity
+class CsvEntity implements EntityInterface
 {
     /**
      * @var int

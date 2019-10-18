@@ -22,8 +22,6 @@ abstract class AbstractService
         $this->entityManager = $entityManager;
     }
     
-    abstract public function process($parameters);
-    
     /**
      * @return bool
      */

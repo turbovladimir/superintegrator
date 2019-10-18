@@ -12,12 +12,4 @@ namespace App\Entity;
 interface EntityInterface
 {
     public function getId();
-    
-    public function getAll();
-    
-    public function getOne($filter);
-    
-    public function save();
-    
-    public function executeQuery($sql);
 }

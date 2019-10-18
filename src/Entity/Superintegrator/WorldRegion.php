@@ -2,7 +2,7 @@
 
 namespace App\Entity\Superintegrator;
 
-use App\Entity\BaseEntity;
+use App\Entity\EntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="cityads_world_region", uniqueConstraints={@ORM\UniqueConstraint(name="cityads_world_region_id_uindex", columns={"id"})})
  * @ORM\Entity
  */
-class WorldRegion extends BaseEntity
+class WorldRegion implements EntityInterface
 {
     /**
      * @var int

@@ -31,7 +31,7 @@ services:
     # please note that last definitions always *replace* previous ones
 
     sender:
-        class: App\Services\CitySenderService
+        class: App\Services\Sender\Sender
         arguments:
             - '@doctrine.orm.entity_manager'
 
