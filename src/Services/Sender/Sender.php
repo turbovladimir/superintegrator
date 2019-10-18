@@ -7,7 +7,6 @@
  */
 
 namespace App\Services\Sender;
-use App\Entity\File;
 use App\Entity\Message;
 use \GuzzleHttp\Client;
 use \GuzzleHttp\Exception\GuzzleException;

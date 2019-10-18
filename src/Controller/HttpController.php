@@ -21,9 +21,14 @@ use \App\Services\Superintegrator\PostbackCollector;
 
 class HttpController extends BaseController
 {
+    const MANDATORY_REQUEST_PARAMETERS = ['tool', 'parameters'];
+    const GEO_TOOL = 'geo';
+    const ALI_ORDERS_TOOL = 'ali_orders';
+    const XML_EMULATOR_TOOL = 'xml_emulator';
+    const SENDER = 'sender';
     
     /**
-     * @param Request  $request
+     * @param Request $request
      *
      * @return Response
      */
@@ -42,64 +47,83 @@ class HttpController extends BaseController
                     return $this->render("{$page}.html.twig");
             }
         } else {
-            try{
-            $responseMessage = '';
-            
-            if ($path === '/fileUpload') {
-                $files = $request->files->all() ?: false;
+            try {
+                $responseMessage = '';
                 
-                if (!$files) {
-                    throw new ExpectedException('Cant find files for save');
+                if ($path === '/fileUpload') {
+                    $files = $request->files->all() ? : false;
+                    
+                    if (!$files) {
+                        throw new ExpectedException('Cant find files for save');
+                    }
+                    
+                    $files    = reset($files);
+                    $uploader = new CsvHandler($this->entityManager);
+                    
+                    foreach ($files as $file) {
+                        $uploader->uploadCSV($file);
+                    }
+                    
+                    $responseMessage = 'Files have been successfully added';
+                } else {
+                    
+                    $requestData = $_POST['data'];
+                    $requestData = json_decode($requestData, true);
+                    
+//                    foreach (self::MANDATORY_REQUEST_PARAMETERS as $parameter) {
+//                        if (!array_key_exists($parameter, $requestData)) {
+//                            throw new ExpectedException('Incorrect request parameters');
+//                        }
+//                    }
+//
+//                    $toolName   = $requestData['tool'];
+//                    $parameters = $requestData['parameters'];
+//                    $service    = $this->useService($toolName, $this->entityManager);
+//
+//                    $processedData = $service->process($parameters);
+//
+//                    if ($service->isFileService()) {
+//                        $disposition = $responseService->headers->makeDisposition(
+//                            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+//                            $service->fileName
+//                        );
+//                        $responseService->headers->set('Content-Disposition', $disposition);
+//                    }
+//
+//                    $responseService->setContent($processedData);
+                    
                 }
-    
-                $files = reset($files);
-                $uploader = new CsvHandler($this->entityManager);
-                
-                foreach ($files as $file) {
-                    $uploader->uploadCSV($file);
-                }
-    
-                $responseMessage = 'Files have been successfully added';
-            }
-    
-//            $requestData = $_POST['data'];
-//            $requestData = json_decode($requestData, true);
-//
-//            foreach (self::MANDATORY_REQUEST_PARAMETERS as $parameter) {
-//                if (!array_key_exists($parameter, $requestData)) {
-//                    return $responseService->setStatusCode(Response::HTTP_NOT_ACCEPTABLE);
-//                }
-//            }
-//
-//            $toolName   = $requestData['tool'];
-//            $parameters = $requestData['parameters'];
-//            $service    = $this->useService($toolName, $this->entityManager);
-//
-//            try {
-//                $processedData = $service->process($parameters);
-//
-//                if ($service->isFileService()) {
-//                    $disposition = $responseService->headers->makeDisposition(
-//                        ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-//                        $service->fileName
-//                    );
-//                    $responseService->headers->set('Content-Disposition', $disposition);
-//                }
-//
-//                $responseService->setContent($processedData);
-//
-//            } catch (ExpectedException $e) {
-//                $responseService->setContent($e->getMessage());
-//                $responseService->setStatusCode(403);
-//            }
-//
-//            return $responseService;
             } catch (ExpectedException $expectedException) {
                 $responseMessage = $expectedException->getMessage();
             }
-    
+            
             return $this->render('base.html.twig', ['message' => $responseMessage]);
-       }
+        }
+    }
+    
+    /**
+     * @param $tool
+     *
+     * @return AliOrdersService|GeoSearchService|XmlEmulatorService
+     */
+    private function useService($tool)
+    {
+        switch ($tool) {
+            case self::GEO_TOOL:
+                $service = new GeoSearchService($this->entityManager);
+                break;
+            case self::ALI_ORDERS_TOOL:
+                $service = new AliOrdersService($this->entityManager);
+                break;
+            case self::XML_EMULATOR_TOOL:
+                $service = new XmlEmulatorService($this->entityManager);
+                break;
+            case self::SENDER:
+                $service = new PostbackCollector($this->entityManager);
+                break;
+        }
+        
+        return $service;
     }
     
     /**

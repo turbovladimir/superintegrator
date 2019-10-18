@@ -11,7 +11,7 @@ function generate_link() {
         }
     };
     printResponse = true;
-    push('/', requestObj);
+    push('/xml_emulator', requestObj);
 }
 
 ////////////////xml emulator////////////////
@@ -36,7 +36,7 @@ function geo_send() {
     };
 
     printResponse = true;
-    push('/', requestObj);
+    push('/geo', requestObj);
 }
 
 ////////////////geo////////////////
