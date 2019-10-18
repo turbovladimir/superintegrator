@@ -12,22 +12,33 @@ use \GuzzleHttp\Client;
 use App\Exceptions\ExpectedException;
 use App\Entity\Fonbet\PublishersStatistic;
 
-class OmarsysDataAggregator extends AbstractService
+class OmarsysDataAggregator extends AbstractService implements TaskServiceInterface
 {
     private const TOKEN = '433825e3f940e3d012c7082e510efb2141ff3f0a';
     private const AFFILATE_ID = 100379;
     private const REQUEST_PATH = 'https://api.fonbetaffiliates.com/rpc/report/variables';
     private const REQUEST_METHOD = 'GET';
     
-    public function process($parameters)
+    /**
+     * @return mixed|null
+     * @throws ExpectedException
+     */
+    public function start()
     {
         $data = $this->getData();
         $publishers = $this->aggregateData($data);
-        
+    
         if (empty($publishers)) {
             return null;
         }
-        
+    
+        $this->pushToDb($publishers);
+    }
+    
+    /**
+     * @param $publishers
+     */
+    protected function pushToDb($publishers) {
         foreach ($publishers as $publisher) {
             $entityPublisherStatistic = new PublishersStatistic();
             $entityPublisherStatistic->setClickId($publisher['clickId']);
@@ -35,10 +46,22 @@ class OmarsysDataAggregator extends AbstractService
             $entityPublisherStatistic->setRegistrations($publisher['registrations']);
             $entityPublisherStatistic->setDepositsAmount($publisher['deposits']);
             $this->entityManager->persist($entityPublisherStatistic);
-            $this->entityManager->flush();
+            
         }
+    
+        $this->entityManager->flush();
     }
     
+    
+    public function process($parameters)
+    {
+    }
+    
+    /**
+     * @param $data
+     *
+     * @return array|null
+     */
     private function aggregateData($data)
     {
         if (empty($data['_embedded'])) {

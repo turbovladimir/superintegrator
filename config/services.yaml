@@ -35,7 +35,13 @@ services:
         arguments:
             - '@doctrine.orm.entity_manager'
 
+    data_agregator:
+      class: App\Services\OmarsysDataAggregator
+      arguments:
+        - '@doctrine.orm.entity_manager'
+
     service_factory:
         class: App\Factory\ServiceFactory
         arguments:
             - '@sender'
+            - '@data_agregator'

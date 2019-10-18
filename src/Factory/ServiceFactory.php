@@ -9,6 +9,7 @@
 namespace App\Factory;
 
 use App\Services\CitySenderService;
+use App\Services\OmarsysDataAggregator;
 
 /**
  * Class ServiceFactory
@@ -25,9 +26,10 @@ class ServiceFactory
     /**
      * ServiceFactory constructor.
      *
-     * @param CitySenderService $sender
+     * @param CitySenderService     $sender
+     * @param OmarsysDataAggregator $aggregator
      */
-    public function __construct(CitySenderService $sender)
+    public function __construct(CitySenderService $sender, OmarsysDataAggregator $aggregator)
     {
         $this->services =  func_get_args();
     }
