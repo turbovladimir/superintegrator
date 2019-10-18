@@ -2,19 +2,22 @@
 /**
  * Created by PhpStorm.
  * User: v.sadovnikov
- * Date: 19.08.2019
- * Time: 18:31
+ * Date: 18.10.2019
+ * Time: 11:08
  */
 
 namespace App\Entity;
 
 
-interface EntityInterface extends \ArrayAccess
+interface EntityInterface
 {
-    /**
-     * @param  bool $datetime_to_string
-     *
-     * @return array
-     */
-    public function toArray($datetime_to_string = true);
+    public function getId();
+    
+    public function getAll();
+    
+    public function getOne($filter);
+    
+    public function save();
+    
+    public function executeQuery($sql);
 }

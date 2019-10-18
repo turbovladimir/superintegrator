@@ -3,6 +3,7 @@
 namespace App\Entity\Fonbet;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\BaseEntity;
 
 /**
  * Postbacktable
@@ -10,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="fonbet_statistic_by_publishers")
  * @ORM\Entity
  */
-class PublishersStatistic
+class PublishersStatistic extends BaseEntity
 {
     /**
      * @var int

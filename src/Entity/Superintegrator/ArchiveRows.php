@@ -3,6 +3,7 @@
 namespace App\Entity\Superintegrator;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\BaseEntity;
 
 /**
  * Postbacktable
@@ -10,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="archive_rows")
  * @ORM\Entity
  */
-class ArchiveRows
+class ArchiveRows extends BaseEntity
 {
     /**
      * @var int
@@ -34,6 +35,14 @@ class ArchiveRows
      * @ORM\Column(name="sended", type="integer", nullable=true)
      */
     private $sended = 0;
+    
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 
     public function setRow($rows)
     {

@@ -2,15 +2,16 @@
 
 namespace App\Entity\Superintegrator;
 
+use App\Entity\BaseEntity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * CityadsWorldRegionCodes
+ * WorldRegion
  *
- * @ORM\Table(name="cityads_world_region_codes", uniqueConstraints={@ORM\UniqueConstraint(name="cityads_world_region_codes_id_uindex", columns={"id"})})
+ * @ORM\Table(name="cityads_world_region", uniqueConstraints={@ORM\UniqueConstraint(name="cityads_world_region_id_uindex", columns={"id"})})
  * @ORM\Entity
  */
-class CityadsWorldRegionCodes
+class WorldRegion extends BaseEntity
 {
     /**
      * @var int
@@ -24,7 +25,7 @@ class CityadsWorldRegionCodes
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=2, nullable=false)
+     * @ORM\Column(name="name", type="string", length=80, nullable=false)
      */
     private $name;
 
@@ -35,6 +36,13 @@ class CityadsWorldRegionCodes
      */
     private $cityadsId;
     
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
     
     /**
      * @return string
@@ -51,4 +59,6 @@ class CityadsWorldRegionCodes
     {
         return $this->cityadsId;
     }
+
+
 }

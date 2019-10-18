@@ -2,141 +2,72 @@
 /**
  * Created by PhpStorm.
  * User: v.sadovnikov
- * Date: 19.08.2019
- * Time: 18:31
+ * Date: 18.10.2019
+ * Time: 10:46
  */
 
 namespace App\Entity;
 
-use DateTimeInterface;
+use Doctrine\ORM\EntityManagerInterface;
 
-class BaseEntity implements EntityInterface
+abstract class BaseEntity implements EntityInterface
 {
-    
-    protected $data = [];
-    
+    /**
+     * @var EntityManagerInterface
+     */
+    protected $entityManager;
     
     /**
-     * @param array|null $values
+     * @var \Doctrine\Common\Persistence\ObjectRepository
      */
-    public function __construct(array $values = null)
+    protected $repository;
+    
+    /**
+     * BaseEntity constructor.
+     *
+     * @param EntityManagerInterface $entityManager
+     */
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        if (is_array($values)) {
-            $this->data = $values;
-        }
+        $this->entityManager = $entityManager;
+        $this->repository = $this->entityManager->getRepository(self::class);
     }
     
     /**
-     * @param  bool $datetime_to_string
-     *
-     * @return array
+     * @return object[]
      */
-    public function toArray($datetime_to_string = true)
+    public function getAll()
     {
-        if ($datetime_to_string === false) {
-            return $this->data;
-        }
-        
-        $result = [];
-        foreach ($this->data as $key => $val) {
-            if ($val instanceof DateTimeInterface) {
-                $result[$key] = $val->format('Y-m-d H:i:s');
-            }
-            else {
-                $result[$key] = $val;
-            }
-        }
-        
-        return $result;
+        return $this->repository->findAll();
     }
     
     /**
-     * Проверка, установлено ли свойство объекта
+     * @param array $filter
      *
-     * @param  mixed $offset
-     *
-     * @return bool
+     * @return object|null
      */
-    public function offsetExists($offset)
+    public function getOne($filter)
     {
-        return array_key_exists($offset, $this->data);
+        return $this->repository->findOneBy($filter);
     }
     
     /**
-     * Получение свойства объекта
      *
-     * @param  mixed $offset
+     */
+    public function save()
+    {
+        $this->entityManager->persist($this);
+        $this->entityManager->flush();
+    }
+    
+    /**
+     * @param $sql
      *
      * @return mixed
      */
-    public function offsetGet($offset)
+    public function executeQuery($sql)
     {
-        return $this->data[$offset];
-    }
-    
-    /**
-     * Установка свойства объекта
-     *
-     * @param mixed $offset
-     * @param mixed $value
-     */
-    public function offsetSet($offset, $value)
-    {
-        $this->data[$offset] = $value;
-    }
-    
-    /**
-     * Сброс свойства объекта
-     *
-     * @param mixed $offset
-     */
-    public function offsetUnset($offset)
-    {
-        unset($this->data[$offset]);
-    }
-    
-    /**
-     * Получение свойства объекта
-     *
-     * @param  mixed $offset
-     *
-     * @return mixed
-     */
-    public function __get($offset)
-    {
-        return $this->offsetGet($offset);
-    }
-    
-    /**
-     * Установка свойства объекта
-     *
-     * @param mixed $offset
-     * @param mixed $value
-     */
-    public function __set($offset, $value)
-    {
-        $this->offsetSet($offset, $value);
-    }
-    
-    /**
-     * Проверка, установлено ли свойство объекта
-     *
-     * @param  mixed $offset
-     *
-     * @return bool
-     */
-    public function __isset($offset)
-    {
-        return $this->offsetExists($offset);
-    }
-    
-    /**
-     * Сброс свойства объекта
-     *
-     * @param mixed $offset
-     */
-    public function __unset($offset)
-    {
-        $this->offsetUnset($offset);
+        $query = $this->entityManager->createQuery($sql);
+        return $query->execute();
     }
 }

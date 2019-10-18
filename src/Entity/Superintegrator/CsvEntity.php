@@ -9,14 +9,14 @@
 namespace App\Entity\Superintegrator;
 
 use Doctrine\ORM\Mapping as ORM;
-
+use App\Entity\BaseEntity;
 /**
  * CsvEntity
  *
  * @ORM\Table(name="csv")
  * @ORM\Entity
  */
-class CsvEntity
+class CsvEntity extends BaseEntity
 {
     /**
      * @var int
@@ -27,6 +27,13 @@ class CsvEntity
      */
     private $id;
     
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
     
     /**
      * @var string

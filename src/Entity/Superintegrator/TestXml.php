@@ -3,14 +3,14 @@
 namespace App\Entity\Superintegrator;
 
 use Doctrine\ORM\Mapping as ORM;
-
+use App\Entity\BaseEntity;
 /**
  * TestXml
  *
  * @ORM\Table(name="test_xml", uniqueConstraints={@ORM\UniqueConstraint(name="id", columns={"id"})})
  * @ORM\Entity
  */
-class TestXml
+class TestXml extends BaseEntity
 {
     /**
      * @var int
@@ -20,13 +20,6 @@ class TestXml
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
-
-//    /**
-//     * @var \DateTime
-//     *
-//     * @ORM\Column(name="creation_date", type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
-//     */
-//    private $creationDate = 'CURRENT_TIMESTAMP';
 
     /**
      * @var string|null
@@ -42,6 +35,14 @@ class TestXml
      * @ORM\Column(name="hash", type="string", length=40, nullable=false)
      */
     private $hash;
+    
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
     
     /**
      * @param $xml
