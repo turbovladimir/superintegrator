@@ -6,10 +6,10 @@
  * Time: 19:56
  */
 
-namespace App\Entity\Superintegrator;
+namespace App\Orm\Entity\Superintegrator;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\EntityInterface;
+use App\Orm\Entity\EntityInterface;
 /**
  * CsvEntity
  *

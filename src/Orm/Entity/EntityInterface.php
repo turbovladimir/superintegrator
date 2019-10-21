@@ -6,7 +6,7 @@
  * Time: 11:08
  */
 
-namespace App\Entity;
+namespace App\Orm\Entity;
 
 
 interface EntityInterface

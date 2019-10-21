@@ -14,138 +14,128 @@ use \App\Exceptions\ExpectedException;
 use function GuzzleHttp\Psr7\parse_query;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use \App\Services\Superintegrator\GeoSearchService;
 use \App\Services\Superintegrator\AliOrdersService;
 use \App\Services\Superintegrator\PostbackCollector;
 
 class HttpController extends BaseController
 {
-    const MANDATORY_REQUEST_PARAMETERS = ['tool', 'parameters'];
-    const GEO_TOOL = 'geo';
-    const ALI_ORDERS_TOOL = 'ali_orders';
-    const XML_EMULATOR_TOOL = 'xml_emulator';
-    const SENDER = 'sender';
+    const GEO_PAGE = '/geo';
+    const ALI_ORDERS_PAGE = '/ali_orders';
+    const XML_EMULATOR_PAGE = '/xml_emulator';
+    const SENDER_PAGE = '/sender';
+    
+    private $request;
+    private $requestContent;
+    private $geoSearch;
+    private $xmlEmulator;
+    private $postbackCollector;
+    private $aliOrders;
+    private $csvHandler;
     
     /**
-     * @param Request $request
+     * @param Request            $request
+     * @param GeoSearchService   $geoSearch
+     * @param XmlEmulatorService $xmlEmulator
+     * @param PostbackCollector  $postbackCollector
+     * @param AliOrdersService   $aliOrders
+     * @param CsvHandler         $csvHandler
      *
      * @return Response
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \League\Csv\Exception
      */
-    public function index(Request $request)
-    {
-        $path = $request->getPathInfo();
+    public function index(
+        Request $request,
+        GeoSearchService $geoSearch,
+        XmlEmulatorService $xmlEmulator,
+        PostbackCollector $postbackCollector,
+        AliOrdersService $aliOrders,
+        CsvHandler $csvHandler
+    ) {
+        $responseMessage         = '';
+        $this->request           = $request;
+        $this->requestContent    = urldecode($this->request->getContent());
+        $this->geoSearch         = $geoSearch;
+        $this->xmlEmulator       = $xmlEmulator;
+        $this->postbackCollector = $postbackCollector;
+        $this->aliOrders         = $aliOrders;
+        $this->csvHandler        = $csvHandler;
         
-        if ($request->getMethod() === 'GET') {
-            switch ($path) {
-                case ('/'):
-                    return $this->render('base.html.twig', ['message' => 'Main page']);
-                case ('/xml'):
-                    return $this->getXmlPage($request);
-                default:
-                    $page = substr($path, 1);
-                    return $this->render("{$page}.html.twig");
-            }
-        } else {
-            try {
-                $responseMessage = '';
+        $path = $this->request->getPathInfo();
+        try {
+            if ($this->request->getMethod() === 'GET') {
+                $page = substr($path, 1);
                 
-                if ($path === '/fileUpload') {
-                    $files = $request->files->all() ? : false;
-                    
-                    if (!$files) {
-                        throw new ExpectedException('Cant find files for save');
-                    }
-                    
-                    $files    = reset($files);
-                    $uploader = new CsvHandler($this->entityManager);
-                    
-                    foreach ($files as $file) {
-                        $uploader->uploadCSV($file);
-                    }
-                    
-                    $responseMessage = 'Files have been successfully added';
-                } else {
-                    
-                    $requestData = $_POST['data'];
-                    $requestData = json_decode($requestData, true);
-                    
-//                    foreach (self::MANDATORY_REQUEST_PARAMETERS as $parameter) {
-//                        if (!array_key_exists($parameter, $requestData)) {
-//                            throw new ExpectedException('Incorrect request parameters');
-//                        }
-//                    }
-//
-//                    $toolName   = $requestData['tool'];
-//                    $parameters = $requestData['parameters'];
-//                    $service    = $this->useService($toolName, $this->entityManager);
-//
-//                    $processedData = $service->process($parameters);
-//
-//                    if ($service->isFileService()) {
-//                        $disposition = $responseService->headers->makeDisposition(
-//                            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-//                            $service->fileName
-//                        );
-//                        $responseService->headers->set('Content-Disposition', $disposition);
-//                    }
-//
-//                    $responseService->setContent($processedData);
-                    
+                switch ($path) {
+                    case ('/'):
+                        return $this->render('base.html.twig', ['message' => 'Main page']);
+                    case (self::SENDER_PAGE):
+                        return $this->render('sender.html.twig', ['notSendedPostbacks' => $postbackCollector->getAwaitingPostbacks()]);
+                    case ('/xml'):
+                        return $this->getXmlPage();
+                    default:
+                        return $this->render("{$page}.html.twig");
                 }
-            } catch (ExpectedException $expectedException) {
-                $responseMessage = $expectedException->getMessage();
+            } else {
+                switch ($path) {
+                    case ('/fileUpload'):
+                        $responseMessage = $this->uploadFileAction();
+                        break;
+                    case (self::GEO_PAGE):
+                        $responseMessage = $this->geoSearch->process($_POST['data'] ?? null);
+                        break;
+                    case (self::ALI_ORDERS_PAGE):
+                        return $this->aliOrders->process($_POST['orders'] ?? null);
+                    case (self::XML_EMULATOR_PAGE):
+                        $responseMessage = $this->xmlEmulator->process($this->requestContent);
+                        break;
+                }
             }
-            
-            return $this->render('base.html.twig', ['message' => $responseMessage]);
+        } catch
+        (ExpectedException $expectedException) {
+            $responseMessage = $expectedException->getMessage();
         }
+        
+        return $this->render('base.html.twig', ['message' => $responseMessage]);
     }
     
     /**
-     * @param $tool
-     *
-     * @return AliOrdersService|GeoSearchService|XmlEmulatorService
+     * @return string
+     * @throws ExpectedException
      */
-    private function useService($tool)
+    private function uploadFileAction()
     {
-        switch ($tool) {
-            case self::GEO_TOOL:
-                $service = new GeoSearchService($this->entityManager);
-                break;
-            case self::ALI_ORDERS_TOOL:
-                $service = new AliOrdersService($this->entityManager);
-                break;
-            case self::XML_EMULATOR_TOOL:
-                $service = new XmlEmulatorService($this->entityManager);
-                break;
-            case self::SENDER:
-                $service = new PostbackCollector($this->entityManager);
-                break;
+        $files = $this->request->files->all() ? : false;
+        
+        if (!$files) {
+            throw new ExpectedException('Cant find files for save');
         }
         
-        return $service;
+        $files = reset($files);
+        foreach ($files as $file) {
+            $this->csvHandler->uploadCSV($file);
+        }
+        
+        return 'Files have been successfully added';
     }
     
     /**
      * @todo  переделать
      *
-     * @param Request $request
-     *
      * @return Response
      */
-    public function getXmlPage(Request $request)
+    public function getXmlPage()
     {
-        $query = parse_query($request->getQueryString());
+        $query = parse_query($this->request->getQueryString());
         
         if (empty($query['key'])) {
             //todo доделать
             return (new Response())->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
         
-        $service = new XmlEmulatorService($this->entityManager);
-        
         try {
-            $xml = $service->getXmlPageByKey($query['key']);
+            $xml = $this->xmlEmulator->getXmlPageByKey($query['key']);
         } catch (ExpectedException $e) {
             return new Response('<error>'.$e->getMessage().'</error>', 403, ['Content-Type' => 'text/xml']);
         }

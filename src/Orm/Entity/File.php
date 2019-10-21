@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace App\Orm\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use http\Encoding\Stream;
 
 /**
  * File

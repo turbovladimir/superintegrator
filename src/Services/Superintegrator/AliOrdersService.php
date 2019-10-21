@@ -8,58 +8,79 @@
 
 namespace App\Services\Superintegrator;
 
+use App\Exceptions\ExpectedException;
+use App\Services\File\CsvHandler;
 use Symfony\Component\HttpClient\HttpClient;
 use App\Services\AbstractService;
+use App\Services\DownloadFileTrait;
 
 //todo реализовать нормально файловый сервис
 class AliOrdersService extends AbstractService
 {
+    use DownloadFileTrait;
+    
     protected $isFileService = true;
     const URL = 'https://gw.api.alibaba.com/openapi/param2/2/portals.open/api.getOrderStatus/30056?appSignature=9FIO77dDIidM&orderNumbers=';
     const LIMIT_OF_ORDERS_PER_REQUEST = 100;
     
     /**
-     * @var
+     * @param $orders
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws ExpectedException
      */
-    public $fileName;
+    public function process($orders)
+    {
+        if (!$orders) {
+            throw new ExpectedException('Empty orders field');
+        }
+        
+        $name = $this->getFileName();
+        $content = $this->generateFileContent(json_decode($orders));
+        
+        return $this->giveFile($name, $content);
+    }
+    
     
     /**
-     * @param $parameters
+     * @param $orders
      *
      * @return string
      */
-    public function process($parameters)
+    private function generateFileContent($orders)
     {
-        $orders = $parameters['orders'];
-        
+    
         if (count($orders) > self::LIMIT_OF_ORDERS_PER_REQUEST) {
-            
+        
             // дробим по 100 ордеров и отправляем в алибабу
             $bigOrders = array_chunk($orders, self::LIMIT_OF_ORDERS_PER_REQUEST);
-            
+        
             foreach ($bigOrders as $ordersChunk) {
-                $arrayResponseFromApi[] = self::fetchOrders($ordersChunk);
+                $arrayResponseFromApi[] = $this->fetchOrders($ordersChunk);
             }
-            
+        
             $advertiserOrders = array_merge(
                 ...$arrayResponseFromApi
             ); // отличное решение, элементы массива = подмассивы через оператор ... встраиваются в функцию мерж
-            
+        
         } else {
             $advertiserOrders = $this->fetchOrders($orders);
         }
-        
-        $date           = date('y-m-d h:i:s');
-        $this->fileName = "Aliexpress_orders_{$date}.csv";
-        
+    
+        $header = array_keys(reset($advertiserOrders));
         foreach ($advertiserOrders as $order) {
-            if (!isset($fileContent)) {
-                $fileContent = implode(',', array_keys($order))."\n";
-            }
-            $fileContent .= implode(',', $order)."\n";
+            $records[] = array_values($order);
         }
+    
+        return CsvHandler::generateFile($header, $records);
+    }
+    
+    
+    private function getFileName()
+    {
+        $date           = date('y-m-d h:i:s');
         
-        return $fileContent;
+        return "Aliexpress_orders_{$date}.csv";
     }
     
     private function fetchOrders($orders)

@@ -39,6 +39,7 @@ services:
         class: App\Services\Superintegrator\PostbackCollector
         arguments:
             - '@doctrine.orm.entity_manager'
+            - '@orm.model.message'
 
     data_agregator:
       class: App\Services\Fonbet\OmarsysDataAggregator

@@ -28,11 +28,8 @@ function geo_send() {
     var geoList = $('#country_id').val();
     geoList = Input2Array(geoList, ',');
     var requestObj = {
-        tool: 'geo',
-        parameters: {
-            geoType: $('#geo_selector').val(),
-            geoList: geoList
-        }
+            type: $('#geo_selector').val(),
+            list: geoList
     };
 
     printResponse = true;
@@ -45,25 +42,19 @@ function geo_send() {
 function get_csv_file() {
     var orders = $('#ali_orders').val();
     orders = Input2Array(orders, /\s*\n/);
-    var requestObj = {
-        tool: 'ali_orders',
-        parameters: {
-            orders: orders
-        }
-    };
 
     $('<form>', {
         id: 'form',
-        action: '/',
+        action: '/ali_orders',
         method: "post"
 
-    }).appendTo('.geo_menu');
+    }).appendTo('#content');
 
     $('<input>', {
         type: 'text',
-        name:"data",
         method: "post",
-        value: JSON.stringify(requestObj)
+        name: "orders",
+        value: JSON.stringify(orders)
 
     }).appendTo('#form');
 

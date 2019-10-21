@@ -2,13 +2,12 @@
 
 namespace App\Services\Superintegrator;
 
-use App\Entity\File;
-use App\Entity\Message;
-use App\Exceptions\ExpectedException;
-use App\Services\File\CsvHandler;
+use App\Orm\Entity\File;
+use App\Orm\Entity\Message;
+use App\Orm\Model\Message as MessageModel;
 use App\Services\TaskServiceInterface;
-use Symfony\Component\HttpFoundation\Request;
 use App\Services\AbstractService;
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * Парсит файлы архива и отправляет в бд для последующей отправки
@@ -30,6 +29,23 @@ class PostbackCollector extends AbstractService implements TaskServiceInterface
     const URLS_LIMIT = 50;
     
     /**
+     * @var MessageModel
+     */
+    private $messageModel;
+    
+    /**
+     * PostbackCollector constructor.
+     *
+     * @param EntityManagerInterface $entityManager
+     * @param MessageModel           $messageModel
+     */
+    public function __construct(EntityManagerInterface $entityManager, MessageModel $messageModel)
+    {
+        $this->messageModel = $messageModel;
+        parent::__construct($entityManager);
+    }
+    
+    /**
      * @return mixed|void
      */
     public function start()
@@ -38,16 +54,12 @@ class PostbackCollector extends AbstractService implements TaskServiceInterface
     }
     
     /**
-     * @param $parameters
-     *
-     * @return false|string
-     * @throws \Exception
+     * @return mixed
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function process($parameters)
+    public function getAwaitingPostbacks()
     {
-        if (array_key_exists('ask_server_about_requests', $parameters)) {
-            return $this->getNotSendedRequestCount();
-        }
+        return $this->messageModel->getAwaitingMessagesCount(self::DESTINATION);
     }
     
     /**
@@ -56,13 +68,7 @@ class PostbackCollector extends AbstractService implements TaskServiceInterface
     private function collect()
     {
         $urls = $this->getUrls();
-        
-        foreach ($urls as $url) {
-            $message = new Message(self::DESTINATION, $url);
-            $this->entityManager->persist($message);
-        }
-        
-        $this->entityManager->flush();
+        $this->messageModel->saveMessages(self::DESTINATION, $urls);
     }
     
     /**
@@ -139,13 +145,5 @@ class PostbackCollector extends AbstractService implements TaskServiceInterface
         
         return $urlPath.'?'.$encodeParams;
         
-    }
-    
-    private function getNotSendedRequestCount()
-    {
-        $repository = $this->entityManager->getRepository(Message::class);
-        $requests   = $repository->findBy(['sended' => 0, 'destination' => 'cityads']);
-        
-        return !empty($requests) ? count($requests) : 0;
     }
 }

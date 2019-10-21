@@ -1,5 +1,5 @@
-#Superintegrator
-
-#processing.orm.submissions:
-#  class: Cityads\Processing\Orm\Model\Orders\Submission
-#  factory: 'processing.deprecated.model_factory:Orders_Submission'
+services:
+  orm.model.message:
+    class: App\Orm\Model\Message
+    arguments:
+      - '@doctrine.orm.entity_manager'

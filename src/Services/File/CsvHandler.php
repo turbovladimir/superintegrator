@@ -8,10 +8,10 @@
 
 namespace App\Services\File;
 
-use League\Csv\Stream;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Exceptions\ExpectedException;
 use League\Csv\Reader;
+use League\Csv\Writer;
 
 class CsvHandler extends FileHandler
 {
@@ -29,6 +29,22 @@ class CsvHandler extends FileHandler
         
         $fileName = $file->getClientOriginalName();
         $this->upload($fileName, self::FILE_TYPE_CSV, fopen($file->getRealPath(), 'rb'));
+    }
+    
+    /**
+     * @param $header
+     * @param $records
+     *
+     * @return string
+     * @throws \League\Csv\CannotInsertRecord
+     */
+    public static function generateFile($header, $records)
+    {
+        $csv = Writer::createFromString('');
+        $csv->insertOne($header);
+        $csv->insertAll($records);
+        
+        return $csv->getContent();
     }
     
     /**

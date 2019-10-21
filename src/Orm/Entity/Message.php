@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace App\Orm\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -81,7 +81,7 @@ class Message extends BaseEntity
      *
      * @throws \Exception
      */
-    public function __construct($destination, $url, $headers = null, $method = 'GET')
+    public function __construct($destination, $url, $headers, $method)
     {
         $this->destination = $destination;
         $this->url         = $url;

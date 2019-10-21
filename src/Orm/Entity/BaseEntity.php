@@ -6,7 +6,7 @@
  * Time: 16:28
  */
 
-namespace App\Entity;
+namespace App\Orm\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 

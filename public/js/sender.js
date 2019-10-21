@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    print('0');
+    //print('0');
 
     var requestObj = {
         tool: 'sender',
@@ -24,11 +24,12 @@ $(document).ready(function() {
         $.post(
             url, {'data': data},
             function (responseData) {
-                    print(responseData);
+                    //print(responseData);
             }
         );
     }
 
+    //todo выпилить нах
     function print(string) {
 
         if ($('.response')) {

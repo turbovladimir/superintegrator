@@ -31,7 +31,9 @@ class GeoSearchService extends AbstractService
      */
     public function process($parameters)
     {
-        return $this->fetchGeoIds($parameters['geoType'], $parameters['geoList']);
+        $parameters = json_decode($parameters, true);
+        
+        return $this->fetchGeoIds($parameters['type'], $parameters['list']);
     }
     
     /**
