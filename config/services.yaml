@@ -30,21 +30,21 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    sender:
+    service.sender:
         class: App\Services\Sender\Sender
         arguments:
             - '@orm.model.message'
 
-    postback_collector:
+    service.postback_collector:
         class: App\Services\Superintegrator\PostbackCollector
         arguments:
             - '@doctrine.orm.entity_manager'
             - '@orm.model.message'
 
-    data_agregator:
+    service.data_agregator:
       class: App\Services\Fonbet\OmarsysDataAggregator
 
-    api_data_fetcher:
+    service.api_data_fetcher:
         class: App\Services\Fetcher\ApiDataFetcher
 
     service_factory:

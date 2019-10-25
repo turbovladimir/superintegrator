@@ -3,3 +3,8 @@ services:
     class: App\Orm\Model\Message
     arguments:
       - '@doctrine.orm.entity_manager'
+
+  orm.model.archive:
+    class: App\Orm\Model\Archive
+    arguments:
+      - '@doctrine.orm.entity_manager'

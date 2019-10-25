@@ -1,23 +1,32 @@
 services:
-  cron_command:
-    class: App\Commands\CronCommand
+  comand.base_daemon:
+    class: App\Commands\BaseDaemon
+    abstract: true
     arguments:
-      - '@service_factory'
       - '@monolog.logger'
+
+  command.sender:
+    class: App\Commands\SenderCommand
+    parent: 'comand.base_daemon'
+    arguments:
+      - '@service.sender'
     tags:
       - { name: console.command }
 
-  test_command:
+  command.test:
     class: App\Commands\TestCommand
+    parent: 'comand.base_daemon'
     arguments:
-      - '@postback_collector'
-      - '@sender'
+      - '@service.postback_collector'
+      - '@service.sender'
     tags:
       - { name: console.command }
 
-  pull_command:
+  command.pull:
     class: App\Commands\PullApiDataCommand
+    parent: 'comand.base_daemon'
     arguments:
-      - '@api_data_fetcher'
+      - '@service.api_data_fetcher'
+      - '@orm.model.archive'
     tags:
       - { name: console.command }
