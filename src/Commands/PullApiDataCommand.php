@@ -9,6 +9,7 @@
 namespace App\Commands;
 
 
+use App\Exceptions\EmptyDataException;
 use App\Orm\Model\Archive;
 use App\Services\Fetcher\ApiDataFetcher;
 use function GuzzleHttp\Psr7\parse_query;
@@ -33,6 +34,10 @@ class PullApiDataCommand extends BaseDaemon
     private $fetcher;
     private $archive;
     
+    /**
+     * @param ApiDataFetcher $fetcher
+     * @param Archive        $archive
+     */
     public function __construct(ApiDataFetcher $fetcher, Archive $archive)
     {
         $this->fetcher = $fetcher;
@@ -74,10 +79,12 @@ protected function configure()
         
         $response = $this->fetcher->getApiResponse();
         
-        if (!empty($response)) {
-            $this->output->writeln(['save response in archives']);
-            $this->archive->saveLog('api_fetcher', [$response]);
+        if (empty($response)) {
+            throw new EmptyDataException('Response is empty');
         }
+    
+        $this->output->writeln(['save response in archives']);
+        $this->archive->saveLog('api_fetcher', [$response]);
     }
     
     /**

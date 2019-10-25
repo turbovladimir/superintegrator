@@ -2,6 +2,7 @@
 
 namespace App\Services\Superintegrator;
 
+use App\Exceptions\EmptyDataException;
 use App\Orm\Entity\File;
 use App\Orm\Entity\Message;
 use App\Orm\Model\Message as MessageModel;
@@ -72,24 +73,31 @@ class PostbackCollector extends AbstractService implements TaskServiceInterface
     }
     
     /**
-     * @return array|null
+     * @return array
+     * @throws EmptyDataException
      */
     private function getUrls()
     {
-        $urls       = [];
         $repository = $this->entityManager->getRepository(File::class);
         $files      = $repository->findBy(['type' => 'csv']);
-        
+    
         if (empty($files)) {
-            return null;
+            throw new EmptyDataException('There is no files in database');
         }
         
         foreach ($files as $file) {
             if (strpos($file->getFileName(), self::FILE_NAME) !== false) {
-                $urls = array_merge($urls, $this->transform(stream_get_contents($file->getFileContent())));
-                $this->entityManager->remove($file);
+                $archiveFile = $file;
+                break;
             }
         }
+        
+        if (!isset($archiveFile)) {
+            throw new EmptyDataException('There is no archive files in database');
+        }
+        
+        $urls = $this->transform(stream_get_contents($archiveFile->getFileContent()));
+        $this->entityManager->remove($archiveFile);
         
         return $urls;
     }

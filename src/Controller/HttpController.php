@@ -121,4 +121,14 @@ class HttpController extends BaseController
         
         return new Response($xml, 200, ['Content-Type' => 'text/xml']);
     }
+    
+    /**
+     * @param $path
+     *
+     * @return string
+     */
+    protected function setDescription($path)
+    {
+        return '';
+    }
 }

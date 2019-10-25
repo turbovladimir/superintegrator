@@ -50,5 +50,5 @@ services:
     service_factory:
         class: App\Factory\ServiceFactory
         arguments:
-            - '@sender'
-            - '@data_agregator'
+            - '@service.sender'
+            - '@service.data_agregator'

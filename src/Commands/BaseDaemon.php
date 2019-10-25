@@ -8,6 +8,7 @@
 
 namespace App\Commands;
 
+use App\Exceptions\EmptyDataException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,6 +17,9 @@ use Symfony\Component\Console\Input\InputOption;
 
 abstract class BaseDaemon extends Command
 {
+    
+    protected static $defaultName = 'daemon';
+    
     const DEFAULT_LIFETIME = 600;
     const WORKER_LIFETIME = 20;
     const WORERS_DEFAULT_COUNT = 10;
@@ -29,14 +33,11 @@ abstract class BaseDaemon extends Command
     protected $logger;
     
     /**
-     * BaseDaemon constructor.
-     *
      * @param LoggerInterface $logger
      */
-    public function __construct(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
-        parent::__construct($name = null);
     }
     
     protected function configure()
@@ -85,6 +86,9 @@ abstract class BaseDaemon extends Command
                 } else {
                     $this->process();
                 }
+            } catch (EmptyDataException $emptyDataException) {
+                $this->output->writeln([$emptyDataException->getMessage()]);
+                exit();
             } catch (\Exception $exception) {
                 $this->logger->error($exception->getMessage(), $exception->getTrace());
             }

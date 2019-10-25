@@ -7,6 +7,7 @@
  */
 
 namespace App\Services\Sender;
+use App\Exceptions\EmptyDataException;
 use \GuzzleHttp\Client;
 use \GuzzleHttp\Exception\GuzzleException;
 use \App\Services\TaskServiceInterface;
@@ -49,6 +50,8 @@ class Sender implements TaskServiceInterface
     
     /**
      * @param $sendingPerTask
+     *
+     * @throws EmptyDataException
      */
     public function send($sendingPerTask)
     {
@@ -56,7 +59,7 @@ class Sender implements TaskServiceInterface
         $messages = $this->messageModel->getAwaitingMessage($sendingPerTask, self::NUMBER_OF_ATTEMPTS);
         
         if (empty($messages)) {
-            return;
+            throw new EmptyDataException('Nothing to send');
         }
         
         foreach ($messages as $message) {

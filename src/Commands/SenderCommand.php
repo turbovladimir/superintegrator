@@ -8,8 +8,8 @@
 
 namespace App\Commands;
 
+use App\Exceptions\ExpectedException;
 use App\Services\Sender\Sender;
-
 
 /**
  * Class CronCommand
@@ -25,17 +25,16 @@ class SenderCommand extends BaseDaemon
     /**
      * SenderCommand constructor.
      *
-     * @param Sender          $sender
+     * @param Sender $sender
      */
     public function __construct(Sender $sender)
     {
         $this->sender = $sender;
-        parent::__construct();
+        parent::__construct($name = null);
     }
     
     protected function process()
     {
         $this->sender->start();
-        
     }
 }
