@@ -32,7 +32,22 @@
 {% endblock %}
 
 <div id="content" class="content">
-    {% block body %}<span>some content</span>{% endblock %}
+    {% if description is defined %}
+        {% for key, value in description %}
+            <h3>{{ key }}</h3>
+            <span>{{ value }}</span>
+        {% endfor %}
+    {% endif %}
+
+    {% block body %}{% endblock %}
+
+    {% if response is defined %}
+        {% for key, value in response %}
+        <ul>
+            <li><span>{{ key }}: {{ value }}</span></li>
+        </ul>
+        {% endfor %}
+    {% endif %}
 </div>
 
 </body>

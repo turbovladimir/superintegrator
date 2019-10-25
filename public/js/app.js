@@ -11,7 +11,7 @@ function generate_link() {
         }
     };
     printResponse = true;
-    push('/', requestObj);
+    push('/xml_emulator', requestObj);
 }
 
 ////////////////xml emulator////////////////
@@ -28,15 +28,29 @@ function geo_send() {
     var geoList = $('#country_id').val();
     geoList = Input2Array(geoList, ',');
     var requestObj = {
-        tool: 'geo',
-        parameters: {
-            geoType: $('#geo_selector').val(),
-            geoList: geoList
-        }
+            type: $('#geo_selector').val(),
+            list: geoList
     };
 
     printResponse = true;
-    push('/', requestObj);
+    //push('/geo', requestObj);
+
+    $('<form>', {
+        id: 'form',
+        action: '/geo',
+        method: "post"
+
+    }).appendTo('#content');
+
+    $('<input>', {
+        type: 'text',
+        method: "post",
+        name: "geo",
+        value: JSON.stringify(requestObj)
+
+    }).appendTo('#form');
+
+    $('form').submit().remove();
 }
 
 ////////////////geo////////////////
@@ -45,36 +59,27 @@ function geo_send() {
 function get_csv_file() {
     var orders = $('#ali_orders').val();
     orders = Input2Array(orders, /\s*\n/);
-    var requestObj = {
-        tool: 'ali_orders',
-        parameters: {
-            orders: orders
-        }
-    };
 
     $('<form>', {
         id: 'form',
-        action: '/',
+        action: '/ali_orders',
         method: "post"
 
-    }).appendTo('.geo_menu');
+    }).appendTo('#content');
 
     $('<input>', {
         type: 'text',
-        name:"data",
         method: "post",
-        value: JSON.stringify(requestObj)
+        name: "orders",
+        value: JSON.stringify(orders)
 
     }).appendTo('#form');
 
     $('form').submit().remove();
 
-    //push('/', requestObj);
 }
 
 ////////////////ali orders////////////////
-
-
 
 
 //todo доделать

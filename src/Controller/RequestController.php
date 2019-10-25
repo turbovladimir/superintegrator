@@ -10,20 +10,15 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use \App\Services\GeoSearchService;
-use \App\Services\AliOrdersService;
-use \App\Services\XmlEmulatorService;
-use \App\Services\SenderService;
+use \App\Services\Superintegrator\GeoSearchService;
+use \App\Services\Superintegrator\AliOrdersService;
+use \App\Services\Superintegrator\XmlEmulatorService;
+use \App\Services\Superintegrator\PostbackCollector;
 use \App\Exceptions\ExpectedException;
 use Symfony\Component\HttpFoundation\Request;
 
 class RequestController extends BaseController
 {
-    const MANDATORY_REQUEST_PARAMETERS = ['tool', 'parameters'];
-    const GEO_TOOL = 'geo';
-    const ALI_ORDERS_TOOL = 'ali_orders';
-    const XML_EMULATOR_TOOL = 'xml_emulator';
-    const SENDER = 'sender';
     
     public function handle()
     {
@@ -71,26 +66,6 @@ class RequestController extends BaseController
         return $responseService;
     }
     
-    public function loadFilesOnServer(Request $request)
-    {
-        try {
-            $service = new SenderService($this->entityManager);
-            $responseMessage = $service->sendDataFromFiles2Server($request);
-        } catch (ExpectedException $e) {
-            return new Response(
-                $e->getMessage(),
-                Response::HTTP_OK,
-                ['content-type' => 'text/html']
-            );
-        }
-        
-        return new Response(
-            $responseMessage,
-            Response::HTTP_OK,
-            ['content-type' => 'text/html']
-        );
-    }
-    
     /**
      * @param $tool
      *
@@ -109,7 +84,7 @@ class RequestController extends BaseController
                 $service = new XmlEmulatorService($this->entityManager);
                 break;
             case self::SENDER:
-                $service = new SenderService($this->entityManager);
+                $service = new PostbackCollector($this->entityManager);
                 break;
         }
         

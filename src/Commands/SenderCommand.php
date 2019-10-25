@@ -8,24 +8,34 @@
 
 namespace App\Commands;
 
-use App\Services\SenderService;
+use App\Services\Sender\Sender;
 
+
+/**
+ * Class CronCommand
+ *
+ * @package App\Commands
+ */
 class SenderCommand extends BaseDaemon
 {
-    const COMMAND_NAME = 'sender';
+    protected static $defaultName = 'sender';
     
-    private $service;
+    private $sender;
     
-    public function __construct(SenderService $service)
+    /**
+     * SenderCommand constructor.
+     *
+     * @param Sender          $sender
+     */
+    public function __construct(Sender $sender)
     {
-        $this->service = $service;
-        parent::__construct(self::COMMAND_NAME);
+        $this->sender = $sender;
+        parent::__construct();
     }
     
-    protected function gainServiceMethods()
+    protected function process()
     {
-        $this->service->clearDb();
-        $this->service->sendFromDb();
+        $this->sender->start();
+        
     }
-    
 }

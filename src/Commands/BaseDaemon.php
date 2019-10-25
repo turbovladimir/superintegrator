@@ -8,6 +8,7 @@
 
 namespace App\Commands;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -23,52 +24,69 @@ abstract class BaseDaemon extends Command
     
     private $workers = [];
     
+    protected $input;
     protected $output;
+    protected $logger;
+    
+    /**
+     * BaseDaemon constructor.
+     *
+     * @param LoggerInterface $logger
+     */
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+        parent::__construct($name = null);
+    }
     
     protected function configure()
     {
         $this
             ->setDescription('Команда базового демона')
-            ->setHelp('Помощи ждать неоткуда')
-        ;
+            ->setHelp('Помощи ждать неоткуда');
         
-        $this->addOption('daemonMode',      null, InputOption::VALUE_REQUIRED, 'Запуск в режиме демона', false);
+        $this->addOption('daemonMode', null, InputOption::VALUE_OPTIONAL, 'Запуск в режиме демона', 0);
     }
     
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->output = $output;
+        $this->input  = $input;
         // outputs multiple lines to the console (adding "\n" at the end of each line)
-        $output->writeln([
-            'Демон просыпается',
-            '============',
-            '',
-        ]);
+        $output->writeln(
+            [
+                'Демон просыпается',
+                '============',
+                '',
+            ]
+        );
         
-        $this->start($input, $output);
+        $this->start();
         
         $output->write('И ложится спать');
-        exit();
     }
     
-    private function start(InputInterface $in, OutputInterface $out)
+    private function start()
     {
-        $daemonMode = (bool)$in->getOption('daemonMode');
-        $startedAt = time();
+        $daemonMode = (bool) $this->input->getOption('daemonMode');
+        $startedAt  = time();
         
         while (true) {
-            
-            if (self::DEFAULT_LIFETIME < (time() - $startedAt)) {
-                //todo надо доделать для мультипоточности
-                //$this->stop();
-                break;
-            }
-    
-            //todo зарезолвить екстеншен для пхп
-            if ($daemonMode && extension_loaded('pcntl')) {
-                $this->startMultiThread();
-            } else {
-                $this->gainServiceMethods();
+            try {
+                if (self::DEFAULT_LIFETIME < (time() - $startedAt)) {
+                    //todo надо доделать для мультипоточности
+                    //$this->stop();
+                    break;
+                }
+                
+                //todo зарезолвить екстеншен для пхп
+                if ($daemonMode && extension_loaded('pcntl')) {
+                    $this->startMultiThread();
+                } else {
+                    $this->process();
+                }
+            } catch (\Exception $exception) {
+                $this->logger->error($exception->getMessage(), $exception->getTrace());
             }
         }
     }
@@ -77,7 +95,7 @@ abstract class BaseDaemon extends Command
     {
         while ($this->workersCount) {
             $pid = pcntl_fork();
-    
+            
             if ($pid === -1) {
                 continue;
             } elseif ($pid > 0) {
@@ -85,10 +103,10 @@ abstract class BaseDaemon extends Command
             } else {
                 $this->processLoop();
             }
-    
-            $this->workersCount --;
+            
+            $this->workersCount--;
         }
-
+        
     }
     
     private function processLoop()
@@ -97,14 +115,13 @@ abstract class BaseDaemon extends Command
         
         while (self::WORKER_LIFETIME < (time() - $workerStartTime)) {
             sleep(1);
-            $this->gainServiceMethods();
+            $this->process();
         }
         
         exit();
     }
     
-    abstract protected function gainServiceMethods();
-    
+    abstract protected function process();
     
     
 }

@@ -1,0 +1,32 @@
+services:
+  comand.base_daemon:
+    class: App\Commands\BaseDaemon
+    abstract: true
+    arguments:
+      - '@monolog.logger'
+
+  command.sender:
+    class: App\Commands\SenderCommand
+    parent: 'comand.base_daemon'
+    arguments:
+      - '@service.sender'
+    tags:
+      - { name: console.command }
+
+  command.test:
+    class: App\Commands\TestCommand
+    parent: 'comand.base_daemon'
+    arguments:
+      - '@service.postback_collector'
+      - '@service.sender'
+    tags:
+      - { name: console.command }
+
+  command.pull:
+    class: App\Commands\PullApiDataCommand
+    parent: 'comand.base_daemon'
+    arguments:
+      - '@service.api_data_fetcher'
+      - '@orm.model.archive'
+    tags:
+      - { name: console.command }
