@@ -32,7 +32,14 @@
 {% endblock %}
 
 <div id="content" class="content">
-    {% block body %}<span>{{ message }}</span>{% endblock %}
+    {% block body %}{% endblock %}
+    {% if response is defined %}
+        {% for key, value in response %}
+        <ul>
+            <li><span>{{ key }}: {{ value }}</span></li>
+        </ul>
+        {% endfor %}
+    {% endif %}
 </div>
 
 </body>

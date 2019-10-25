@@ -12,23 +12,34 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Exceptions\ExpectedException;
 use League\Csv\Reader;
 use League\Csv\Writer;
+use Symfony\Component\HttpFoundation\Request;
 
 class CsvHandler extends FileHandler
 {
     const FILE_TYPE_CSV = 'csv';
     
     /**
-     * @param UploadedFile $file
+     * @param Request $request
      *
+     * @return string
      * @throws ExpectedException
-     * @throws \League\Csv\Exception
      */
-    public function uploadCSV(UploadedFile $file)
+    public function uploadFileAction(Request $request)
     {
-        $this->checkFile($file);
-        
-        $fileName = $file->getClientOriginalName();
-        $this->upload($fileName, self::FILE_TYPE_CSV, fopen($file->getRealPath(), 'rb'));
+        $files = $request->files->all() ? : false;
+    
+        if (!$files) {
+            throw new ExpectedException('Cant find files for save');
+        }
+    
+        $files = reset($files);
+        foreach ($files as $file) {
+            $this->checkFile($file);
+            $fileName = $file->getClientOriginalName();
+            $this->upload($fileName, self::FILE_TYPE_CSV, fopen($file->getRealPath(), 'rb'));
+        }
+    
+        return 'Files have been successfully uploaded';
     }
     
     /**

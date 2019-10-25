@@ -53,7 +53,7 @@ class HttpController extends BaseController
         AliOrdersService $aliOrders,
         CsvHandler $csvHandler
     ) {
-        $responseMessage         = '';
+        $response         = [];
         $this->request           = $request;
         $this->requestContent    = urldecode($this->request->getContent());
         $this->geoSearch         = $geoSearch;
@@ -63,13 +63,12 @@ class HttpController extends BaseController
         $this->csvHandler        = $csvHandler;
         
         $path = $this->request->getPathInfo();
+        $path === '/' ? $path = '/base' : null;
+        $page = str_replace('/', '', $path);
+        
         try {
             if ($this->request->getMethod() === 'GET') {
-                $page = substr($path, 1);
-                
                 switch ($path) {
-                    case ('/'):
-                        return $this->render('base.html.twig', ['message' => 'Main page']);
                     case (self::SENDER_PAGE):
                         return $this->render('sender.html.twig', ['notSendedPostbacks' => $postbackCollector->getAwaitingPostbacks()]);
                     case ('/xml'):
@@ -79,45 +78,26 @@ class HttpController extends BaseController
                 }
             } else {
                 switch ($path) {
-                    case ('/fileUpload'):
-                        $responseMessage = $this->uploadFileAction();
+                    case ('/sender'):
+                        $response = $this->csvHandler->uploadFileAction($this->request);
                         break;
                     case (self::GEO_PAGE):
-                        $responseMessage = $this->geoSearch->process($_POST['data'] ?? null);
+                        $response = $this->geoSearch->process($_POST['geo'] ?? null);
                         break;
                     case (self::ALI_ORDERS_PAGE):
-                        return $this->aliOrders->process($_POST['orders'] ?? null);
+                        $response = $this->aliOrders->process($_POST['orders'] ?? null);
+                        break;
                     case (self::XML_EMULATOR_PAGE):
-                        $responseMessage = $this->xmlEmulator->process($this->requestContent);
+                        $response = $this->xmlEmulator->process($this->requestContent);
                         break;
                 }
             }
         } catch
         (ExpectedException $expectedException) {
-            $responseMessage = $expectedException->getMessage();
+            $response = $expectedException->getMessage();
         }
         
-        return $this->render('base.html.twig', ['message' => $responseMessage]);
-    }
-    
-    /**
-     * @return string
-     * @throws ExpectedException
-     */
-    private function uploadFileAction()
-    {
-        $files = $this->request->files->all() ? : false;
-        
-        if (!$files) {
-            throw new ExpectedException('Cant find files for save');
-        }
-        
-        $files = reset($files);
-        foreach ($files as $file) {
-            $this->csvHandler->uploadCSV($file);
-        }
-        
-        return 'Files have been successfully added';
+        return $this->render("{$page}.html.twig", ['response' => $response]);
     }
     
     /**

@@ -8,9 +8,9 @@
 
 namespace App\Services\Superintegrator;
 
-use App\Entity\Superintegrator\CountryRussia;
-use App\Entity\Superintegrator\WorldRegion;
-use App\Entity\Superintegrator\WorldRegionCodes;
+use App\Orm\Entity\Superintegrator\CountryRussia;
+use App\Orm\Entity\Superintegrator\WorldRegion;
+use App\Orm\Entity\Superintegrator\WorldRegionCodes;
 use App\Services\AbstractService;
 
 /**
@@ -27,7 +27,7 @@ class GeoSearchService extends AbstractService
     /**
      * @param $parameters
      *
-     * @return false|string|null
+     * @return array
      */
     public function process($parameters)
     {
@@ -40,7 +40,7 @@ class GeoSearchService extends AbstractService
      * @param $geoType
      * @param $geoList
      *
-     * @return string|null
+     * @return array
      */
     private function fetchGeoIds($geoType, $geoList)
     {
@@ -80,6 +80,6 @@ class GeoSearchService extends AbstractService
             }
         }
 
-        return !empty($cityadsIds) ? json_encode($cityadsIds) : null;
+        return $cityadsIds;
     }
 }

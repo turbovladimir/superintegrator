@@ -33,7 +33,24 @@ function geo_send() {
     };
 
     printResponse = true;
-    push('/geo', requestObj);
+    //push('/geo', requestObj);
+
+    $('<form>', {
+        id: 'form',
+        action: '/geo',
+        method: "post"
+
+    }).appendTo('#content');
+
+    $('<input>', {
+        type: 'text',
+        method: "post",
+        name: "geo",
+        value: JSON.stringify(requestObj)
+
+    }).appendTo('#form');
+
+    $('form').submit().remove();
 }
 
 ////////////////geo////////////////
@@ -60,12 +77,9 @@ function get_csv_file() {
 
     $('form').submit().remove();
 
-    //push('/', requestObj);
 }
 
 ////////////////ali orders////////////////
-
-
 
 
 //todo доделать

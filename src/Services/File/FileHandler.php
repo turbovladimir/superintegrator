@@ -9,9 +9,10 @@
 namespace App\Services\File;
 
 
-use App\Entity\File;
+use App\Orm\Entity\File;
 use App\Services\AbstractService;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Конвертирует файлы в данные бд
@@ -30,6 +31,7 @@ abstract class FileHandler extends AbstractService
      */
     private $filesizeLimit = self::FILE_SYZE_LIMIT;
     
+    abstract public function uploadFileAction(Request $request);
     
     abstract protected function checkFile(UploadedFile $file);
     
