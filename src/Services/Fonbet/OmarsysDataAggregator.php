@@ -8,22 +8,21 @@
 
 namespace App\Services\Fonbet;
 
-use \GuzzleHttp\Client;
 use App\Exceptions\ExpectedException;
-use App\Entity\Fonbet\PublishersStatistic;
-use App\Services\AbstractService;
+use App\Orm\Entity\Fonbet\PublishersStatistic;
+use App\Services\Fetcher\ApiDataFetcher;
 use App\Services\TaskServiceInterface;
 
-class OmarsysDataAggregator extends AbstractService implements TaskServiceInterface
+class OmarsysDataAggregator extends ApiDataFetcher implements TaskServiceInterface
 {
     private const TOKEN = '433825e3f940e3d012c7082e510efb2141ff3f0a';
     private const AFFILATE_ID = 100379;
     private const REQUEST_PATH = 'https://api.fonbetaffiliates.com/rpc/report/variables';
-    private const REQUEST_METHOD = 'GET';
     
     /**
      * @return mixed|null
      * @throws ExpectedException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function start()
     {
@@ -86,31 +85,30 @@ class OmarsysDataAggregator extends AbstractService implements TaskServiceInterf
         return $publishers;
     }
     
+    /**
+     * @return mixed
+     * @throws ExpectedException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     private function getData()
     {
+        $date = new \DateTime('now');
         
-        $dateFrom = date('Y-m-d', time() - 60 * 60 * 24);
-        $dateTo = date('Y-m-d', time() + 60 * 60 * 24);
-        $url      = self::REQUEST_PATH;
-        $query    = [
+        $dateFrom = $date->modify('-1 day');
+        $dateTo = $date->modify('+1 day');
+        $this->setRequestPath(self::REQUEST_PATH);
+        $this->setQueryParams([
             'affiliate'    => self::AFFILATE_ID,
-            //todo поправить
-            'filter[from]' => '2019-08-01',
-            'filter[to]'   => $dateTo,
-        ];
-        $headerParams = [
+            'filter[from]' => $dateFrom->format('Y-m-d'),
+            'filter[to]'   => $dateTo->format('Y-m-d'),
+        ]);
+        $this->setHeaders([
             'Authorization' => 'Bearer '. self::TOKEN,
             'Accept'        => 'application/json',
-        ];
+        ]);
         
-        try{
-            $client   = new Client();
-            $response = $client->request(self::REQUEST_METHOD, $url, ['headers' => $headerParams, 'query' => $query])->getBody();
-            $json     = $response->getContents();
-        } catch (\Exception $exception) {
-            throw new ExpectedException("[{".get_class($exception)."}]". $exception->getMessage());
-        }
         
-        return json_decode($json, true);
+        
+        return json_decode($this->getApiResponse(), true);
     }
 }

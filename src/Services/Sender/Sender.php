@@ -12,6 +12,11 @@ use \GuzzleHttp\Exception\GuzzleException;
 use \App\Services\TaskServiceInterface;
 use \App\Orm\Model\Message;
 
+/**
+ * Class Sender
+ *
+ * @package App\Services\Sender
+ */
 class Sender implements TaskServiceInterface
 {
     public const DEFAULT_SEND_PER_TASK = 50;

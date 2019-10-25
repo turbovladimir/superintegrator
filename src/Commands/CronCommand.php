@@ -33,7 +33,7 @@ class CronCommand extends BaseDaemon
      */
     public function __construct(ServiceFactory $factory, LoggerInterface $logger)
     {
-        $this->logger = $logger;
+        $this->logger   = $logger;
         $this->services = $factory->getServices();
         parent::__construct();
     }
@@ -54,13 +54,12 @@ class CronCommand extends BaseDaemon
      */
     protected function gainServiceMethods()
     {
-        try {
-            foreach ($this->services as $service) {
+        foreach ($this->services as $service) {
+            try {
                 $service->start();
+            } catch (\Exception $exception) {
+                $this->logger->error($exception->getMessage(), $exception->getTrace());
             }
-        } catch (\Exception $exception) {
-            $this->logger->error($exception->getMessage(), $exception->getTrace());
         }
-
     }
 }
