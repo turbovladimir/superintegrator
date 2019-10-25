@@ -8,6 +8,7 @@
 
 namespace App\Commands;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use App\Factory\ServiceFactory;
@@ -22,13 +23,25 @@ class CronCommand extends BaseDaemon
     protected static $defaultName = 'cron';
     
     private $services;
+    private $logger;
     
-    public function __construct(ServiceFactory $factory)
+    /**
+     * CronCommand constructor.
+     *
+     * @param ServiceFactory  $factory
+     * @param LoggerInterface $logger
+     */
+    public function __construct(ServiceFactory $factory, LoggerInterface $logger)
     {
+        $this->logger = $logger;
         $this->services = $factory->getServices();
         parent::__construct();
     }
     
+    /**
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     */
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         parent::initialize($input, $output);
@@ -36,10 +49,18 @@ class CronCommand extends BaseDaemon
         
     }
     
+    /**
+     *
+     */
     protected function gainServiceMethods()
     {
-        foreach ($this->services as $service) {
-            $service->start();
+        try {
+            foreach ($this->services as $service) {
+                $service->start();
+            }
+        } catch (\Exception $exception) {
+            $this->logger->error($exception->getMessage(), $exception->getTrace());
         }
+
     }
 }

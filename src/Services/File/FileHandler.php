@@ -13,6 +13,8 @@ use App\Orm\Entity\File;
 use App\Services\AbstractService;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 /**
  * Конвертирует файлы в данные бд
@@ -58,5 +60,29 @@ abstract class FileHandler extends AbstractService
         $fileEntity->setFileContent($content);
         $this->entityManager->persist($fileEntity);
         $this->entityManager->flush();
+    }
+    
+    /**
+     * @param $fileName
+     * @param $fileContent
+     *
+     * @return Response
+     */
+    public static function download($fileName, $fileContent)
+    {
+        $response = new Response(
+            '',
+            Response::HTTP_OK,
+            ['content-type' => 'text/html']
+        );
+        
+        $disposition = $response->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            $fileName
+        );
+        $response->headers->set('Content-Disposition', $disposition);
+        $response->setContent($fileContent);
+        
+        return $response;
     }
 }

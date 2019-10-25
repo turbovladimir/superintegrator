@@ -77,7 +77,7 @@ class Message
      */
     public function deleteSendedMessage($deletingCount)
     {
-        $sendedUrls = $this->entityManager->getRepository(self::class)->findBy(['sended' => 1], [], $deletingCount);
+        $sendedUrls = $this->entityManager->getRepository(MessageEntity::class)->findBy(['sended' => 1], [], $deletingCount);
     
         if (empty($sendedUrls)) {
             return;

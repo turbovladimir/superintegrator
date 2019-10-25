@@ -3,6 +3,7 @@ services:
     class: App\Commands\CronCommand
     arguments:
       - '@service_factory'
+      - '@monolog.logger'
     tags:
       - { name: console.command }
 

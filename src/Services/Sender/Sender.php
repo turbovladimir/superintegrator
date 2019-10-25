@@ -10,7 +10,7 @@ namespace App\Services\Sender;
 use \GuzzleHttp\Client;
 use \GuzzleHttp\Exception\GuzzleException;
 use \App\Services\TaskServiceInterface;
-use \App\Orm\Model\Message as MessageModel;
+use \App\Orm\Model\Message;
 
 class Sender implements TaskServiceInterface
 {
@@ -19,16 +19,16 @@ class Sender implements TaskServiceInterface
     public const NUMBER_OF_ATTEMPTS = 3;
     
     /**
-     * @var MessageModel
+     * @var Message
      */
     private $messageModel;
     
     /**
      * Sender constructor.
      *
-     * @param MessageModel           $messageModel
+     * @param Message $messageModel
      */
-    public function __construct(MessageModel $messageModel)
+    public function __construct(Message $messageModel)
     {
         $this->messageModel = $messageModel;
     }
@@ -49,6 +49,10 @@ class Sender implements TaskServiceInterface
     {
         $client = new Client();
         $messages = $this->messageModel->getAwaitingMessage($sendingPerTask, self::NUMBER_OF_ATTEMPTS);
+        
+        if (empty($messages)) {
+            return;
+        }
         
         foreach ($messages as $message) {
             try {

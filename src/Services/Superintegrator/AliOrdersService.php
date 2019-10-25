@@ -12,12 +12,10 @@ use App\Exceptions\ExpectedException;
 use App\Services\File\CsvHandler;
 use Symfony\Component\HttpClient\HttpClient;
 use App\Services\AbstractService;
-use App\Services\DownloadFileTrait;
 
 //todo реализовать нормально файловый сервис
 class AliOrdersService extends AbstractService
 {
-    use DownloadFileTrait;
     
     protected $isFileService = true;
     const URL = 'https://gw.api.alibaba.com/openapi/param2/2/portals.open/api.getOrderStatus/30056?appSignature=9FIO77dDIidM&orderNumbers=';
@@ -38,7 +36,7 @@ class AliOrdersService extends AbstractService
         $name = $this->getFileName();
         $content = $this->generateFileContent(json_decode($orders));
         
-        return $this->giveFile($name, $content);
+        return CsvHandler::download($name, $content);
     }
     
     

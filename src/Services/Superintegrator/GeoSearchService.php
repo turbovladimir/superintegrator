@@ -44,7 +44,10 @@ class GeoSearchService extends AbstractService
      */
     private function fetchGeoIds($geoType, $geoList)
     {
-        $cityadsIds = [];
+        $cityadsIds = [
+            'existing' => '',
+            'missing' => '',
+        ];
         
         switch ((int)$geoType) {
             case self::GEO_TYPE_WORLD_REGIONS:
@@ -67,7 +70,7 @@ class GeoSearchService extends AbstractService
             while ($i < $geoCount) {
             
                 if ($allGeo[$i]->getName() === $geoName) {
-                    $cityadsIds['existing'][] = $allGeo[$i]->getCityadsId();
+                    $cityadsIds['existing'] .= $allGeo[$i]->getCityadsId() . ', ';
                     break;
                 }
             
@@ -75,7 +78,7 @@ class GeoSearchService extends AbstractService
     
                 // Собираем недостающее гео
                 if ($i === $geoCount) {
-                    $cityadsIds['missing'][] = $geoName;
+                    $cityadsIds['missing'] .= $geoName . ', ';
                 }
             }
         }

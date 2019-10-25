@@ -74,19 +74,18 @@ class HttpController extends BaseController
                     case ('/xml'):
                         return $this->getXmlPage();
                     default:
-                        return $this->render("{$page}.html.twig");
+                        return $this->render("{$page}.html.twig", ['description' => $this->setDescription($path)]);
                 }
             } else {
                 switch ($path) {
                     case ('/sender'):
-                        $response = $this->csvHandler->uploadFileAction($this->request);
+                        $response['confirmed'] = $this->csvHandler->uploadFileAction($this->request);
                         break;
                     case (self::GEO_PAGE):
                         $response = $this->geoSearch->process($_POST['geo'] ?? null);
                         break;
                     case (self::ALI_ORDERS_PAGE):
-                        $response = $this->aliOrders->process($_POST['orders'] ?? null);
-                        break;
+                        return $this->aliOrders->process($_POST['orders'] ?? null);
                     case (self::XML_EMULATOR_PAGE):
                         $response = $this->xmlEmulator->process($this->requestContent);
                         break;
