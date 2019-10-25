@@ -14,3 +14,10 @@ services:
       - '@sender'
     tags:
       - { name: console.command }
+
+  pull_command:
+    class: App\Commands\PullApiDataCommand
+    arguments:
+      - '@api_data_fetcher'
+    tags:
+      - { name: console.command }

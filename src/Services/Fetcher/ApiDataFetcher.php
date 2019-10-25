@@ -14,11 +14,6 @@ use GuzzleHttp\Client;
 
 class ApiDataFetcher
 {
-    
-    /**
-     * @var Client
-     */
-    private $client;
     /**
      * @var string
      */
@@ -40,21 +35,11 @@ class ApiDataFetcher
     private $headers;
     
     /**
-     * ApiDataFetcher constructor.
-     *
-     * @param Client $client
-     */
-    public function __construct(Client $client)
-    {
-        $this->client = $client;
-    }
-    
-    /**
      * @return string
      * @throws ExpectedException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    protected function getApiResponse() {
+    public function getApiResponse() {
         $options = [];
         
         if (!$this->getRequestPath()) {
@@ -63,7 +48,7 @@ class ApiDataFetcher
     
         $this->getHeaders() ? $options['headers'] = $this->getHeaders() : null;
         $this->getQueryParams() ? $options['query'] = $this->getQueryParams() : null;
-        $response = $this->client->request($this->getMethod(), $this->getRequestPath(), $options)->getBody();
+        $response = (new Client())->request($this->getMethod(), $this->getRequestPath(), $options)->getBody();
             
         return $response->getContents();
     }
@@ -95,7 +80,7 @@ class ApiDataFetcher
     /**
      * @param string $requestPath
      */
-    public function setRequestPath($requestPath) : void
+    public function setRequestUri($requestPath) : void
     {
         $this->requestPath = $requestPath;
     }

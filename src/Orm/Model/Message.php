@@ -8,23 +8,11 @@
 
 namespace App\Orm\Model;
 
-use Doctrine\ORM\EntityManagerInterface;
 use App\Orm\Entity\Message as MessageEntity;
 
-class Message
+class Message extends AbstractModel
 {
     protected $table = 'messages';
-    protected $entityManager;
-    
-    /**
-     * Message constructor.
-     *
-     * @param EntityManagerInterface $entityManager
-     */
-    public function __construct(EntityManagerInterface $entityManager)
-    {
-        $this->entityManager = $entityManager;
-    }
     
     /**
      * @param $limit
@@ -88,13 +76,5 @@ class Message
         }
     
         $this->applyChanges();
-    }
-    
-    /**
-     *
-     */
-    public function applyChanges()
-    {
-        $this->entityManager->flush();
     }
 }

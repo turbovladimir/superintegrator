@@ -43,8 +43,9 @@ services:
 
     data_agregator:
       class: App\Services\Fonbet\OmarsysDataAggregator
-      arguments:
-        - '@doctrine.orm.entity_manager'
+
+    api_data_fetcher:
+        class: App\Services\Fetcher\ApiDataFetcher
 
     service_factory:
         class: App\Factory\ServiceFactory

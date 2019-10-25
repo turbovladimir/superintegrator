@@ -23,6 +23,7 @@ abstract class BaseDaemon extends Command
     
     private $workers = [];
     
+    protected $input;
     protected $output;
     
     /**
@@ -35,12 +36,13 @@ abstract class BaseDaemon extends Command
             ->setHelp('Помощи ждать неоткуда')
         ;
         
-        $this->addOption('daemonMode',      null, InputOption::VALUE_REQUIRED, 'Запуск в режиме демона', false);
+        $this->addOption('daemonMode',      null, InputOption::VALUE_OPTIONAL, 'Запуск в режиме демона', 0);
     }
     
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->output = $output;
+        $this->input = $input;
         // outputs multiple lines to the console (adding "\n" at the end of each line)
         $output->writeln([
             'Демон просыпается',
@@ -48,15 +50,14 @@ abstract class BaseDaemon extends Command
             '',
         ]);
         
-        $this->start($input, $output);
+        $this->start();
         
         $output->write('И ложится спать');
-        exit();
     }
     
-    private function start(InputInterface $in, OutputInterface $out)
+    private function start()
     {
-        $daemonMode = (bool)$in->getOption('daemonMode');
+        $daemonMode = (bool)$this->input->getOption('daemonMode');
         $startedAt = time();
         
         while (true) {
@@ -71,7 +72,7 @@ abstract class BaseDaemon extends Command
             if ($daemonMode && extension_loaded('pcntl')) {
                 $this->startMultiThread();
             } else {
-                $this->gainServiceMethods();
+                $this->process();
             }
         }
     }
@@ -100,13 +101,13 @@ abstract class BaseDaemon extends Command
         
         while (self::WORKER_LIFETIME < (time() - $workerStartTime)) {
             sleep(1);
-            $this->gainServiceMethods();
+            $this->process();
         }
         
         exit();
     }
     
-    abstract protected function gainServiceMethods();
+    abstract protected function process();
     
     
     

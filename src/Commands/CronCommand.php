@@ -50,9 +50,10 @@ class CronCommand extends BaseDaemon
     }
     
     /**
-     *
+     * @param InputInterface  $in
+     * @param OutputInterface $out
      */
-    protected function gainServiceMethods()
+    protected function process()
     {
         foreach ($this->services as $service) {
             try {
