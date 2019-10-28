@@ -21,4 +21,5 @@
 ###< symfony/web-server-bundle ###
 /log/
 /public_html/
+public_html
 /public/log/*
