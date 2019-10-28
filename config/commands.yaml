@@ -3,6 +3,13 @@ services:
     class: App\Commands\BaseDaemon
     abstract: true
 
+  command.api_data_fetcher:
+    class: App\Commands\ApiFetcher\ApiDataFetcherCommand
+    abstract: true
+    arguments:
+      - '@orm.model.archive'
+      - '@monolog.logger'
+
   command.sender:
     class: App\Commands\SenderCommand
     parent: 'command.base_daemon'
@@ -11,12 +18,9 @@ services:
     tags:
       - { name: console.command }
 
-  command.pull:
-    class: App\Commands\PullApiDataCommand
-    parent: 'command.base_daemon'
-    arguments:
-          - '@service.api_data_fetcher'
-          - '@orm.model.archive'
+  command.omarsys_data_fetcher:
+    class: App\Commands\ApiFetcher\OmarsysFetcher
+    parent: 'command.api_data_fetcher'
     tags:
       - { name: console.command }
 
