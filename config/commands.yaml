@@ -18,8 +18,8 @@ services:
     tags:
       - { name: console.command }
 
-  command.omarsys_data_fetcher:
-    class: App\Commands\ApiFetcher\OmarsysFetcher
+  command.fonbet_data_fetcher:
+    class: App\Commands\ApiFetcher\FonbetApiDataFetcher
     parent: 'command.api_data_fetcher'
     tags:
       - { name: console.command }
