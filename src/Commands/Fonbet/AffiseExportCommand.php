@@ -24,6 +24,8 @@ use Symfony\Component\Console\Input\InputOption;
  */
 class AffiseExportCommand extends BaseDaemon
 {
+    private const HASH_CODE = '287d778ca096773adcc2cb1e4c62ed2f';
+    
     protected static $defaultName = 'affise_export';
     protected $destination = 'adsbang.affise.com';
     protected $urlPath = 'http://offers.adsbang.affise.com/postback';
@@ -78,6 +80,7 @@ class AffiseExportCommand extends BaseDaemon
                 $query = [
                     'referrer' => $item['channelId'],
                     'clickid'  => $item['parameter'],
+                    'secure'  => self::HASH_CODE,
                 ];
             }
         }
