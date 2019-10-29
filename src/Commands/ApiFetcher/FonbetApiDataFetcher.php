@@ -10,6 +10,7 @@ namespace App\Commands\ApiFetcher;
 
 use GuzzleHttp\Client;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -20,12 +21,27 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @package App\Commands\ApiFetcher
  */
-class OmarsysFetcher extends ApiDataFetcherCommand
+class FonbetApiDataFetcher extends ApiDataFetcherCommand
 {
     const CLIENT_SECRET = 'cha44liates2014';
-    const API_HOST_NAME = 'api.fonbetaffiliates.com';
+    const API_HOST_NAME = 'https://api.fonbetaffiliates.com/';
     
-    protected static $defaultName = 'api_data:pull:omarsys';
+    const RU_URL = self::API_HOST_NAME . 'rpc/report/affiliate/dynamic-variables?affiliate=100379&filter[from]={date_from}&filter[to]={date_to}&groupBy=daily&page=1&count=100';
+    const KZ_URL = self::API_HOST_NAME . 'rpc/report/affiliate/dynamic-variables?affiliate=100380&filter[from]={date_from}&filter[to]={date_to}&groupBy=daily&page=1&count=100';
+    
+    protected static $defaultName = 'api_data:fonbet';
+    
+    /**
+     * @var string
+     */
+    protected $method = 'POST';
+    
+    protected function configure()
+    {
+        parent::configure();
+        
+        $this->addArgument('offer', InputOption::VALUE_REQUIRED, 'Необходимо задать два значения : ru|kz для забора с двух апи');
+    }
     
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
@@ -33,10 +49,11 @@ class OmarsysFetcher extends ApiDataFetcherCommand
         $this->setHeaders(["Authorization: Bearer {$token}"]);
     }
     
-    /**
-     * @var string
-     */
-    protected $method = 'POST';
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $input->getArgument('offer') === 'ru' ? $this->setUrl(self::RU_URL) : $this->setUrl(self::KZ_URL);
+        parent::execute($input, $output);
+    }
     
     protected function getApiResponse()
     {
@@ -76,15 +93,15 @@ class OmarsysFetcher extends ApiDataFetcherCommand
         $client   = new Client();
         $response = $client->request(
             $this->getMethod(),
-            self::API_HOST_NAME . '/oauth',
+            self::API_HOST_NAME . 'oauth',
             [
                 'form_params' => [
-                    'username'      => 'germanru',
+                    'username'      => $this->input->getArgument('offer') === 'ru' ? 'germanru' : 'germankz',
                     'password'      => 'german777',
                     'client_id'     => 'omarsys',
                     'client_secret' => self::CLIENT_SECRET,
                     'grant_type'    => 'password',
-                ],
+                ]
             ]
         )->getBody()->getContents();
         

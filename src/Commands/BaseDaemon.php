@@ -28,8 +28,16 @@ abstract class BaseDaemon extends Command
     
     private $workers = [];
     
+    /**
+     * @var InputInterface
+     */
     protected $input;
+    
+    /**
+     * @var OutputInterface
+     */
     protected $output;
+    
     protected $logger;
     
     /**

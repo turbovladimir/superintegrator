@@ -9,9 +9,11 @@
 namespace App\Commands\Fonbet;
 
 
+use App\Commands\ApiFetcher\FonbetApiDataFetcher;
 use App\Commands\BaseDaemon;
 use App\Orm\Model\Archive;
 use App\Orm\Model\Message;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Команда формирующая постбэки для аффайз, в афайзе есть защита от дублирования данных поэтому можно отправлять дубли
@@ -23,12 +25,18 @@ use App\Orm\Model\Message;
 class AffiseExportCommand extends BaseDaemon
 {
     protected static $defaultName = 'affise_export';
-    protected $sourceName = 'api_data:pull:omarsys';
     protected $destination = 'adsbang.affise.com';
     protected $urlPath = 'http://offers.adsbang.affise.com/postback';
     
     private $messageModel;
     private $archiveModel;
+    
+    protected function configure()
+    {
+        parent::configure();
+        
+        $this->addArgument('source_name', InputOption::VALUE_REQUIRED, 'Выберите имя создателя лога');
+    }
     
     /**
      * AffiseExportCommand constructor.
@@ -48,7 +56,7 @@ class AffiseExportCommand extends BaseDaemon
      */
     protected function process()
     {
-        $log = $this->archiveModel->getLog($this->sourceName);
+        $log = $this->archiveModel->getLog($this->input->getArgument('source_name'));
         $url = $this->createUrl($log);
         
         if ($url) {
