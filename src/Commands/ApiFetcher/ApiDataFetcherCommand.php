@@ -19,6 +19,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
+ *Команда для забора данных из сторонних апи в бд.
  *
  * Class PullApiDataCommand
  *
@@ -29,9 +30,23 @@ abstract class ApiDataFetcherCommand extends Command
     const DATE_FROM_MACROS = '{date_from}';
     const DATE_TO_MACROS = '{date_to}';
     
+    /**
+     * Урл запроса задается тут либо аргументом команды
+     */
+    protected $url;
+    
     protected $archive;
+    
+    /**
+     * @var InputInterface
+     */
     protected $input;
+    
+    /**
+     * @var OutputInterface
+     */
     protected $output;
+    
     protected $logger;
     
     /**
@@ -70,7 +85,7 @@ abstract class ApiDataFetcherCommand extends Command
     protected function configure()
     {
         parent::configure();
-        $this->addOption('url', null, InputOption::VALUE_REQUIRED)
+        $this->addOption('url', null, InputOption::VALUE_OPTIONAL)
             ->addOption('period', null, InputOption::VALUE_OPTIONAL, 'Период в днях', 1)
             ->addOption('headers', null, InputOption::VALUE_OPTIONAL);
     }
@@ -99,7 +114,7 @@ abstract class ApiDataFetcherCommand extends Command
             $this->setHeaders(json_decode($headers, true));
         }
         
-        $this->parseAndSetUrlParameters($this->input->getOption('url'));
+        $this->parseAndSetUrlParameters($this->getUrl());
         
         $response = $this->getApiResponse();
         
@@ -223,5 +238,25 @@ abstract class ApiDataFetcherCommand extends Command
     public function getRequestPath()
     {
         return $this->requestPath;
+    }
+    
+    /**
+     * @param mixed $url
+     */
+    public function setUrl($url) : void
+    {
+        $this->url = $url;
+    }
+    
+    /**
+     * @return mixed
+     */
+    public function getUrl()
+    {
+        if (!$this->url) {
+            return $this->input->getOption('url');
+        }
+        
+        return $this->url;
     }
 }
