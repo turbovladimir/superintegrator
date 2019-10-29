@@ -40,18 +40,14 @@ class FonbetApiDataFetcher extends ApiDataFetcherCommand
     {
         parent::configure();
         
-        $this->addArgument('offer', InputOption::VALUE_REQUIRED, 'Необходимо задать два значения : ru|kz для забора с двух апи');
-    }
-    
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        $token = $this->generateToken();
-        $this->setHeaders(["Authorization: Bearer {$token}"]);
+        $this->addOption('offer', null, InputOption::VALUE_REQUIRED, 'Необходимо задать два значения : ru|kz для забора с двух апи');
     }
     
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $input->getArgument('offer') === 'ru' ? $this->setUrl(self::RU_URL) : $this->setUrl(self::KZ_URL);
+        $input->getOption('offer') === 'ru' ? $this->setUrl(self::RU_URL) : $this->setUrl(self::KZ_URL);
+        $token = $this->generateToken($input);
+        $this->setHeaders(["Authorization: Bearer {$token}"]);
         parent::execute($input, $output);
     }
     
@@ -86,9 +82,12 @@ class FonbetApiDataFetcher extends ApiDataFetcherCommand
     }
     
     /**
+     * @param InputInterface $input
+     *
+     * @return mixed
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    private function generateToken()
+    private function generateToken(InputInterface $input)
     {
         $client   = new Client();
         $response = $client->request(
@@ -96,7 +95,7 @@ class FonbetApiDataFetcher extends ApiDataFetcherCommand
             self::API_HOST_NAME . 'oauth',
             [
                 'form_params' => [
-                    'username'      => $this->input->getArgument('offer') === 'ru' ? 'germanru' : 'germankz',
+                    'username'      => $input->getOption('offer') === 'ru' ? 'germanru' : 'germankz',
                     'password'      => 'german777',
                     'client_id'     => 'omarsys',
                     'client_secret' => self::CLIENT_SECRET,
