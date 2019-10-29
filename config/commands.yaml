@@ -24,6 +24,15 @@ services:
     tags:
       - { name: console.command }
 
+  command.affise_export:
+    class: App\Commands\Fonbet\AffiseExportCommand
+    parent: 'command.base_daemon'
+    arguments:
+      - '@orm.model.message'
+      - '@orm.model.archive'
+    tags:
+      - { name: console.command }
+
 #  command.test:
 #    class: App\Commands\TestCommand
 #    arguments:

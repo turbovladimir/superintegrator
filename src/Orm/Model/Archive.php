@@ -31,4 +31,19 @@ class Archive extends AbstractModel
     
         $this->applyChanges();
     }
+    
+    /**
+     * @param $sourceName
+     *
+     * @return mixed
+     */
+    public function getLog($sourceName)
+    {
+        $log = $this->entityManager->getRepository(ArchiveEntity::class)->findOneBy(['source' => $sourceName]);
+        $data = $log->getLogData();
+        $this->entityManager->remove($log);
+        $this->applyChanges();
+        
+        return $data;
+    }
 }
