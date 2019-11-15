@@ -8,22 +8,36 @@
 
 namespace App\Controller;
 
+use App\Forms\ResponseMessage\AlertMessageCollection;
+use App\Forms\TableForm;
 use App\Services\File\CsvHandler;
 use \App\Services\Superintegrator\XmlEmulatorService;
 use \App\Exceptions\ExpectedException;
 use function GuzzleHttp\Psr7\parse_query;
+use Psr\Log\LoggerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use \App\Services\Superintegrator\GeoSearchService;
 use \App\Services\Superintegrator\AliOrdersService;
 use \App\Services\Superintegrator\PostbackCollector;
 
-class HttpController extends BaseController
+class HttpController extends AbstractController
 {
-    const GEO_PAGE = '/geo';
-    const ALI_ORDERS_PAGE = '/ali_orders';
-    const XML_EMULATOR_PAGE = '/xml_emulator';
-    const SENDER_PAGE = '/sender';
+    
+    private const ROUT_MAIN = '/';
+    private const ROUT_GEO = '/geo';
+    private const ROUT_ALI_ORDERS = '/ali_orders';
+    private const ROUT_XML_EMULATOR = '/xml_emulator';
+    private const ROUT_SENDER = '/sender';
+    
+    private const ROUTS_AND_ALIASES = [
+        self::ROUT_MAIN         => 'Main page',
+        self::ROUT_GEO          => 'Geo searching',
+        self::ROUT_ALI_ORDERS   => 'Ali orders',
+        self::ROUT_XML_EMULATOR => 'Xml emulator',
+        self::ROUT_SENDER       => 'Sender',
+    ];
     
     private $request;
     private $requestContent;
@@ -32,9 +46,11 @@ class HttpController extends BaseController
     private $postbackCollector;
     private $aliOrders;
     private $csvHandler;
+    private $logger;
     
     /**
      * @param Request            $request
+     * @param LoggerInterface    $logger
      * @param GeoSearchService   $geoSearch
      * @param XmlEmulatorService $xmlEmulator
      * @param PostbackCollector  $postbackCollector
@@ -43,18 +59,19 @@ class HttpController extends BaseController
      *
      * @return Response
      * @throws \Doctrine\ORM\NonUniqueResultException
-     * @throws \League\Csv\Exception
      */
     public function index(
         Request $request,
+        LoggerInterface $logger,
         GeoSearchService $geoSearch,
         XmlEmulatorService $xmlEmulator,
         PostbackCollector $postbackCollector,
         AliOrdersService $aliOrders,
         CsvHandler $csvHandler
     ) {
-        $response         = [];
+        $response                = [];
         $this->request           = $request;
+        $this->logger            = $logger;
         $this->requestContent    = urldecode($this->request->getContent());
         $this->geoSearch         = $geoSearch;
         $this->xmlEmulator       = $xmlEmulator;
@@ -62,41 +79,50 @@ class HttpController extends BaseController
         $this->aliOrders         = $aliOrders;
         $this->csvHandler        = $csvHandler;
         
-        $path = $this->request->getPathInfo();
-        $path === '/' ? $path = '/base' : null;
-        $page = str_replace('/', '', $path);
+        $rout = $this->request->getPathInfo();
+        $rout === '/' ? $rout = '/base' : null;
+        $page = str_replace('/', '', $rout);
         
         try {
             if ($this->request->getMethod() === 'GET') {
-                switch ($path) {
-                    case (self::SENDER_PAGE):
+                switch ($rout) {
+                    case (self::ROUT_SENDER):
                         return $this->render('sender.html.twig', ['notSendedPostbacks' => $postbackCollector->getAwaitingPostbacks()]);
+                    case ('/test_form'):
+                        return $this->testForm();
                     case ('/xml'):
                         return $this->getXmlPage();
                     default:
-                        return $this->render("{$page}.html.twig", ['description' => $this->setDescription($path)]);
+                        return $this->render(
+                            "{$page}.html.twig",
+                            [
+                                'page_name'   => $this->getPageNameByRout($rout),
+                                'description' => $this->setDescription($rout),
+                            ]
+                        );
                 }
             } else {
-                switch ($path) {
+                switch ($rout) {
                     case ('/sender'):
                         $response['confirmed'] = $this->csvHandler->uploadFileAction($this->request);
                         break;
-                    case (self::GEO_PAGE):
-                        $response = $this->geoSearch->process($_POST['geo'] ?? null);
+                    case (self::ROUT_GEO):
+                        $response = $this->geoSearch->process($request);
                         break;
-                    case (self::ALI_ORDERS_PAGE):
+                    case (self::ROUT_ALI_ORDERS):
                         return $this->aliOrders->process($_POST['orders'] ?? null);
-                    case (self::XML_EMULATOR_PAGE):
+                    case (self::ROUT_XML_EMULATOR):
                         $response = $this->xmlEmulator->process($this->requestContent);
                         break;
                 }
             }
         } catch
-        (ExpectedException $expectedException) {
-            $response = $expectedException->getMessage();
+        (\Exception $exception) {
+            $response = new AlertMessageCollection();
+            $response->addAlert('Обнаружена ошибка: ', $exception->getMessage(), AlertMessageCollection::ALERT_TYPE_DANGER);
         }
         
-        return $this->render("{$page}.html.twig", ['response' => $response]);
+        return $this->getResponse($page, $response);
     }
     
     /**
@@ -122,12 +148,53 @@ class HttpController extends BaseController
         return new Response($xml, 200, ['Content-Type' => 'text/xml']);
     }
     
+    //todo test
+    public function testForm()
+    {
+        $form = $this->createForm(TableForm::class, ['someDataForTest']);
+        
+        return $this->render(
+            'base.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
+        );
+    }
+    
+    /**
+     * @param $rout
+     *
+     * @return mixed
+     */
+    private function getPageNameByRout($rout)
+    {
+        if (array_key_exists($rout, self::ROUTS_AND_ALIASES)) {
+            return self::ROUTS_AND_ALIASES[$rout];
+        }
+        
+        return self::ROUTS_AND_ALIASES[self::ROUT_MAIN];
+    }
+    
+    /**
+     * @param                        $pageName
+     * @param AlertMessageCollection $messageCollection
+     *
+     * @return Response
+     */
+    private function getResponse($pageName, AlertMessageCollection $messageCollection)
+    {
+        return $this->render("{$pageName}.html.twig", [
+            'page_name'   => $this->getPageNameByRout('/'. $pageName),
+            'response' => $messageCollection->getMessages()
+        ]);
+    }
+    
     /**
      * @param $path
      *
      * @return string
      */
-    protected function setDescription($path)
+    protected function setDescription($rout)
     {
         return '';
     }

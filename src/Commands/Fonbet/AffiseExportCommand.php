@@ -8,8 +8,6 @@
 
 namespace App\Commands\Fonbet;
 
-
-use App\Commands\ApiFetcher\FonbetApiDataFetcher;
 use App\Commands\BaseDaemon;
 use App\Orm\Model\Archive;
 use App\Orm\Model\Message;
@@ -81,6 +79,7 @@ class AffiseExportCommand extends BaseDaemon
                     'referrer' => $item['channelId'],
                     'clickid'  => $item['parameter'],
                     'secure'  => self::HASH_CODE,
+                    'goal'  => 'reg',
                 ];
             }
         }

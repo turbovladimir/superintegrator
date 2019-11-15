@@ -4,7 +4,6 @@ namespace App\Services\Superintegrator;
 
 use App\Exceptions\EmptyDataException;
 use App\Orm\Entity\File;
-use App\Orm\Entity\Message;
 use App\Orm\Model\Message as MessageModel;
 use App\Services\TaskServiceInterface;
 use App\Services\AbstractService;

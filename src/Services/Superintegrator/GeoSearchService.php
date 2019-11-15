@@ -8,10 +8,13 @@
 
 namespace App\Services\Superintegrator;
 
+use App\Forms\ResponseMessage\AlertMessageCollection;
 use App\Orm\Entity\Superintegrator\CountryRussia;
 use App\Orm\Entity\Superintegrator\WorldRegion;
 use App\Orm\Entity\Superintegrator\WorldRegionCodes;
 use App\Services\AbstractService;
+use App\Utils\StringHelper;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class GeoSearchService
@@ -20,36 +23,30 @@ use App\Services\AbstractService;
  */
 class GeoSearchService extends AbstractService
 {
-    const GEO_TYPE_WORLD_REGIONS = 1;
-    const GEO_TYPE_WORLD_REGIONS_CODES = 2;
-    const GEO_TYPE_RUSSIA_CITIES = 3;
+    private const GEO_TYPE_WORLD_REGIONS = 1;
+    private const GEO_TYPE_WORLD_REGIONS_CODES = 2;
+    private const GEO_TYPE_RUSSIA_CITIES = 3;
     
     /**
-     * @param $parameters
+     * @param Request $request
      *
-     * @return array
+     * @return AlertMessageCollection| null
      */
-    public function process($parameters)
+    public function process(Request $request)
     {
-        $parameters = json_decode($parameters, true);
+        parse_str($request->getContent(), $parameters);
         
-        return $this->fetchGeoIds($parameters['type'], $parameters['list']);
-    }
+        if (!$parameters || empty($parameters['geo_type']) || empty($parameters['list'])) {
+            return null;
+        }
     
-    /**
-     * @param $geoType
-     * @param $geoList
-     *
-     * @return array
-     */
-    private function fetchGeoIds($geoType, $geoList)
-    {
-        $cityadsIds = [
-            'existing' => '',
-            'missing' => '',
-        ];
-        
-        switch ((int)$geoType) {
+        $geoArray = StringHelper::splitId($parameters['list']);
+    
+        if (!$geoArray) {
+            return null;
+        }
+    
+        switch ((int)$parameters['geo_type']) {
             case self::GEO_TYPE_WORLD_REGIONS:
                 $repository = $this->entityManager->getRepository(WorldRegion::class);
                 break;
@@ -59,30 +56,39 @@ class GeoSearchService extends AbstractService
             case self::GEO_TYPE_RUSSIA_CITIES:
                 $repository = $this->entityManager->getRepository(CountryRussia::class);
                 break;
+            default:
+                return null;
         }
     
         $allGeo = $repository->findAll();
         $geoCount = count($allGeo);
-    
-        foreach ($geoList as $geoName) {
+        $cityadsIds = [];
+        
+        foreach ($geoArray as $geoName) {
             $i = 0;
         
             while ($i < $geoCount) {
             
                 if ($allGeo[$i]->getName() === $geoName) {
-                    $cityadsIds['existing'] .= $allGeo[$i]->getCityadsId() . ', ';
+                    $cityadsIds['existing'][] = $allGeo[$i]->getCityadsId();
                     break;
                 }
             
                 $i++;
-    
+            
                 // Собираем недостающее гео
                 if ($i === $geoCount) {
-                    $cityadsIds['missing'] .= $geoName . ', ';
+                    $cityadsIds['missing'][] = $geoName;
                 }
             }
         }
 
-        return $cityadsIds;
+        $responseMessage = new AlertMessageCollection();
+        empty($cityadsIds['existing']) ?:
+        $responseMessage->addAlert('Найдено гео', implode(',', $cityadsIds['existing']));
+        empty($cityadsIds['missing']) ?:
+            $responseMessage->addAlert('Не найденное', implode(',', $cityadsIds['missing']), AlertMessageCollection::ALERT_TYPE_DANGER);
+        
+        return $responseMessage;
     }
 }

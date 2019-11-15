@@ -11,13 +11,10 @@ namespace App\Services\Superintegrator;
 use App\Exceptions\ExpectedException;
 use App\Services\File\CsvHandler;
 use Symfony\Component\HttpClient\HttpClient;
-use App\Services\AbstractService;
 
-//todo реализовать нормально файловый сервис
-class AliOrdersService extends AbstractService
+class AliOrdersService
 {
     
-    protected $isFileService = true;
     const URL = 'https://gw.api.alibaba.com/openapi/param2/2/portals.open/api.getOrderStatus/30056?appSignature=9FIO77dDIidM&orderNumbers=';
     const LIMIT_OF_ORDERS_PER_REQUEST = 100;
     

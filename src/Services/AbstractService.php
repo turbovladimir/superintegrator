@@ -12,21 +12,10 @@ use Doctrine\ORM\EntityManagerInterface;
 
 abstract class AbstractService
 {
-    protected $isFileService = false;
-    
     protected $entityManager;
-    protected $request;
     
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
-    }
-    
-    /**
-     * @return bool
-     */
-    public function isFileService()
-    {
-        return $this->isFileService;
     }
 }

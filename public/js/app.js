@@ -1,143 +1,132 @@
-var content = $('.content');
-var printResponse = false;
+$(document).ready(function () {
+// Enable dismissal of an alert via JavaScript
+    $('.alert').alert();
+
+    function printAlert(message, level = 'success'){
+        var alertClass = '"alert alert-' + level + '"';
+        $('div[id="alert_message"]').remove(); // remove all elem by class
+        $('#page-content').append('<div id="alert_message" class=' + alertClass + ">" +message + '</div>')
+    }
+
+    var content = $('.content');
+    var printResponse = false;
 
 ////////////////xml emulator////////////////
-function generate_link() {
-    var xml = $('#xml').val();
-    var requestObj = {
-        tool: 'xml_emulator',
-        parameters: {
-            xml: xml.trim()
-        }
-    };
-    printResponse = true;
-    push('/xml_emulator', requestObj);
-}
+    function generate_link() {
+        var xml = $('#xml').val();
+        var requestObj = {
+            tool: 'xml_emulator',
+            parameters: {
+                xml: xml.trim()
+            }
+        };
+        printResponse = true;
+        push('/xml_emulator', requestObj);
+    }
 
 ////////////////xml emulator////////////////
 
 ////////////////geo////////////////
+    $('.dropdown-item').click(function () {
+        var buttonName = $(this).attr('name');
+        var input = $('#geo_input').val();
+        console.log(buttonName);
+        console.log(input);
 
-function geo_send() {
+        if (input === '') {
+            printAlert( 'Не указано гео', 'danger')
+            return false;
+        }
 
-    if ($('#geo_selector').val() === '0') {
-        alert('Choose format of geo');
-        return false;
-    }
-
-    var geoList = $('#country_id').val();
-    geoList = Input2Array(geoList, ',');
-    var requestObj = {
-            type: $('#geo_selector').val(),
-            list: geoList
-    };
-
-    printResponse = true;
-    //push('/geo', requestObj);
-
-    $('<form>', {
-        id: 'form',
-        action: '/geo',
-        method: "post"
-
-    }).appendTo('#content');
-
-    $('<input>', {
-        type: 'text',
-        method: "post",
-        name: "geo",
-        value: JSON.stringify(requestObj)
-
-    }).appendTo('#form');
-
-    $('form').submit().remove();
-}
+        this.submit();
+    });
 
 ////////////////geo////////////////
 
 ////////////////ali orders////////////////
-function get_csv_file() {
-    var orders = $('#ali_orders').val();
-    orders = Input2Array(orders, /\s*\n/);
+    function get_csv_file() {
+        var orders = $('#ali_orders').val();
+        orders = Input2Array(orders, /\s*\n/);
 
-    $('<form>', {
-        id: 'form',
-        action: '/ali_orders',
-        method: "post"
+        $('<form>', {
+            id: 'form',
+            action: '/ali_orders',
+            method: "post"
 
-    }).appendTo('#content');
+        }).appendTo('#content');
 
-    $('<input>', {
-        type: 'text',
-        method: "post",
-        name: "orders",
-        value: JSON.stringify(orders)
+        $('<input>', {
+            type: 'text',
+            method: "post",
+            name: "orders",
+            value: JSON.stringify(orders)
 
-    }).appendTo('#form');
+        }).appendTo('#form');
 
-    $('form').submit().remove();
+        $('form').submit().remove();
 
-}
+    }
 
 ////////////////ali orders////////////////
 
 
 //todo доделать
-function Input2Array(string, splitRegExp) {
-    string.trim();
+    function Input2Array(string, splitRegExp) {
+        string.trim();
 
-    if (string === '') {
-        alert('Incorrect input values');
-        return string;
-    }
+        if (string === '') {
+            alert('Incorrect input values');
+            return string;
+        }
 
-    var array = string.split(splitRegExp);
+        var array = string.split(splitRegExp);
 
-    if (array.length === 0 || array === undefined){
-        alert('Incorrect input values');
+        if (array.length === 0 || array === undefined) {
+            alert('Incorrect input values');
+            return array;
+        }
+
+        array = $.map(array, $.trim);
+        array = $.map(array, function (element) {
+            if (element !== '') {
+                return element;
+            }
+        });
+
         return array;
     }
 
-    array = $.map(array, $.trim);
-    array = $.map(array, function (element) {
-        if (element !== '') {
-            return element;
+    function push(url, data) {
+        if (Object.prototype.toString.call(data) !== '[object Object]') {
+            console.log('data not an object');
+            return null;
         }
-    });
 
-    return array;
-}
+        data = JSON.stringify(data);
 
-function push(url, data) {
-    if (Object.prototype.toString.call(data) !== '[object Object]') {
-        console.log('data not an object');
-        return null;
+        sendToServer(url, data);
     }
 
-    data = JSON.stringify(data);
-
-    sendToServer(url, data);
-}
-
-function sendToServer(url, requestData) {
-    $.post(
-        url, {'data': requestData},
-        function (responseData) {
-            if (printResponse){
-                print(responseData);
+    function sendToServer(url, requestData) {
+        $.post(
+            url, {'data': requestData},
+            function (responseData) {
+                if (printResponse) {
+                    print(responseData);
+                }
             }
+        );
+    }
+
+    function print(responseData) {
+        var response = jQuery.parseJSON(responseData);
+
+        if ($('.response')) {
+            $('.response').remove();
         }
-    );
-}
 
-function print(responseData) {
-    var response = jQuery.parseJSON(responseData);
-
-    if ($('.response')) {
-        $('.response').remove();
+        for (var key in response) {
+            $('<p class="response">' + key + ': ' + response[key] + '</p>').appendTo($('.content'))
+        }
     }
-
-    for (var key in response) {
-        $('<p class="response">' + key + ': ' + response[key] + '</p>').appendTo($('.content'))
-    }
-}
+});

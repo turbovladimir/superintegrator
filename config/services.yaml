@@ -41,12 +41,6 @@ services:
             - '@doctrine.orm.entity_manager'
             - '@orm.model.message'
 
-    service.data_agregator:
-      class: App\Services\Fonbet\OmarsysDataAggregator
-
-    service.api_data_fetcher:
-        class: App\Services\Fetcher\ApiDataFetcher
-
     service_factory:
         class: App\Factory\ServiceFactory
         arguments:

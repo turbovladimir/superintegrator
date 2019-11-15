@@ -8,7 +8,6 @@
 
 namespace App\Commands;
 
-use App\Exceptions\ExpectedException;
 use App\Services\Sender\Sender;
 
 /**

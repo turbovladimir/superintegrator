@@ -8,7 +8,7 @@
 
 namespace App\Factory;
 
-use App\Services\Sender\Sender;
+use App\Services\Sender\MessageSender;
 use App\Services\Fonbet\OmarsysDataAggregator;
 
 /**
@@ -26,10 +26,10 @@ class ServiceFactory
     /**
      * ServiceFactory constructor.
      *
-     * @param Sender     $sender
+     * @param MessageSender         $sender
      * @param OmarsysDataAggregator $aggregator
      */
-    public function __construct(Sender $sender, OmarsysDataAggregator $aggregator)
+    public function __construct(MessageSender $sender, OmarsysDataAggregator $aggregator)
     {
         $this->services =  func_get_args();
     }
