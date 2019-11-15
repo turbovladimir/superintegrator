@@ -12,7 +12,10 @@ use App\Forms\ResponseMessage\AlertMessageCollection;
 use App\Orm\Entity\Superintegrator\TestXml;
 use App\Exceptions\ExpectedException;
 use App\Services\AbstractService;
+use App\Utils\Serializer;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class XmlEmulatorService extends AbstractService
 {
@@ -51,17 +54,38 @@ class XmlEmulatorService extends AbstractService
         return $response;
     }
     
-    public function getXmlPageByKey($key)
+    public function getCollection()
     {
         $repository = $this->entityManager->getRepository(TestXml::class);
-        $xmlEntity  = $repository->findOneBy(['hash' => $key]);
+        $xmlCollections = $repository->findAll();
+        return json_decode(Serializer::get()->serialize($xmlCollections, 'json', [AbstractNormalizer::IGNORED_ATTRIBUTES => ['xml']]), true);
+    }
+    
+    /**
+     * @param Request $request
+     *
+     * @return Response
+     * @throws ExpectedException
+     */
+    public function getXmlPage(Request $request)
+    {
+        parse_str($request->getQueryString(), $parameters);
         
+        if (empty($parameters['key'])) {
+            throw new ExpectedException('Cannot parse key from url');
+        }
+        
+
+        $query = $this->entityManager->createQuery('SELECT t FROM ' . TestXml::class . ' t WHERE t.url LIKE :word');
+        $query->setParameter('word', "%{$parameters['key']}%")->setMaxResults(1);
+        $xmlEntity  = $query->getResult();
         
         if ($xmlEntity === null) {
             throw new ExpectedException('Incorrect or expired key');
         }
+
         
-        return $xmlEntity->getXmlData();
+        return new Response(reset($xmlEntity)->getXml(), 200, ['Content-Type' => 'text/xml']);
     }
     
     /**

@@ -30,6 +30,7 @@ class HttpController extends AbstractController
     private const PAGE_ALI_ORDERS = 'ali_orders';
     private const PAGE_XML_EMULATOR = 'xml_emulator';
     private const PAGE_SENDER = 'sender';
+    private const PAGE_XML = 'xml';
     
     private const ROUTS_AND_ALIASES = [
         self::PAGE_MAIN         => 'Main page',
@@ -87,18 +88,14 @@ class HttpController extends AbstractController
                 switch ($page) {
                     case (self::PAGE_SENDER):
                         return $this->render('sender.html.twig', ['notSendedPostbacks' => $postbackCollector->getAwaitingPostbacks()]);
-                    case ('/test_form'):
-                        return $this->testForm();
-                    case ('/xml'):
-                        return $this->getXmlPage();
+                        break;
+                    case (self::PAGE_XML_EMULATOR):
+                        return $this->render('xml_emulator.html.twig', ['xml_collection' => $xmlEmulator->getCollection()]);
+                        break;
+                    case (self::PAGE_XML):
+                        return $xmlEmulator->getXmlPage($request);
                     default:
-                        return $this->render(
-                            "{$page}.html.twig",
-                            [
-                                'page_name'   => $this->getPageName($page),
-                                'description' => $this->setDescription($page),
-                            ]
-                        );
+                        return $this->render("{$page}.html.twig");
                 }
             } else {
                 switch ($page) {
@@ -137,8 +134,6 @@ class HttpController extends AbstractController
         if ($request->getMethod() === 'GET') {
             return $this->render(
                 "{$page}.html.twig", [
-                'page_name'   => $this->getPageName($page),
-                'description' => $this->setDescription($page),
                 'new_form' => 1,
             ]);
         }
@@ -146,42 +141,6 @@ class HttpController extends AbstractController
         $response = $xmlEmulator->create($request);
             
         return $this->getResponse($page, $response);
-    }
-    
-    /**
-     * @todo  переделать
-     *
-     * @return Response
-     */
-    public function getXmlPage()
-    {
-        $query = parse_query($this->request->getQueryString());
-        
-        if (empty($query['key'])) {
-            //todo доделать
-            return (new Response())->setStatusCode(Response::HTTP_BAD_REQUEST);
-        }
-        
-        try {
-            $xml = $this->xmlEmulator->getXmlPageByKey($query['key']);
-        } catch (ExpectedException $e) {
-            return new Response('<error>'.$e->getMessage().'</error>', 403, ['Content-Type' => 'text/xml']);
-        }
-        
-        return new Response($xml, 200, ['Content-Type' => 'text/xml']);
-    }
-    
-    //todo test
-    public function testForm()
-    {
-        $form = $this->createForm(TableForm::class, ['someDataForTest']);
-        
-        return $this->render(
-            'base.html.twig',
-            [
-                'form' => $form->createView(),
-            ]
-        );
     }
     
     /**
@@ -206,10 +165,7 @@ class HttpController extends AbstractController
      */
     private function getResponse($pageName, AlertMessageCollection $messageCollection)
     {
-        return $this->render("{$pageName}.html.twig", [
-            'page_name'   => $this->getPageName($pageName),
-            'response' => $messageCollection->getMessages()
-        ]);
+        return $this->render("{$pageName}.html.twig");
     }
     
     /**
@@ -220,5 +176,21 @@ class HttpController extends AbstractController
     protected function setDescription($rout)
     {
         return '';
+    }
+    
+    /**
+     * @param string        $view
+     * @param array         $parameters
+     * @param Response|null $response
+     *
+     * @return Response
+     */
+    protected function render(string $view, array $parameters = [], Response $response = null) : Response
+    {
+        $page = str_replace('.html.twig', '', $view);
+        $parameters['page_name'] = $this->getPageName($page);
+        $parameters['description'] = $this->setDescription($page);
+        
+        return parent::render($view, $parameters, $response);
     }
 }

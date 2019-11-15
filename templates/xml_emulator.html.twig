@@ -7,7 +7,7 @@
                 <textarea id="code" cols="60" rows="30" name="new_xml"></textarea>
             </div>
             <div class="buttons">
-                <button class="btn btn-dark"  type="submit" form="xml_new_form">Save xml</button>
+                <button class="btn btn-dark" type="submit" form="xml_new_form">Save xml</button>
                 <a href="javascript:autoFormatSelection()">
                     <button type="button" class="btn btn-dark">Format selected xml</button>
                 </a>
@@ -38,6 +38,21 @@
             }
         </script>
     {% else %}
-
+        {% if xml_collection is defined %}
+        <table>
+            <tr>
+                <th>id</th>
+                <th>addedAt</th>
+                <th>url</th>
+            </tr>
+            {% for xml in xml_collection %}
+                <tr>
+                    {% for value in xml %}
+                        <th>{{ value }}</th>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
     {% endif %}
 {% endblock %}

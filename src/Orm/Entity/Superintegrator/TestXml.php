@@ -37,20 +37,35 @@ class TestXml extends BaseEntity
     }
     
     /**
+     * @return string
+     */
+    public function getXml()
+    {
+        return $this->xml;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getUrl() : string
+    {
+        return $this->url;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getAddedAt() : string
+    {
+        return $this->addedAt->format('Y-m-d H:i:s');
+    }
+    
+    /**
      * @param $xml
      */
     public function setXml($xml)
     {
         $this->xml = $xml;
-    }
-    
-    
-    /**
-     * @return string|null
-     */
-    public function getXml()
-    {
-        return $this->xml;
     }
     
     /**

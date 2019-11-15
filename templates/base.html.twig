@@ -15,11 +15,6 @@
 
                 {#Base content block#}
                 {% block content %}
-
-                    {% if form is defined %}
-                        {% form_theme form 'bootstrap_4_layout.html.twig' %}
-                        {{ form(form) }}
-                    {% endif %}
                     {% if description is defined %}
                         {% for key, value in description %}
                             <h3>{{ key }}</h3>
