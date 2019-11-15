@@ -3,3 +3,9 @@ index:
   controller: App\Controller\HttpController::index
   defaults:
     page: /
+
+create_new:
+  path: /{page}/new
+  controller: App\Controller\HttpController::createNew
+  defaults:
+    page: /

@@ -2,14 +2,21 @@ $(document).ready(function () {
 // Enable dismissal of an alert via JavaScript
     $('.alert').alert();
 
-    function printAlert(message, level = 'success'){
+    function printAlert(message, level = 'success') {
         var alertClass = '"alert alert-' + level + '"';
         $('div[id="alert_message"]').remove(); // remove all elem by class
-        $('#page-content').append('<div id="alert_message" class=' + alertClass + ">" +message + '</div>')
+        $('#page-content').append('<div id="alert_message" class=' + alertClass + ">" + message + '</div>')
     }
 
-    var content = $('.content');
-    var printResponse = false;
+    // Проверка на наличие пустых текстовых полей формы
+    $('button[type="submit"]').click(function () {
+        if ($('#geo_input').val() === '' || (editor.length && editor.getValue() === '')) {
+            printAlert('Empty Fields!', 'danger');
+            return false;
+        }
+
+        this.submit();
+    });
 
 ////////////////xml emulator////////////////
     function generate_link() {
@@ -25,23 +32,6 @@ $(document).ready(function () {
     }
 
 ////////////////xml emulator////////////////
-
-////////////////geo////////////////
-    $('.dropdown-item').click(function () {
-        var buttonName = $(this).attr('name');
-        var input = $('#geo_input').val();
-        console.log(buttonName);
-        console.log(input);
-
-        if (input === '') {
-            printAlert( 'Не указано гео', 'danger')
-            return false;
-        }
-
-        this.submit();
-    });
-
-////////////////geo////////////////
 
 ////////////////ali orders////////////////
     function get_csv_file() {

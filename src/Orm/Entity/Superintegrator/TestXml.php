@@ -3,38 +3,30 @@
 namespace App\Orm\Entity\Superintegrator;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Orm\Entity\EntityInterface;
+use App\Orm\Entity\BaseEntity;
 /**
  * TestXml
  *
  * @ORM\Table(name="test_xml", uniqueConstraints={@ORM\UniqueConstraint(name="id", columns={"id"})})
  * @ORM\Entity
  */
-class TestXml implements EntityInterface
+class TestXml extends BaseEntity
 {
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     */
-    private $id;
 
     /**
      * @var string|null
      *
-     * @ORM\Column(name="data", type="text", length=65535, nullable=true)
+     * @ORM\Column(name="xml", type="text", length=65535, nullable=true)
      */
-    private $data;
+    private $xml;
     
 
     /**
      * @var string
      *
-     * @ORM\Column(name="hash", type="string", length=40, nullable=false)
+     * @ORM\Column(name="url", type="string", length=80, nullable=false)
      */
-    private $hash;
+    private $url;
     
     /**
      * @return int
@@ -47,26 +39,26 @@ class TestXml implements EntityInterface
     /**
      * @param $xml
      */
-    public function setXmlData($xml)
+    public function setXml($xml)
     {
-        $this->data = $xml;
+        $this->xml = $xml;
     }
     
     
     /**
      * @return string|null
      */
-    public function getXmlData()
+    public function getXml()
     {
-        return $this->data;
+        return $this->xml;
     }
     
     /**
-     * @param $hash
+     * @param $url
      */
-    public function setHashCode($hash)
+    public function setUrl($url)
     {
-        $this->hash = $hash;
+        $this->url = $url;
     }
 
 }

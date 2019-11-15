@@ -8,55 +8,53 @@
 
 namespace App\Services\Superintegrator;
 
-use App\Entity\Superintegrator\TestXml;
+use App\Forms\ResponseMessage\AlertMessageCollection;
+use App\Orm\Entity\Superintegrator\TestXml;
 use App\Exceptions\ExpectedException;
 use App\Services\AbstractService;
+use Symfony\Component\HttpFoundation\Request;
 
 class XmlEmulatorService extends AbstractService
 {
     /**
-     * @param $parameters
+     * @param Request $request
      *
-     * @return false|string
-     * @throws \Exception
+     * @return AlertMessageCollection
+     * @throws ExpectedException
      */
-    public function process($parameters)
+    public function create(Request $request)
     {
-        if (empty($parameters['xml'])) {
-            exit();
+        parse_str($request->getContent(), $parameters);
+        
+        if (empty($parameters['new_xml'])) {
+            return null;
         }
-    
-        $xmlstr = $parameters['xml'];
+        
+        $xmlstr = $parameters['new_xml'];
         libxml_use_internal_errors(true);
         $doc = simplexml_load_string($xmlstr);
-        $xml = explode("\n", $xmlstr);
-    
+        
         if (!$doc) {
-            $errors = libxml_get_errors();
-        
-            foreach ($errors as $error) {
-                echo display_xml_error($error, $xml);
-            }
-        
-            libxml_clear_errors();
-            
-            throw new ExpectedException('Invalid xml');
-        } else {
-            $entityXml = new TestXml();
-            $key = $this->generateHashKey($xmlstr);
-            $entityXml->setXmlData($xmlstr);
-            $entityXml->setHashCode($key);
-            $this->entityManager->persist($entityXml);
-            $this->entityManager->flush();
-            
-            return json_encode(['url' => 'http://'.$_SERVER["HTTP_HOST"].'/xml/?key='.$key]);
+            throw new ExpectedException('Invalid xml. Errors: '.implode("\n", libxml_get_errors()));
         }
+        
+        $entityXml = new TestXml();
+        $key       = $this->generateHashKey($xmlstr);
+        $entityXml->setXml($xmlstr);
+        $entityXml->setUrl('http://'.$_SERVER['HTTP_HOST'].'/xml/?key='.$key);
+        $this->entityManager->persist($entityXml);
+        $this->entityManager->flush();
+        
+        $response = new AlertMessageCollection();
+        $response->addAlert('Success', 'Xml template was be saved', AlertMessageCollection::ALERT_TYPE_SUCCESS);
+        
+        return $response;
     }
     
     public function getXmlPageByKey($key)
     {
         $repository = $this->entityManager->getRepository(TestXml::class);
-        $xmlEntity = $repository->findOneBy(['hash' => $key]);
+        $xmlEntity  = $repository->findOneBy(['hash' => $key]);
         
         
         if ($xmlEntity === null) {

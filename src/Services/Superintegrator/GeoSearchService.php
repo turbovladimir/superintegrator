@@ -85,9 +85,9 @@ class GeoSearchService extends AbstractService
 
         $responseMessage = new AlertMessageCollection();
         empty($cityadsIds['existing']) ?:
-        $responseMessage->addAlert('Найдено гео', implode(',', $cityadsIds['existing']));
+        $responseMessage->addAlert('Successful found', implode(',', $cityadsIds['existing']));
         empty($cityadsIds['missing']) ?:
-            $responseMessage->addAlert('Не найденное', implode(',', $cityadsIds['missing']), AlertMessageCollection::ALERT_TYPE_DANGER);
+            $responseMessage->addAlert('Not founded', implode(',', $cityadsIds['missing']), AlertMessageCollection::ALERT_TYPE_DANGER);
         
         return $responseMessage;
     }

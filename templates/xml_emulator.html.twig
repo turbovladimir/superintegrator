@@ -1,22 +1,43 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Xml emulator{% endblock %}
+{% block content %}
+    {% if new_form is defined %}
+        <form id="xml_new_form" method="post" action="/xml_emulator/new">
+            <div style="border-top: 1px solid black; border-bottom: 1px solid black;">
+                <textarea id="code" cols="60" rows="30" name="new_xml"></textarea>
+            </div>
+            <div class="buttons">
+                <button class="btn btn-dark"  type="submit" form="xml_new_form">Save xml</button>
+                <a href="javascript:autoFormatSelection()">
+                    <button type="button" class="btn btn-dark">Format selected xml</button>
+                </a>
+                <a href="javascript:commentSelection(true)">
+                    <button type="button" class="btn btn-dark">Comment selected xml</button>
+                </a>
+            </div>
+        </form>
 
-{% block body %}
-    <div class=geo_menu>
-        <table>
-            <tr>
-                <th>Paste your xml:</th>
-                <th>
-                    <textarea id="xml"></textarea>
-                </th>
-                <th>
-                    <input type="button" onclick="generate_link()" value="Generate Link">
-                </th>
-            </tr>
-            <tr>
-                <th>Get link:</th>
-            </tr>
-        </table>
-    </div>
+        <script type="text/javascript">
+            var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+                mode: "application/xml",
+                lineNumbers: true
+            });
+
+            function getSelectedRange() {
+                return {from: editor.getCursor(true), to: editor.getCursor(false)};
+            }
+
+            function autoFormatSelection() {
+                var range = getSelectedRange();
+                editor.autoFormatRange(range.from, range.to);
+            }
+
+            function commentSelection(isComment) {
+                var range = getSelectedRange();
+                editor.commentRange(isComment, range.from, range.to);
+            }
+        </script>
+    {% else %}
+
+    {% endif %}
 {% endblock %}

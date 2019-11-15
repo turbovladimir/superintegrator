@@ -1,42 +1,19 @@
 {% extends 'base.html.twig' %}
 {% block content %}
-        <form id="geo_form" method="post" action="/geo">
-            <div class="input-group">
-                <input type="text" name="list" id="geo_input" class="form-control" aria-label="Text input with dropdown button">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Choose geo format</button>
-                    <div class="dropdown-menu">
-                        <button class="dropdown-item" type="submit" form="geo_form" name="geo_type" value="1">Regions full name(Russia, China, Brazil)</button>
-                        <button class="dropdown-item" type="submit" form="geo_form" name="geo_type" value="2">Country code (US,UA,MX)</button>
-                        <button class="dropdown-item" type="submit" form="geo_form" name="geo_type" value="3">Cities of Russia</button>
-                    </div>
+    <form id="geo_form" method="post" action="/geo">
+        <div class="input-group">
+            <input type="text" name="list" id="geo_input" class="form-control" aria-label="Text input with dropdown button">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true"
+                        aria-expanded="false">Choose geo format
+                </button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" type="submit" form="geo_form" name="geo_type" value="1">Regions full name(Russia, China, Brazil)
+                    </button>
+                    <button class="dropdown-item" type="submit" form="geo_form" name="geo_type" value="2">Country code (US,UA,MX)</button>
+                    <button class="dropdown-item" type="submit" form="geo_form" name="geo_type" value="3">Cities of Russia</button>
                 </div>
             </div>
-        </form>
-
-
-
-
-    {#<div class=geo_menu>#}
-    {#<table>#}
-    {#<tr>#}
-    {#<th>#}
-    {#<select id="geo_selector">#}
-    {#<option selected value="0">Choose format</option>#}
-    {#<option value="1">Regions full name(Russia, China, Brazil)</option>#}
-    {#<option value="2">Country code (US,UA,MX)</option>#}
-    {#<option value="3">Cities of Russia</option>#}
-    {#</select>#}
-    {#</th>#}
-    {#<th>#}
-    {#<div class=input>#}
-    {#<input id="country_id" type="text" size="40">#}
-    {#<input type="button" onclick="geo_send()" value="Send">#}
-    {#<input type="reset" onclick="geo_clear()" value="Reset">#}
-    {#</div>#}
-    {#</th>#}
-    {#</form>#}
-    {#</tr>#}
-    {#</table>#}
-    {#</div>#}
+        </div>
+    </form>
 {% endblock %}

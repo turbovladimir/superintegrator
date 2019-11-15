@@ -9,7 +9,7 @@
 namespace App\Controller;
 
 use App\Forms\ResponseMessage\AlertMessageCollection;
-use App\Forms\TableForm;
+use App\Orm\Entity\Superintegrator\TestXml;
 use App\Services\File\CsvHandler;
 use \App\Services\Superintegrator\XmlEmulatorService;
 use \App\Exceptions\ExpectedException;
@@ -25,18 +25,18 @@ use \App\Services\Superintegrator\PostbackCollector;
 class HttpController extends AbstractController
 {
     
-    private const ROUT_MAIN = '/';
-    private const ROUT_GEO = '/geo';
-    private const ROUT_ALI_ORDERS = '/ali_orders';
-    private const ROUT_XML_EMULATOR = '/xml_emulator';
-    private const ROUT_SENDER = '/sender';
+    private const PAGE_MAIN = 'base';
+    private const PAGE_GEO = 'geo';
+    private const PAGE_ALI_ORDERS = 'ali_orders';
+    private const PAGE_XML_EMULATOR = 'xml_emulator';
+    private const PAGE_SENDER = 'sender';
     
     private const ROUTS_AND_ALIASES = [
-        self::ROUT_MAIN         => 'Main page',
-        self::ROUT_GEO          => 'Geo searching',
-        self::ROUT_ALI_ORDERS   => 'Ali orders',
-        self::ROUT_XML_EMULATOR => 'Xml emulator',
-        self::ROUT_SENDER       => 'Sender',
+        self::PAGE_MAIN         => 'Main page',
+        self::PAGE_GEO          => 'Geo searching',
+        self::PAGE_ALI_ORDERS   => 'Ali orders',
+        self::PAGE_XML_EMULATOR => 'Xml emulator',
+        self::PAGE_SENDER       => 'Sender',
     ];
     
     private $request;
@@ -49,6 +49,7 @@ class HttpController extends AbstractController
     private $logger;
     
     /**
+     * @param string             $page
      * @param Request            $request
      * @param LoggerInterface    $logger
      * @param GeoSearchService   $geoSearch
@@ -58,9 +59,9 @@ class HttpController extends AbstractController
      * @param CsvHandler         $csvHandler
      *
      * @return Response
-     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function index(
+        string $page,
         Request $request,
         LoggerInterface $logger,
         GeoSearchService $geoSearch,
@@ -78,15 +79,13 @@ class HttpController extends AbstractController
         $this->postbackCollector = $postbackCollector;
         $this->aliOrders         = $aliOrders;
         $this->csvHandler        = $csvHandler;
-        
-        $rout = $this->request->getPathInfo();
-        $rout === '/' ? $rout = '/base' : null;
-        $page = str_replace('/', '', $rout);
+    
+        $page === '/' ? $page = 'base' : null;
         
         try {
             if ($this->request->getMethod() === 'GET') {
-                switch ($rout) {
-                    case (self::ROUT_SENDER):
+                switch ($page) {
+                    case (self::PAGE_SENDER):
                         return $this->render('sender.html.twig', ['notSendedPostbacks' => $postbackCollector->getAwaitingPostbacks()]);
                     case ('/test_form'):
                         return $this->testForm();
@@ -96,22 +95,22 @@ class HttpController extends AbstractController
                         return $this->render(
                             "{$page}.html.twig",
                             [
-                                'page_name'   => $this->getPageNameByRout($rout),
-                                'description' => $this->setDescription($rout),
+                                'page_name'   => $this->getPageName($page),
+                                'description' => $this->setDescription($page),
                             ]
                         );
                 }
             } else {
-                switch ($rout) {
+                switch ($page) {
                     case ('/sender'):
                         $response['confirmed'] = $this->csvHandler->uploadFileAction($this->request);
                         break;
-                    case (self::ROUT_GEO):
+                    case (self::PAGE_GEO):
                         $response = $this->geoSearch->process($request);
                         break;
-                    case (self::ROUT_ALI_ORDERS):
+                    case (self::PAGE_ALI_ORDERS):
                         return $this->aliOrders->process($_POST['orders'] ?? null);
-                    case (self::ROUT_XML_EMULATOR):
+                    case (self::PAGE_XML_EMULATOR):
                         $response = $this->xmlEmulator->process($this->requestContent);
                         break;
                 }
@@ -122,6 +121,30 @@ class HttpController extends AbstractController
             $response->addAlert('Обнаружена ошибка: ', $exception->getMessage(), AlertMessageCollection::ALERT_TYPE_DANGER);
         }
         
+        return $this->getResponse($page, $response);
+    }
+    
+    /**
+     * @param string             $page
+     * @param Request            $request
+     * @param XmlEmulatorService $xmlEmulator
+     *
+     * @return Response
+     * @throws ExpectedException
+     */
+    public function createNew(string $page, Request $request, XmlEmulatorService $xmlEmulator)
+    {
+        if ($request->getMethod() === 'GET') {
+            return $this->render(
+                "{$page}.html.twig", [
+                'page_name'   => $this->getPageName($page),
+                'description' => $this->setDescription($page),
+                'new_form' => 1,
+            ]);
+        }
+        
+        $response = $xmlEmulator->create($request);
+            
         return $this->getResponse($page, $response);
     }
     
@@ -166,13 +189,13 @@ class HttpController extends AbstractController
      *
      * @return mixed
      */
-    private function getPageNameByRout($rout)
+    private function getPageName($rout)
     {
         if (array_key_exists($rout, self::ROUTS_AND_ALIASES)) {
             return self::ROUTS_AND_ALIASES[$rout];
         }
         
-        return self::ROUTS_AND_ALIASES[self::ROUT_MAIN];
+        return self::ROUTS_AND_ALIASES[self::PAGE_MAIN];
     }
     
     /**
@@ -184,7 +207,7 @@ class HttpController extends AbstractController
     private function getResponse($pageName, AlertMessageCollection $messageCollection)
     {
         return $this->render("{$pageName}.html.twig", [
-            'page_name'   => $this->getPageNameByRout('/'. $pageName),
+            'page_name'   => $this->getPageName($pageName),
             'response' => $messageCollection->getMessages()
         ]);
     }

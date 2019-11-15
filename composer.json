@@ -7,6 +7,8 @@
         "ext-json": "*",
         "ext-curl": "*",
         "ext-iconv": "*",
+        "ext-libxml": "*",
+        "ext-simplexml": "*",
         "comodojo/httprequest": "^1.3",
         "doctrine/annotations": "^1.7",
         "guzzlehttp/guzzle": "^6.3",
