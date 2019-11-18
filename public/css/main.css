@@ -1,5 +1,22 @@
+#page-content-wrapper {
+    background-image: url('../images/background.jpg');
+
+}
+
+#transparent_mask {
+    background: rgba(255, 247, 232, 0.70);
+    display: flex;
+    min-height: 100vw;
+}
+
 #page-content {
-    margin: 20px;
+    min-width: 90%;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+div.block {
+    margin-top: 20px;
 }
 
 #alert_message {
@@ -7,13 +24,10 @@
     margin: 5px;
 }
 
-#page-content h1 {
-    margin: 10px;
+th {
+    text-align: center;
 }
 
-div.buttons {
-    margin: 20px;
-}
 /*html{*/
     /*height: 100%;*/
 /*}*/

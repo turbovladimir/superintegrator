@@ -10,27 +10,30 @@
 
         <!-- Page Content -->
         <div id="page-content-wrapper" class="bg-light">
-            <div id="page-content">
-                <h1>{{ page_name }}</h1>
+            <div id="transparent_mask">
+                <div id="page-content">
+                    <div class="block">
+                        <h1>{{ page_name }}</h1>
+                    </div>
 
-                {#Base content block#}
-                {% block content %}
-                    {% if description is defined %}
-                        {% for key, value in description %}
-                            <h3>{{ key }}</h3>
-                            <span>{{ value }}</span>
+                    {#Base content block#}
+                    {% block content %}
+                        {% if description is defined %}
+                            {% for key, value in description %}
+                                <h3>{{ key }}</h3>
+                                <span>{{ value }}</span>
+                            {% endfor %}
+                        {% endif %}
+                    {% endblock %}
+
+                    {#Response message block#}
+                    {% if response is defined %}
+                        {% for alert_level, message in response %}
+                            <div id="alert_message" class="{{ alert_level }}">{{ message }}</div>
                         {% endfor %}
                     {% endif %}
-                {% endblock %}
-
-                {#Response message block#}
-                {% if response is defined %}
-                    {% for alert_level, message in response %}
-                        <div id="alert_message" class="{{ alert_level }}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
+                </div>
             </div>
-
         </div>
     </div>
     </body>

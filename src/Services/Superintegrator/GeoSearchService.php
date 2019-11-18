@@ -32,7 +32,7 @@ class GeoSearchService extends AbstractService
      *
      * @return AlertMessageCollection| null
      */
-    public function process(Request $request)
+    public function processRequest(Request $request)
     {
         parse_str($request->getContent(), $parameters);
         

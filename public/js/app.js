@@ -8,9 +8,9 @@ $(document).ready(function () {
         $('#page-content').append('<div id="alert_message" class=' + alertClass + ">" + message + '</div>')
     }
 
-    // Проверка на наличие пустых текстовых полей формы
-    $('button[type="submit"]').click(function () {
-        if ($('#geo_input').val() === '' || (editor.length && editor.getValue() === '')) {
+    // Обработка сабмитов
+    $('button[need_check="1"]').click(function () {
+        if (($('#check_field').length > 0 && $('#check_field').val() === '') || (typeof editor != "undefined" && editor.getValue() === '')) {
             printAlert('Empty Fields!', 'danger');
             return false;
         }
@@ -18,18 +18,11 @@ $(document).ready(function () {
         this.submit();
     });
 
+    // $('button[submit_dynamic_form="1"]').click()(function () {
+    //
+    // });
+
 ////////////////xml emulator////////////////
-    function generate_link() {
-        var xml = $('#xml').val();
-        var requestObj = {
-            tool: 'xml_emulator',
-            parameters: {
-                xml: xml.trim()
-            }
-        };
-        printResponse = true;
-        push('/xml_emulator', requestObj);
-    }
 
 ////////////////xml emulator////////////////
 

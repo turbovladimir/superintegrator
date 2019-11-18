@@ -12,6 +12,12 @@ use App\Orm\Entity\BaseEntity;
  */
 class TestXml extends BaseEntity
 {
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name", type="string", length=80, nullable=false)
+     */
+    private $name;
 
     /**
      * @var string|null
@@ -29,11 +35,19 @@ class TestXml extends BaseEntity
     private $url;
     
     /**
-     * @return int
+     * @return string
      */
-    public function getId()
+    public function getName() : string
     {
-        return $this->id;
+        return $this->name;
+    }
+    
+    /**
+     * @param string $name
+     */
+    public function setName(string $name) : void
+    {
+        $this->name = trim($name);
     }
     
     /**
@@ -50,14 +64,6 @@ class TestXml extends BaseEntity
     public function getUrl() : string
     {
         return $this->url;
-    }
-    
-    /**
-     * @return string
-     */
-    public function getAddedAt() : string
-    {
-        return $this->addedAt->format('Y-m-d H:i:s');
     }
     
     /**

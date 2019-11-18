@@ -90,7 +90,9 @@ class HttpController extends AbstractController
                         return $this->render('sender.html.twig', ['notSendedPostbacks' => $postbackCollector->getAwaitingPostbacks()]);
                         break;
                     case (self::PAGE_XML_EMULATOR):
-                        return $this->render('xml_emulator.html.twig', ['xml_collection' => $xmlEmulator->getCollection()]);
+                        $collection = $xmlEmulator->getCollection();
+                        
+                        return $this->render('xml_emulator.html.twig', $collection ? ['table_head' => array_keys(reset($collection)), 'xml_collection' => $collection] : []);
                         break;
                     case (self::PAGE_XML):
                         return $xmlEmulator->getXmlPage($request);
@@ -103,19 +105,19 @@ class HttpController extends AbstractController
                         $response['confirmed'] = $this->csvHandler->uploadFileAction($this->request);
                         break;
                     case (self::PAGE_GEO):
-                        $response = $this->geoSearch->process($request);
+                        $response = $this->geoSearch->processRequest($request);
                         break;
                     case (self::PAGE_ALI_ORDERS):
                         return $this->aliOrders->process($_POST['orders'] ?? null);
                     case (self::PAGE_XML_EMULATOR):
-                        $response = $this->xmlEmulator->process($this->requestContent);
+                        $response = $this->xmlEmulator->processRequest($request);
                         break;
                 }
             }
         } catch
         (\Exception $exception) {
             $response = new AlertMessageCollection();
-            $response->addAlert('Обнаружена ошибка: ', $exception->getMessage(), AlertMessageCollection::ALERT_TYPE_DANGER);
+            $response->addAlert('Обнаружена ошибка', $exception->getMessage(), AlertMessageCollection::ALERT_TYPE_DANGER);
         }
         
         return $this->getResponse($page, $response);
@@ -165,7 +167,7 @@ class HttpController extends AbstractController
      */
     private function getResponse($pageName, AlertMessageCollection $messageCollection)
     {
-        return $this->render("{$pageName}.html.twig");
+        return $this->render("{$pageName}.html.twig", ['response' => $messageCollection->getMessages()]);
     }
     
     /**

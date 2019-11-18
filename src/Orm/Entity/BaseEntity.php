@@ -46,4 +46,12 @@ class BaseEntity implements EntityInterface
         return $this->id;
     }
     
+    /**
+     * @return string
+     */
+    public function getAddedAt() : string
+    {
+        return $this->addedAt->format('Y-m-d H:i:s');
+    }
+    
 }
