@@ -43,17 +43,16 @@ class CsvHandler extends FileHandler
     }
     
     /**
-     * @param $header
-     * @param $records
+     * @param $content
      *
      * @return string
      * @throws \League\Csv\CannotInsertRecord
      */
-    public static function generateFile($header, $records)
+    public static function generateFile($content)
     {
         $csv = Writer::createFromString('');
-        $csv->insertOne($header);
-        $csv->insertAll($records);
+        $csv->insertOne(array_keys(reset($content)));
+        $csv->insertAll($content);
         
         return $csv->getContent();
     }

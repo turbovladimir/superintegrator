@@ -8,7 +8,7 @@
 
 namespace App\Services\Superintegrator;
 
-use App\Forms\ResponseMessage\AlertMessageCollection;
+use App\Response\AlertMessageCollection;
 use App\Orm\Entity\Superintegrator\TestXml;
 use App\Exceptions\ExpectedException;
 use App\Services\AbstractService;

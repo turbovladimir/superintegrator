@@ -61,28 +61,4 @@ abstract class FileHandler extends AbstractService
         $this->entityManager->persist($fileEntity);
         $this->entityManager->flush();
     }
-    
-    /**
-     * @param $fileName
-     * @param $fileContent
-     *
-     * @return Response
-     */
-    public static function download($fileName, $fileContent)
-    {
-        $response = new Response(
-            '',
-            Response::HTTP_OK,
-            ['content-type' => 'text/html']
-        );
-        
-        $disposition = $response->headers->makeDisposition(
-            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            $fileName
-        );
-        $response->headers->set('Content-Disposition', $disposition);
-        $response->setContent($fileContent);
-        
-        return $response;
-    }
 }

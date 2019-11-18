@@ -6,12 +6,12 @@
  * Time: 11:42
  */
 
-namespace App\Forms\ResponseMessage;
+namespace App\Response;
 
 /**
  * Class AlertMessageCollection
  *
- * @package App\Utils\ResponseMessage
+ * @package App\Utils\Response
  */
 class AlertMessageCollection
 {

@@ -8,12 +8,10 @@
 
 namespace App\Controller;
 
-use App\Forms\ResponseMessage\AlertMessageCollection;
-use App\Orm\Entity\Superintegrator\TestXml;
+use App\Response\AlertMessageCollection;
+use App\Response\Download;
 use App\Services\File\CsvHandler;
 use \App\Services\Superintegrator\XmlEmulatorService;
-use \App\Exceptions\ExpectedException;
-use function GuzzleHttp\Psr7\parse_query;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -108,7 +106,8 @@ class HttpController extends AbstractController
                         $response = $this->geoSearch->processRequest($request);
                         break;
                     case (self::PAGE_ALI_ORDERS):
-                        return $this->aliOrders->process($_POST['orders'] ?? null);
+                        $response = $this->aliOrders->processRequest($request);
+                        break;
                     case (self::PAGE_XML_EMULATOR):
                         $response = $this->xmlEmulator->processRequest($request);
                         break;
@@ -119,30 +118,22 @@ class HttpController extends AbstractController
             $response = new AlertMessageCollection();
             $response->addAlert('Обнаружена ошибка', $exception->getMessage(), AlertMessageCollection::ALERT_TYPE_DANGER);
         }
+    
+        if ($response instanceof Download) {
+            return  $response->get();
+        }
         
-        return $this->getResponse($page, $response);
+        return $this->render("{$page}.html.twig", ['response' => $response->getMessages()]);
     }
     
     /**
-     * @param string             $page
-     * @param Request            $request
-     * @param XmlEmulatorService $xmlEmulator
+     * @param string $page
      *
      * @return Response
-     * @throws ExpectedException
      */
-    public function createNew(string $page, Request $request, XmlEmulatorService $xmlEmulator)
+    public function createNew(string $page)
     {
-        if ($request->getMethod() === 'GET') {
-            return $this->render(
-                "{$page}.html.twig", [
-                'new_form' => 1,
-            ]);
-        }
-        
-        $response = $xmlEmulator->create($request);
-            
-        return $this->getResponse($page, $response);
+        return $this->render("{$page}.html.twig", ['new_form' => 1]);
     }
     
     /**
@@ -157,17 +148,6 @@ class HttpController extends AbstractController
         }
         
         return self::ROUTS_AND_ALIASES[self::PAGE_MAIN];
-    }
-    
-    /**
-     * @param                        $pageName
-     * @param AlertMessageCollection $messageCollection
-     *
-     * @return Response
-     */
-    private function getResponse($pageName, AlertMessageCollection $messageCollection)
-    {
-        return $this->render("{$pageName}.html.twig", ['response' => $messageCollection->getMessages()]);
     }
     
     /**

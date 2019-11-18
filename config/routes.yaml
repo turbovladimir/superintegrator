@@ -5,6 +5,7 @@ index:
     page: /
 
 create_new:
+  methods: GET
   path: /{page}/new
   controller: App\Controller\HttpController::createNew
   defaults:

@@ -8,7 +8,7 @@
 
 namespace App\Services\Superintegrator;
 
-use App\Forms\ResponseMessage\AlertMessageCollection;
+use App\Response\AlertMessageCollection;
 use App\Orm\Entity\Superintegrator\CountryRussia;
 use App\Orm\Entity\Superintegrator\WorldRegion;
 use App\Orm\Entity\Superintegrator\WorldRegionCodes;

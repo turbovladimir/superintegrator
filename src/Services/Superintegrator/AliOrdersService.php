@@ -9,31 +9,58 @@
 namespace App\Services\Superintegrator;
 
 use App\Exceptions\ExpectedException;
-use App\Services\File\CsvHandler;
+use App\Response\Download;
+use App\Services\File\CsvHandler;;
+
+use App\Utils\StringHelper;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpFoundation\Request;
 
 class AliOrdersService
 {
-    
+    const FILE_NAME = 'aliexpress_orders';
     const URL = 'https://gw.api.alibaba.com/openapi/param2/2/portals.open/api.getOrderStatus/30056?appSignature=9FIO77dDIidM&orderNumbers=';
     const LIMIT_OF_ORDERS_PER_REQUEST = 100;
+    const HEADERS = [
+        'baseCommissionRate',
+        'category',
+        'commission',
+        'commissionRate',
+        'country',
+        'estimatedCommission',
+        'extraParams',
+        'finalPaymentAmount',
+        'isHotProduct',
+        'orderNumber',
+        'orderStatus',
+        'orderTime',
+        'paymentAmount',
+        'pid',
+        'product',
+        'publisherGmvRate',
+        'trackingId',
+        'transactionTime',
+    ];
     
     /**
-     * @param $orders
+     * @param Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Download
      * @throws ExpectedException
+     * @throws \League\Csv\CannotInsertRecord
      */
-    public function process($orders)
+    public function processRequest(Request $request)
     {
-        if (!$orders) {
-            throw new ExpectedException('Empty orders field');
+        parse_str($request->getContent(), $parameters);
+        
+        if (isset($parameters['csv_export']) && !empty($parameters['orders'])) {
+            $name = $this->getFileName();
+            $content = $this->generateFileContent(StringHelper::splitId($parameters['orders']));
+
+            return new Download($name, $content);
         }
         
-        $name = $this->getFileName();
-        $content = $this->generateFileContent(json_decode($orders));
-        
-        return CsvHandler::download($name, $content);
+        throw new ExpectedException('Empty orders field');
     }
     
     
@@ -41,8 +68,9 @@ class AliOrdersService
      * @param $orders
      *
      * @return string
+     * @throws \League\Csv\CannotInsertRecord
      */
-    private function generateFileContent($orders)
+    private function generateFileContent(array $orders)
     {
     
         if (count($orders) > self::LIMIT_OF_ORDERS_PER_REQUEST) {
@@ -56,18 +84,13 @@ class AliOrdersService
         
             $advertiserOrders = array_merge(
                 ...$arrayResponseFromApi
-            ); // отличное решение, элементы массива = подмассивы через оператор ... встраиваются в функцию мерж
+            ); // элементы массива = подмассивы через оператор ... встраиваются в функцию мерж
         
         } else {
             $advertiserOrders = $this->fetchOrders($orders);
         }
     
-        $header = array_keys(reset($advertiserOrders));
-        foreach ($advertiserOrders as $order) {
-            $records[] = array_values($order);
-        }
-    
-        return CsvHandler::generateFile($header, $records);
+        return CsvHandler::generateFile($advertiserOrders);
     }
     
     
@@ -75,27 +98,47 @@ class AliOrdersService
     {
         $date           = date('y-m-d h:i:s');
         
-        return "Aliexpress_orders_{$date}.csv";
+        return self::FILE_NAME . "_{$date}.csv";
     }
     
+    /**
+     * @param $orders
+     *
+     * @return array
+     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     */
     private function fetchOrders($orders)
     {
+        $sortOrders = [];
         $httpClient = HttpClient::create();
         $response   = $httpClient->request('GET', self::URL.implode(',', $orders));
         $content    = $response->toArray();
         $orders     = $content['result']['orders'];
         foreach ($orders as $order) {
-            $sortOrders[] = $this->fixTransactionTime($order);
+            $sortOrders[] = $this->filterOrder($order);
         }
         return $sortOrders;
     }
     
-    private function fixTransactionTime($order)
+    /**
+     * @param $order
+     *
+     * @return mixed
+     */
+    private function filterOrder($order)
     {
-        if (!isset($order['transactionTime'])) {
-            $order['transactionTime'] = '';
+        foreach (self::HEADERS as $key) {
+            if (!isset($order[$key])) {
+                $order[$key] = '';
+            }
         }
+        
         ksort($order);
+        
         return $order;
     }
 }
