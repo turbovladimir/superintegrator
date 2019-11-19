@@ -1,17 +1,13 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}Aliexpress orders{% endblock %}
-
-{% block body %}
-        <table>
-            <tr>
-                <th>Paste orders:</th>
-                <th>
-                    <textarea id="ali_orders"></textarea>
-                </th>
-                <th>
-                    <input type="button" onclick="get_csv_file()" value="Get CSV file">
-                </th>
-            </tr>
-        </table>
+{% block content %}
+    <div class="block">
+        <form method="post" action="/ali_orders" id="ali_orders_form">
+            <div class="block">
+                <textarea class="form-control" style="width: auto" id="check_field" rows="10" name="orders" placeholder="Paste orders"></textarea>
+            </div>
+            <div class="block">
+                <button class="btn btn-dark" type="submit" name="csv_export" need_check="1">Export to CSV</button>
+            </div>
+        </form>
+    </div>
 {% endblock %}

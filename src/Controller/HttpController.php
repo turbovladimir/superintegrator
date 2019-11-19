@@ -8,22 +8,38 @@
 
 namespace App\Controller;
 
-use App\Services\File\CsvHandler;
+use App\Orm\Entity\Superintegrator\TestXml;
+use App\Response\AlertMessageCollection;
+use App\Response\Download;
+use App\Services\File\CsvUploader;
+use App\Services\File\FileUploader;
 use \App\Services\Superintegrator\XmlEmulatorService;
-use \App\Exceptions\ExpectedException;
-use function GuzzleHttp\Psr7\parse_query;
+use Doctrine\ORM\EntityManager;
+use Psr\Log\LoggerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use \App\Services\Superintegrator\GeoSearchService;
 use \App\Services\Superintegrator\AliOrdersService;
 use \App\Services\Superintegrator\PostbackCollector;
 
-class HttpController extends BaseController
+class HttpController extends AbstractController
 {
-    const GEO_PAGE = '/geo';
-    const ALI_ORDERS_PAGE = '/ali_orders';
-    const XML_EMULATOR_PAGE = '/xml_emulator';
-    const SENDER_PAGE = '/sender';
+    
+    private const PAGE_MAIN = 'base';
+    private const PAGE_GEO = 'geo';
+    private const PAGE_ALI_ORDERS = 'ali_orders';
+    private const PAGE_XML_EMULATOR = 'xml_emulator';
+    private const PAGE_SENDER = 'sender';
+    private const PAGE_XML = 'xml';
+    
+    private const ROUTS_AND_ALIASES = [
+        self::PAGE_MAIN         => 'Main page',
+        self::PAGE_GEO          => 'Geo searching',
+        self::PAGE_ALI_ORDERS   => 'Ali orders',
+        self::PAGE_XML_EMULATOR => 'Xml emulator',
+        self::PAGE_SENDER       => 'Sender',
+    ];
     
     private $request;
     private $requestContent;
@@ -31,95 +47,163 @@ class HttpController extends BaseController
     private $xmlEmulator;
     private $postbackCollector;
     private $aliOrders;
-    private $csvHandler;
+    private $logger;
     
     /**
+     * @param string             $page
      * @param Request            $request
+     * @param LoggerInterface    $logger
      * @param GeoSearchService   $geoSearch
      * @param XmlEmulatorService $xmlEmulator
      * @param PostbackCollector  $postbackCollector
      * @param AliOrdersService   $aliOrders
-     * @param CsvHandler         $csvHandler
      *
      * @return Response
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     * @throws \League\Csv\Exception
      */
     public function index(
+        string $page,
         Request $request,
+        LoggerInterface $logger,
         GeoSearchService $geoSearch,
         XmlEmulatorService $xmlEmulator,
         PostbackCollector $postbackCollector,
-        AliOrdersService $aliOrders,
-        CsvHandler $csvHandler
+        AliOrdersService $aliOrders
     ) {
-        $response         = [];
+        $response                = [];
         $this->request           = $request;
+        $this->logger            = $logger;
         $this->requestContent    = urldecode($this->request->getContent());
         $this->geoSearch         = $geoSearch;
         $this->xmlEmulator       = $xmlEmulator;
         $this->postbackCollector = $postbackCollector;
         $this->aliOrders         = $aliOrders;
-        $this->csvHandler        = $csvHandler;
-        
-        $path = $this->request->getPathInfo();
-        $path === '/' ? $path = '/base' : null;
-        $page = str_replace('/', '', $path);
+    
+        $page === '/' ? $page = 'base' : null;
         
         try {
             if ($this->request->getMethod() === 'GET') {
-                switch ($path) {
-                    case (self::SENDER_PAGE):
+                switch ($page) {
+                    case (self::PAGE_SENDER):
                         return $this->render('sender.html.twig', ['notSendedPostbacks' => $postbackCollector->getAwaitingPostbacks()]);
-                    case ('/xml'):
-                        return $this->getXmlPage();
+                        break;
+                    case (self::PAGE_XML_EMULATOR):
+                        $collection = $xmlEmulator->getCollection();
+                        
+                        return $this->render('xml_emulator.html.twig', $collection ? ['table_head' => array_keys(reset($collection)), 'xml_collection' => $collection] : []);
+                        break;
                     default:
-                        return $this->render("{$page}.html.twig", ['description' => $this->setDescription($path)]);
+                        return $this->render("{$page}.html.twig");
                 }
             } else {
-                switch ($path) {
-                    case ('/sender'):
-                        $response['confirmed'] = $this->csvHandler->uploadFileAction($this->request);
+                switch ($page) {
+                    case (self::PAGE_GEO):
+                        $response = $this->geoSearch->processRequest($request);
                         break;
-                    case (self::GEO_PAGE):
-                        $response = $this->geoSearch->process($_POST['geo'] ?? null);
+                    case (self::PAGE_ALI_ORDERS):
+                        $response = $this->aliOrders->processRequest($request);
                         break;
-                    case (self::ALI_ORDERS_PAGE):
-                        return $this->aliOrders->process($_POST['orders'] ?? null);
-                    case (self::XML_EMULATOR_PAGE):
-                        $response = $this->xmlEmulator->process($this->requestContent);
+                    case (self::PAGE_XML_EMULATOR):
+                        $response = $this->xmlEmulator->processRequest($request);
                         break;
                 }
             }
         } catch
-        (ExpectedException $expectedException) {
-            $response = $expectedException->getMessage();
+        (\Exception $exception) {
+            $response = new AlertMessageCollection();
+            $response->addAlert('Обнаружена ошибка', $exception->getMessage(), AlertMessageCollection::ALERT_TYPE_DANGER);
+        }
+    
+        if ($response instanceof Download) {
+            return  $response->get();
         }
         
-        return $this->render("{$page}.html.twig", ['response' => $response]);
+        return $this->render("{$page}.html.twig", ['response' => $response->getMessages()]);
     }
     
     /**
-     * @todo  переделать
+     * @param string $page
      *
      * @return Response
      */
-    public function getXmlPage()
+    public function createNew(string $page)
     {
-        $query = parse_query($this->request->getQueryString());
+        return $this->render("{$page}.html.twig", ['new_form' => 1]);
+    }
+    
+    /**
+     * @param Request      $request
+     * @param FileUploader $uploader
+     *
+     * @return Response
+     * @throws \Exception
+     */
+    public function uploadFiles(Request $request, FileUploader $uploader)
+    {
+        $files = $request->files->all() ? : null;
+    
+        if (!$files) {
+            return $this->getOnlyAlertResponse('Cant find files for save', AlertMessageCollection::ALERT_TYPE_DANGER);
+        }
+    
+        $files = reset($files);
+    
+        foreach ($files as $file) {
+            $uploader->upload($file);
+        }
+    
+        return $this->getOnlyAlertResponse('Files have been successfully uploaded');
+    }
+    
+    /**
+     * @param Request            $request
+     * @param XmlEmulatorService $xmlEmulator
+     *
+     * @return Response
+     */
+    public function getXmlPage(Request $request, XmlEmulatorService $xmlEmulator)
+    {
+        parse_str($request->getQueryString(), $parameters);
         
-        if (empty($query['key'])) {
-            //todo доделать
-            return (new Response())->setStatusCode(Response::HTTP_BAD_REQUEST);
+        if (empty($parameters['key'])) {
+            return $this->getOnlyAlertResponse('Cannot parse key from url', AlertMessageCollection::ALERT_TYPE_DANGER);
+        }
+    
+        $xml = $xmlEmulator->getXmlByKey($parameters['key']);
+        
+        if ($xml === null) {
+            return $this->getOnlyAlertResponse('Incorrect or expired key', AlertMessageCollection::ALERT_TYPE_DANGER);
         }
         
-        try {
-            $xml = $this->xmlEmulator->getXmlPageByKey($query['key']);
-        } catch (ExpectedException $e) {
-            return new Response('<error>'.$e->getMessage().'</error>', 403, ['Content-Type' => 'text/xml']);
-        }
         
         return new Response($xml, 200, ['Content-Type' => 'text/xml']);
+    }
+    
+    /**
+     * @param        $message
+     * @param string $level
+     *
+     * @return Response
+     */
+    protected function getOnlyAlertResponse($message, $level = AlertMessageCollection::ALERT_TYPE_SUCCESS)
+    {
+        $response = new AlertMessageCollection();
+        $response->addAlert($message, null, $level);
+        
+        return $this->render("base.html.twig", ['response' => $response->getMessages()]);
+    }
+    
+    /**
+     * @param $rout
+     *
+     * @return mixed
+     */
+    private function getPageName($rout)
+    {
+        if (array_key_exists($rout, self::ROUTS_AND_ALIASES)) {
+            return self::ROUTS_AND_ALIASES[$rout];
+        }
+        
+        return self::ROUTS_AND_ALIASES[self::PAGE_MAIN];
     }
     
     /**
@@ -127,8 +211,24 @@ class HttpController extends BaseController
      *
      * @return string
      */
-    protected function setDescription($path)
+    protected function setDescription($rout)
     {
         return '';
+    }
+    
+    /**
+     * @param string        $view
+     * @param array         $parameters
+     * @param Response|null $response
+     *
+     * @return Response
+     */
+    protected function render(string $view, array $parameters = [], Response $response = null) : Response
+    {
+        $page = str_replace('.html.twig', '', $view);
+        $parameters['page_name'] = $this->getPageName($page);
+        $parameters['description'] = $this->setDescription($page);
+        
+        return parent::render($view, $parameters, $response);
     }
 }

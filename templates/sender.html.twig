@@ -1,25 +1,12 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}Sender{% endblock %}
-{% block javascripts %}
-{% endblock %}
-{% block body %}
-    <table>
-        <tr>
-            <th>Send archive file:</th>
-            <th>
-                <form action="/sender" method="post" enctype="multipart/form-data">
-                    <input type="hidden" name="token" value="{{ csrf_token('upload') }}" />
-                    <input type="file" name="file[]" required multiple
-                           title="Загрузите один или несколько оригинальных файлов архива"/>
-                    <input type="submit" value="Отправить" class="btn btn-primary">
-                </form>
-            </th>
-        </tr>
-        <tr>
-            {% if notSendedPostbacks is defined %}
-            <th>Awaiting postbacks : {{ notSendedPostbacks }}</th>
-            {% endif %}
-        </tr>
-    </table>
+{% block content %}
+    <div class="block">
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="token" value="{{ csrf_token('upload') }}"/>
+            <button type="button" class="btn btn-light">
+                <input type="file" name="file[]" required multiple>
+            </button>
+            <input type="submit" value="Upload" class="btn btn-dark">
+        </form>
+    </div>
 {% endblock %}

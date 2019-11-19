@@ -1,54 +1,41 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
-    <title>{% block title %}Test Application{% endblock %}</title>
-    {% block stylesheets %}
-        <link href="{{ asset('css/main.css') }}" rel="stylesheet"/>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    {% endblock %}
-    {% block javascripts %}
-        <script src="{{ asset('js/app.js') }}"></script>
-    {% endblock %}
-</head>
-<body>
-{% block sidebar %}
-    <div class="layout">
-        <div class="logo">
-            <img src="https://media.giphy.com/media/3o7aCVzTmaVkDWpXYk/giphy.gif"/>
-            <a id="logo" href="/">Super integrator</a>
-        </div>
-        <div>
-            <ul>
-                <li><a href="/geo">Geo search</a></li>
-                <li><a href="/data_transformer">Transform data</a></li>
-                <li><a href="/ali_orders">Aliexpress orders</a></li>
-                <li><a href="/sender">Sender</a></li>
-                <li><a href="/xml_emulator">Xml emulator</a></li>
-            </ul>
+{{ include ('head.html.twig') }}
+{% block body %}
+    <body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="bg-light border-right" id="sidebar-wrapper">{{ include('sidebar.html.twig') }}</div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper" class="bg-light">
+            <div id="transparent_mask">
+                <div id="page-content">
+                    <div class="block">
+                        <h1>{{ page_name }}</h1>
+                    </div>
+
+                    {#Base content block#}
+                    {% block content %}
+                        {% if description is defined %}
+                            {% for key, value in description %}
+                                <h3>{{ key }}</h3>
+                                <span>{{ value }}</span>
+                            {% endfor %}
+                        {% endif %}
+                    {% endblock %}
+
+                    {#Response message block#}
+                    {% if response is defined %}
+                        {% for alert_level, message in response %}
+                            <div id="alert_message" class="{{ alert_level }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
+    </body>
 {% endblock %}
-
-<div id="content" class="content">
-    {% if description is defined %}
-        {% for key, value in description %}
-            <h3>{{ key }}</h3>
-            <span>{{ value }}</span>
-        {% endfor %}
-    {% endif %}
-
-    {% block body %}{% endblock %}
-
-    {% if response is defined %}
-        {% for key, value in response %}
-        <ul>
-            <li><span>{{ key }}: {{ value }}</span></li>
-        </ul>
-        {% endfor %}
-    {% endif %}
-</div>
-
-</body>
 </html>

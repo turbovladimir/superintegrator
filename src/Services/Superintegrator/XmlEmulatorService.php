@@ -8,62 +8,116 @@
 
 namespace App\Services\Superintegrator;
 
-use App\Entity\Superintegrator\TestXml;
+use App\Response\AlertMessageCollection;
+use App\Orm\Entity\Superintegrator\TestXml;
 use App\Exceptions\ExpectedException;
 use App\Services\AbstractService;
+use App\Utils\Serializer;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class XmlEmulatorService extends AbstractService
 {
     /**
-     * @param $parameters
+     * @param Request $request
      *
-     * @return false|string
-     * @throws \Exception
+     * @return AlertMessageCollection
+     * @throws ExpectedException
      */
-    public function process($parameters)
+    public function processRequest(Request $request)
     {
-        if (empty($parameters['xml'])) {
-            exit();
-        }
-    
-        $xmlstr = $parameters['xml'];
-        libxml_use_internal_errors(true);
-        $doc = simplexml_load_string($xmlstr);
-        $xml = explode("\n", $xmlstr);
-    
-        if (!$doc) {
-            $errors = libxml_get_errors();
+        parse_str($request->getContent(), $parameters);
         
-            foreach ($errors as $error) {
-                echo display_xml_error($error, $xml);
-            }
-        
-            libxml_clear_errors();
-            
-            throw new ExpectedException('Invalid xml');
+        if (isset($parameters['new']) && !empty($parameters['name']) && !empty($parameters['xml_str'])) {
+            return $this->createApiSource($parameters['name'], $parameters['xml_str']);
+        } elseif (!empty($parameters['delete'])) {
+            return $this->deleteById($parameters['delete']);
         } else {
-            $entityXml = new TestXml();
-            $key = $this->generateHashKey($xmlstr);
-            $entityXml->setXmlData($xmlstr);
-            $entityXml->setHashCode($key);
-            $this->entityManager->persist($entityXml);
-            $this->entityManager->flush();
-            
-            return json_encode(['url' => 'http://'.$_SERVER["HTTP_HOST"].'/xml/?key='.$key]);
+            throw new ExpectedException('Incorrect parameters in post');
         }
     }
     
-    public function getXmlPageByKey($key)
+    /**
+     * @param string $key
+     *
+     * @return string|null
+     */
+    public function getXmlByKey(string $key)
     {
-        $repository = $this->entityManager->getRepository(TestXml::class);
-        $xmlEntity = $repository->findOneBy(['hash' => $key]);
+        $query = $this->entityManager->createQuery('SELECT t.xml FROM ' . TestXml::class . ' t WHERE t.url LIKE :word');
+        $query->setParameter('word', "%{$key}%");
+        $xml =  $query->getResult();
         
-        
-        if ($xmlEntity === null) {
-            throw new ExpectedException('Incorrect or expired key');
+        if (!$xml) {
+            return null;
         }
         
-        return $xmlEntity->getXmlData();
+        //todo остыльно, но пока оставлю так
+        return reset($xml)['xml'];
+    }
+    
+    /**
+     * @param $id
+     *
+     * @return AlertMessageCollection
+     * @throws ExpectedException
+     */
+    private function deleteById($id)
+    {
+        $xml = $this->entityManager->getRepository(TestXml::class)->findOneBy(['id' => $id]);
+        
+        if (!$xml) {
+            throw new ExpectedException('Xml not found');
+        }
+        
+        $this->entityManager->remove($xml);
+        $this->entityManager->flush();
+        $response = new AlertMessageCollection();
+        $response->addAlert('Success', 'Xml template was be deleted', AlertMessageCollection::ALERT_TYPE_SUCCESS);
+    
+        return $response;
+    }
+    
+    /**
+     * @param string $name
+     * @param string $xml
+     *
+     * @return AlertMessageCollection
+     * @throws ExpectedException
+     */
+    private function createApiSource(string $name, string $xml)
+    {
+        libxml_use_internal_errors(true);
+        $doc = simplexml_load_string($xml);
+        
+        if (!$doc) {
+            throw new ExpectedException('Invalid xml. Errors: '.implode("\n", libxml_get_errors()));
+        }
+        
+        $entityXml = new TestXml();
+        $key       = $this->generateHashKey($xml);
+        $entityXml->setName($name);
+        $entityXml->setXml($xml);
+        $entityXml->setUrl('http://'.$_SERVER['HTTP_HOST'].'/xml/?key='.$key);
+        $this->entityManager->persist($entityXml);
+        $this->entityManager->flush();
+        
+        $response = new AlertMessageCollection();
+        $response->addAlert('Success', 'Xml template was be saved', AlertMessageCollection::ALERT_TYPE_SUCCESS);
+        
+        return $response;
+    }
+    
+    /**
+     * @return mixed|object[]
+     */
+    public function getCollection()
+    {
+        $repository = $this->entityManager->getRepository(TestXml::class);
+        $collection = $repository->findAll();
+        $collection = json_decode(Serializer::get()->serialize($collection, 'json', [AbstractNormalizer::IGNORED_ATTRIBUTES => ['xml']]), true);
+        
+        return $collection;
     }
     
     /**
