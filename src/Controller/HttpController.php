@@ -81,6 +81,7 @@ class HttpController extends AbstractController
         $page === '/' ? $page = 'base' : null;
         
         try {
+            //todo перерабтать роутинг под 404
             if ($this->request->getMethod() === 'GET') {
                 switch ($page) {
                     case (self::PAGE_SENDER):
