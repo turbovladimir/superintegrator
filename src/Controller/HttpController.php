@@ -8,10 +8,13 @@
 
 namespace App\Controller;
 
+use App\Orm\Entity\Superintegrator\TestXml;
 use App\Response\AlertMessageCollection;
 use App\Response\Download;
-use App\Services\File\CsvHandler;
+use App\Services\File\CsvUploader;
+use App\Services\File\FileUploader;
 use \App\Services\Superintegrator\XmlEmulatorService;
+use Doctrine\ORM\EntityManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,7 +47,6 @@ class HttpController extends AbstractController
     private $xmlEmulator;
     private $postbackCollector;
     private $aliOrders;
-    private $csvHandler;
     private $logger;
     
     /**
@@ -55,7 +57,6 @@ class HttpController extends AbstractController
      * @param XmlEmulatorService $xmlEmulator
      * @param PostbackCollector  $postbackCollector
      * @param AliOrdersService   $aliOrders
-     * @param CsvHandler         $csvHandler
      *
      * @return Response
      */
@@ -66,8 +67,7 @@ class HttpController extends AbstractController
         GeoSearchService $geoSearch,
         XmlEmulatorService $xmlEmulator,
         PostbackCollector $postbackCollector,
-        AliOrdersService $aliOrders,
-        CsvHandler $csvHandler
+        AliOrdersService $aliOrders
     ) {
         $response                = [];
         $this->request           = $request;
@@ -77,7 +77,6 @@ class HttpController extends AbstractController
         $this->xmlEmulator       = $xmlEmulator;
         $this->postbackCollector = $postbackCollector;
         $this->aliOrders         = $aliOrders;
-        $this->csvHandler        = $csvHandler;
     
         $page === '/' ? $page = 'base' : null;
         
@@ -92,16 +91,11 @@ class HttpController extends AbstractController
                         
                         return $this->render('xml_emulator.html.twig', $collection ? ['table_head' => array_keys(reset($collection)), 'xml_collection' => $collection] : []);
                         break;
-                    case (self::PAGE_XML):
-                        return $xmlEmulator->getXmlPage($request);
                     default:
                         return $this->render("{$page}.html.twig");
                 }
             } else {
                 switch ($page) {
-                    case ('/sender'):
-                        $response['confirmed'] = $this->csvHandler->uploadFileAction($this->request);
-                        break;
                     case (self::PAGE_GEO):
                         $response = $this->geoSearch->processRequest($request);
                         break;
@@ -134,6 +128,68 @@ class HttpController extends AbstractController
     public function createNew(string $page)
     {
         return $this->render("{$page}.html.twig", ['new_form' => 1]);
+    }
+    
+    /**
+     * @param Request      $request
+     * @param FileUploader $uploader
+     *
+     * @return Response
+     * @throws \Exception
+     */
+    public function uploadFiles(Request $request, FileUploader $uploader)
+    {
+        $files = $request->files->all() ? : null;
+    
+        if (!$files) {
+            return $this->getOnlyAlertResponse('Cant find files for save', AlertMessageCollection::ALERT_TYPE_DANGER);
+        }
+    
+        $files = reset($files);
+    
+        foreach ($files as $file) {
+            $uploader->upload($file);
+        }
+    
+        return $this->getOnlyAlertResponse('Files have been successfully uploaded');
+    }
+    
+    /**
+     * @param Request            $request
+     * @param XmlEmulatorService $xmlEmulator
+     *
+     * @return Response
+     */
+    public function getXmlPage(Request $request, XmlEmulatorService $xmlEmulator)
+    {
+        parse_str($request->getQueryString(), $parameters);
+        
+        if (empty($parameters['key'])) {
+            return $this->getOnlyAlertResponse('Cannot parse key from url', AlertMessageCollection::ALERT_TYPE_DANGER);
+        }
+    
+        $xml = $xmlEmulator->getXmlByKey($parameters['key']);
+        
+        if ($xml === null) {
+            return $this->getOnlyAlertResponse('Incorrect or expired key', AlertMessageCollection::ALERT_TYPE_DANGER);
+        }
+        
+        
+        return new Response($xml, 200, ['Content-Type' => 'text/xml']);
+    }
+    
+    /**
+     * @param        $message
+     * @param string $level
+     *
+     * @return Response
+     */
+    protected function getOnlyAlertResponse($message, $level = AlertMessageCollection::ALERT_TYPE_SUCCESS)
+    {
+        $response = new AlertMessageCollection();
+        $response->addAlert($message, null, $level);
+        
+        return $this->render("base.html.twig", ['response' => $response->getMessages()]);
     }
     
     /**

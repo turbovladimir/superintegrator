@@ -1,3 +1,13 @@
+xml:
+  methods: GET
+  path: /xml
+  controller: App\Controller\HttpController::getXmlPage
+
+upload:
+  methods: POST
+  path: /upload
+  controller: App\Controller\HttpController::uploadFiles
+
 index:
   path: /{page}
   controller: App\Controller\HttpController::index

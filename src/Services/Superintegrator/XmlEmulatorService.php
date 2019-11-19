@@ -14,7 +14,6 @@ use App\Exceptions\ExpectedException;
 use App\Services\AbstractService;
 use App\Utils\Serializer;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class XmlEmulatorService extends AbstractService
@@ -36,6 +35,25 @@ class XmlEmulatorService extends AbstractService
         } else {
             throw new ExpectedException('Incorrect parameters in post');
         }
+    }
+    
+    /**
+     * @param string $key
+     *
+     * @return string|null
+     */
+    public function getXmlByKey(string $key)
+    {
+        $query = $this->entityManager->createQuery('SELECT t.xml FROM ' . TestXml::class . ' t WHERE t.url LIKE :word');
+        $query->setParameter('word', "%{$key}%");
+        $xml =  $query->getResult();
+        
+        if (!$xml) {
+            return null;
+        }
+        
+        //todo остыльно, но пока оставлю так
+        return reset($xml)['xml'];
     }
     
     /**
@@ -100,33 +118,6 @@ class XmlEmulatorService extends AbstractService
         $collection = json_decode(Serializer::get()->serialize($collection, 'json', [AbstractNormalizer::IGNORED_ATTRIBUTES => ['xml']]), true);
         
         return $collection;
-    }
-    
-    /**
-     * @param Request $request
-     *
-     * @return Response
-     * @throws ExpectedException
-     */
-    public function getXmlPage(Request $request)
-    {
-        parse_str($request->getQueryString(), $parameters);
-        
-        if (empty($parameters['key'])) {
-            throw new ExpectedException('Cannot parse key from url');
-        }
-        
-
-        $query = $this->entityManager->createQuery('SELECT t FROM ' . TestXml::class . ' t WHERE t.url LIKE :word');
-        $query->setParameter('word', "%{$parameters['key']}%")->setMaxResults(1);
-        $xmlEntity  = $query->getResult();
-        
-        if ($xmlEntity === null) {
-            throw new ExpectedException('Incorrect or expired key');
-        }
-
-        
-        return new Response(reset($xmlEntity)->getXml(), 200, ['Content-Type' => 'text/xml']);
     }
     
     /**
