@@ -10,7 +10,7 @@ namespace App\Services\Superintegrator;
 
 use App\Exceptions\ExpectedException;
 use App\Response\Download;
-use App\Services\File\CsvHandler;;
+use App\Services\File\CsvFileManager;
 
 use App\Utils\StringHelper;
 use Symfony\Component\HttpClient\HttpClient;
@@ -90,7 +90,7 @@ class AliOrdersService
             $advertiserOrders = $this->fetchOrders($orders);
         }
     
-        return CsvHandler::generateFile($advertiserOrders);
+        return CsvFileManager::generateFile($advertiserOrders);
     }
     
     

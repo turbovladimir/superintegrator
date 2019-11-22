@@ -119,6 +119,7 @@
       <path value="$PROJECT_DIR$/vendor/true/punycode" />
       <path value="$PROJECT_DIR$/vendor/psr/simple-cache" />
       <path value="$PROJECT_DIR$/vendor/league/url" />
+      <path value="$PROJECT_DIR$/vendor/surpaimb/taobao-sdk" />
     </include_path>
   </component>
   <component name="PhpInterpreters">

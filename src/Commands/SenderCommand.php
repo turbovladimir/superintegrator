@@ -8,7 +8,7 @@
 
 namespace App\Commands;
 
-use App\Services\Sender\Sender;
+use App\Services\Sender\MessageSender;
 
 /**
  * Class CronCommand
@@ -24,9 +24,9 @@ class SenderCommand extends BaseDaemon
     /**
      * SenderCommand constructor.
      *
-     * @param Sender $sender
+     * @param MessageSender $sender
      */
-    public function __construct(Sender $sender)
+    public function __construct(MessageSender $sender)
     {
         $this->sender = $sender;
         parent::__construct($name = null);

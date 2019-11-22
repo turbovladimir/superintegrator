@@ -13,7 +13,7 @@
             <div id="transparent_mask">
                 <div id="page-content">
                     <div class="block">
-                        <h1>{{ page_name }}</h1>
+                        <h1>{{ title }}</h1>
                     </div>
 
                     {#Base content block#}
@@ -29,7 +29,9 @@
                     {#Response message block#}
                     {% if response is defined %}
                         {% for alert_level, message in response %}
-                            <div id="alert_message" class="{{ alert_level }}">{{ message }}</div>
+                            <div class="block">
+                                <div id="alert_message" class="{{ alert_level }}">{{ message }}</div>
+                            </div>
                         {% endfor %}
                     {% endif %}
                 </div>

@@ -1,22 +1,11 @@
-xml:
-  methods: GET
-  path: /xml
-  controller: App\Controller\HttpController::getXmlPage
-
-upload:
-  methods: POST
-  path: /upload
-  controller: App\Controller\HttpController::uploadFiles
-
-index:
+page:
   path: /{page}
   controller: App\Controller\HttpController::index
   defaults:
     page: /
 
-create_new:
-  methods: GET
-  path: /{page}/new
-  controller: App\Controller\HttpController::createNew
+action:
+  path: /{page}/{action}
+  controller: App\Controller\HttpController::index
   defaults:
     page: /
