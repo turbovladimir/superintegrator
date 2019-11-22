@@ -1,5 +1,8 @@
 $(document).ready(function () {
-// Enable dismissal of an alert via JavaScript
+    // help button
+    $('#btn-tooltip').tooltip();
+
+    // Enable dismissal of an alert via JavaScript
     $('.alert').alert();
 
     function printAlert(message, level = 'success') {
@@ -17,4 +20,6 @@ $(document).ready(function () {
 
         this.submit();
     });
+
+    var clock = $('.clock').FlipClock({});
 });

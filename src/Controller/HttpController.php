@@ -29,11 +29,26 @@ class HttpController extends BaseController
     private const PAGE_SENDER = 'sender';
     
     private const ROUTS_PARAMS = [
-        self::PAGE_MAIN         => ['title' => 'Main page'],
-        self::PAGE_GEO          => ['title' => 'Geo searching'],
-        self::PAGE_ALI_ORDERS   => ['title' => 'Ali orders'],
-        self::PAGE_XML_EMULATOR => ['title' => 'Xml emulator'],
-        self::PAGE_SENDER       => ['title' => 'Sender'],
+        self::PAGE_MAIN         => [
+            'title' => 'Main page',
+            'description' => 'Добро пожаловать в наш скромный ламповый сервис'
+        ],
+        self::PAGE_GEO          => [
+            'title' => 'Geo searching',
+            'description' => 'Инструмент для поиска id гео объектов (страны, регионы, города), для получения id можно использовать как 2х буквенные коды стран так и полные ENG наименования'
+        ],
+        self::PAGE_ALI_ORDERS   => [
+            'title' => 'Ali orders',
+            'description' => 'Позволяет забирать подробную информацию о заказах алиэкспресс'
+        ],
+        self::PAGE_XML_EMULATOR => [
+            'title' => 'Xml emulator',
+            'description' => 'При помощи данного инструмента вы можете создавать ссылки эмулирующие работу API с форматом ответа xml'
+        ],
+        self::PAGE_SENDER       => [
+            'title' => 'Sender',
+            'description' => 'Переотправка постбэков и пикселей по файлам архива админки процессинга'
+        ],
         self::PAGE_XML_TYPE       => ['title' => ''],
     ];
     
@@ -192,7 +207,7 @@ class HttpController extends BaseController
     private function renderPage(string $page, array $parameters = [])
     {
         $parameters['title'] = $this->getTitle($page);
-        $parameters['description'] = $this->setDescription($page);
+        $parameters['description'] = $this->getDescription($page);
         
         return $this->render($page . '.html.twig', $parameters);
     }
@@ -232,5 +247,15 @@ class HttpController extends BaseController
         }
         
         return self::ROUTS_PARAMS[self::PAGE_MAIN]['title'];
+    }
+    
+    /**
+     * @param $page
+     *
+     * @return string
+     */
+    protected function getDescription($page)
+    {
+        return self::ROUTS_PARAMS[$page]['description'];
     }
 }

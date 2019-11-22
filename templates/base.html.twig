@@ -10,30 +10,33 @@
 
         <!-- Page Content -->
         <div id="page-content-wrapper" class="bg-light">
-            <div id="transparent_mask">
-                <div id="page-content">
-                    <div class="block">
-                        <h1>{{ title }}</h1>
-                    </div>
-
-                    {#Base content block#}
-                    {% block content %}
-                        {% if description is defined %}
-                            {% for key, value in description %}
-                                <h3>{{ key }}</h3>
-                                <span>{{ value }}</span>
-                            {% endfor %}
-                        {% endif %}
-                    {% endblock %}
-
-                    {#Response message block#}
-                    {% if response is defined %}
-                        {% for alert_level, message in response %}
+                <div id="transparent_mask">
+                    <div id="snowfall">
+                        <div id="page-content">
                             <div class="block">
-                                <div id="alert_message" class="{{ alert_level }}">{{ message }}</div>
+                                <h1>{{ title }}</h1>
                             </div>
-                        {% endfor %}
-                    {% endif %}
+                            {% if description is defined %}
+                                <div class="block">
+                                    <button type="button" id="btn-tooltip" class="btn btn-secondary btn-sm" title="{{ description }}">hint</button>
+                                </div>
+                            {% endif %}
+
+                            {#Base content block#}
+                            <div class="block">
+                                {% block content %}
+                                {% endblock %}
+                            </div>
+                            {#Response message block#}
+                            {% if response is defined %}
+                                {% for alert_level, message in response %}
+                                    <div class="block">
+                                        <div id="alert_message" class="{{ alert_level }}">{{ message }}</div>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
