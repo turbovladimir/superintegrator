@@ -24,6 +24,13 @@ class AlertMessageCollection
      */
     private $messageList;
     
+    public function __construct($header = null, $body = null, $alertType = null)
+    {
+        if ($header) {
+            $this->addAlert($header, $body, $alertType);
+        }
+    }
+    
     /**
      * @param      $header
      * @param      $body

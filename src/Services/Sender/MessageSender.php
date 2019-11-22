@@ -18,7 +18,7 @@ use \App\Orm\Model\Message;
  *
  * @package App\Services\Sender
  */
-class Sender implements TaskServiceInterface
+class MessageSender implements TaskServiceInterface
 {
     public const DEFAULT_SEND_PER_TASK = 50;
     public const DEFAULT_DELETE_PER_TASK = 50;

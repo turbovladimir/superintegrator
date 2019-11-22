@@ -109,15 +109,19 @@ class XmlEmulatorService extends AbstractService
     }
     
     /**
-     * @return mixed|object[]
+     * @return array
      */
-    public function getCollection()
+    public function getTableWithXmlTemplates()
     {
         $repository = $this->entityManager->getRepository(TestXml::class);
         $collection = $repository->findAll();
         $collection = json_decode(Serializer::get()->serialize($collection, 'json', [AbstractNormalizer::IGNORED_ATTRIBUTES => ['xml']]), true);
         
-        return $collection;
+        if (!$collection) {
+            return [];
+        }
+        
+        return ['table_head' => array_keys(reset($collection)), 'xml_collection' => $collection];
     }
     
     /**

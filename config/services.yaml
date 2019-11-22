@@ -30,19 +30,39 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    service.sender:
-        class: App\Services\Sender\Sender
+    http_controller:
+        class: App\Controller\HttpController
+        arguments:
+            - '@monolog.logger'
+            - '@service.super.geo_search'
+            - '@service.super.xml_emulator'
+            - '@service.super.postback_collector'
+            - '@service.super.ali_orders'
+            - '@service.file.uploader'
+
+    service.sender.message_sender:
+        class: App\Services\Sender\MessageSender
         arguments:
             - '@orm.model.message'
+            -
+    service.super.geo_search:
+        class: App\Services\Superintegrator\GeoSearchService
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
 
-    service.postback_collector:
+    service.super.xml_emulator:
+        class: App\Services\Superintegrator\XmlEmulatorService
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+
+    service.super.ali_orders:
+        class: App\Services\Superintegrator\AliOrdersService
+
+    service.super.postback_collector:
         class: App\Services\Superintegrator\PostbackCollector
         arguments:
             - '@doctrine.orm.entity_manager'
             - '@orm.model.message'
 
-    service_factory:
-        class: App\Factory\ServiceFactory
-        arguments:
-            - '@service.sender'
-            - '@service.data_agregator'
+    service.file.uploader:
+        class: App\Services\File\FileUploader

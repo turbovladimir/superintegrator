@@ -5,6 +5,7 @@ namespace App\Services\Superintegrator;
 use App\Exceptions\EmptyDataException;
 use App\Orm\Entity\File;
 use App\Orm\Model\Message as MessageModel;
+use App\Response\AlertMessageCollection;
 use App\Services\TaskServiceInterface;
 use App\Services\AbstractService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -59,7 +60,11 @@ class PostbackCollector extends AbstractService implements TaskServiceInterface
      */
     public function getAwaitingPostbacks()
     {
-        return $this->messageModel->getAwaitingMessagesCount(self::DESTINATION);
+        $messageCount = $this->messageModel->getAwaitingMessagesCount(self::DESTINATION);
+        
+        $response = new AlertMessageCollection('Awaiting postbacks', $messageCount);
+        
+        return $response->getMessages();
     }
     
     /**
