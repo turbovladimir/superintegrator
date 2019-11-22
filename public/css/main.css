@@ -3,6 +3,12 @@
 
 }
 
+#snowfall {
+    background-image: url("https://media.giphy.com/media/Kfrq2V2A7wODGMdEXQ/giphy.gif");
+    width: 100vw;
+    min-height: 100vw;
+}
+
 #transparent_mask {
     background: rgba(255, 247, 232, 0.70);
     display: flex;

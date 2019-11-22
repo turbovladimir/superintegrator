@@ -29,14 +29,4 @@ abstract class BaseController extends AbstractController
         
         return $this->render("base.html.twig", ['response' => $response->getMessages()]);
     }
-    
-    /**
-     * @param $path
-     *
-     * @return string
-     */
-    protected function setDescription($rout)
-    {
-        return '';
-    }
 }
