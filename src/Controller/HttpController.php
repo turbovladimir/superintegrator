@@ -11,6 +11,7 @@ namespace App\Controller;
 use App\Response\AlertMessageCollection;
 use App\Response\Download;
 use App\Services\File\FileUploader;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use App\Services\Superintegrator\AliOrdersService;
@@ -19,7 +20,7 @@ use App\Services\Superintegrator\PostbackCollector;
 use App\Services\Superintegrator\XmlEmulatorService;
 use Psr\Log\LoggerInterface;
 
-class HttpController extends BaseController
+class HttpController extends AbstractController
 {
     private const PAGE_MAIN = 'base';
     private const PAGE_GEO = 'geo';
@@ -152,7 +153,7 @@ class HttpController extends BaseController
      */
     private function handlePostRequest(Request $request, $page, $action = null)
     {
-        if ($action === 'upload') {
+        if ($page === 'upload') {
             return $this->upload($request);
         }
         
@@ -199,12 +200,26 @@ class HttpController extends BaseController
     }
     
     /**
+     * @param        $message
+     * @param string $level
+     *
+     * @return Response
+     */
+    protected function getOnlyAlertResponse($message, $level = AlertMessageCollection::ALERT_TYPE_SUCCESS)
+    {
+        $response = new AlertMessageCollection();
+        $response->addAlert($message, null, $level);
+        
+        return $this->renderPage('base', ['response' => $response->getMessages()]);
+    }
+    
+    /**
      * @param string $page
      * @param array  $parameters
      *
      * @return Response
      */
-    private function renderPage(string $page, array $parameters = [])
+    protected function renderPage(string $page, array $parameters = [])
     {
         $parameters['title'] = $this->getTitle($page);
         $parameters['description'] = $this->getDescription($page);
