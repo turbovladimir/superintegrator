@@ -63,6 +63,7 @@ services:
         arguments:
             - '@doctrine.orm.entity_manager'
             - '@orm.model.message'
+            - '@service.file.uploader'
 
     service.file.uploader:
         class: App\Services\File\FileUploader

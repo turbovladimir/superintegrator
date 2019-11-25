@@ -6,9 +6,11 @@ use App\Exceptions\EmptyDataException;
 use App\Orm\Entity\File;
 use App\Orm\Model\Message as MessageModel;
 use App\Response\AlertMessageCollection;
+use App\Services\File\FileUploader;
 use App\Services\TaskServiceInterface;
 use App\Services\AbstractService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Парсит файлы архива и отправляет в бд для последующей отправки
@@ -35,14 +37,21 @@ class PostbackCollector extends AbstractService implements TaskServiceInterface
     private $messageModel;
     
     /**
+     * @var FileUploader
+     */
+    private $uploader;
+    
+    /**
      * PostbackCollector constructor.
      *
      * @param EntityManagerInterface $entityManager
      * @param MessageModel           $messageModel
+     * @param FileUploader           $uploader
      */
-    public function __construct(EntityManagerInterface $entityManager, MessageModel $messageModel)
+    public function __construct(EntityManagerInterface $entityManager, MessageModel $messageModel, FileUploader $uploader)
     {
         $this->messageModel = $messageModel;
+        $this->uploader = $uploader;
         parent::__construct($entityManager);
     }
     
@@ -65,6 +74,30 @@ class PostbackCollector extends AbstractService implements TaskServiceInterface
         $response = new AlertMessageCollection('Awaiting postbacks', $messageCount);
         
         return $response->getMessages();
+    }
+    
+    /**
+     * @param Request $request
+     *
+     * @return AlertMessageCollection
+     * @throws \Exception
+     */
+    public function uploadArchiveFiles(Request $request)
+    {
+        $responseAlert = new AlertMessageCollection();
+        $files = $request->files->all() ? : null;
+    
+        if (!$files) {
+            return $responseAlert->addAlert('Cant find files for save', AlertMessageCollection::ALERT_TYPE_DANGER);
+        }
+    
+        $files = reset($files);
+    
+        foreach ($files as $file) {
+            $this->uploader->upload($file);
+        }
+        
+        return $responseAlert->addAlert('Files have been successfully uploaded');
     }
     
     /**

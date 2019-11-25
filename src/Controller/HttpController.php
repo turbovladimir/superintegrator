@@ -10,7 +10,6 @@ namespace App\Controller;
 
 use App\Response\AlertMessageCollection;
 use App\Response\Download;
-use App\Services\File\FileUploader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,12 +21,17 @@ use Psr\Log\LoggerInterface;
 
 class HttpController extends AbstractController
 {
-    private const PAGE_MAIN = 'base';
-    private const PAGE_GEO = 'geo';
-    private const PAGE_ALI_ORDERS = 'ali_orders';
-    private const PAGE_XML_EMULATOR = 'xml_emulator';
-    private const PAGE_XML_TYPE = 'xml';
-    private const PAGE_SENDER = 'sender';
+    public const PAGE_MAIN = 'base';
+    public const PAGE_GEO = 'geo';
+    public const PAGE_ALI_ORDERS = 'ali_orders';
+    public const PAGE_XML_EMULATOR = 'xml_emulator';
+    public const PAGE_XML_TYPE = 'xml';
+    public const PAGE_SENDER = 'sender';
+    
+    public const ACTION_NEW = 'new';
+    public const ACTION_UPLOAD = 'upload';
+    public const ACTION_XML = 'get_xml';
+    public const ACTION_json = 'get_json';
     
     private const ROUTS_PARAMS = [
         self::PAGE_MAIN         => [
@@ -57,7 +61,6 @@ class HttpController extends AbstractController
     private $xmlEmulator;
     private $postbackCollector;
     private $aliOrders;
-    private $uploader;
     private $logger;
     
     /**
@@ -68,22 +71,19 @@ class HttpController extends AbstractController
      * @param XmlEmulatorService $xmlEmulator
      * @param PostbackCollector  $postbackCollector
      * @param AliOrdersService   $aliOrders
-     * @param FileUploader       $uploader
      */
     public function __construct(
         LoggerInterface $logger,
         GeoSearchService $geoSearch,
         XmlEmulatorService $xmlEmulator,
         PostbackCollector $postbackCollector,
-        AliOrdersService $aliOrders,
-        FileUploader $uploader
+        AliOrdersService $aliOrders
     ) {
         $this->logger            = $logger;
         $this->geoSearch         = $geoSearch;
         $this->xmlEmulator       = $xmlEmulator;
         $this->postbackCollector = $postbackCollector;
         $this->aliOrders         = $aliOrders;
-        $this->uploader          = $uploader;
     }
     
     /**
@@ -124,7 +124,7 @@ class HttpController extends AbstractController
             $page = 'base';
         }
         
-        if ($action === 'new') {
+        if ($action === self::ACTION_NEW) {
             $options['new_form'] = 1;
         }
         
@@ -133,10 +133,16 @@ class HttpController extends AbstractController
                 $options['response'] = $this->postbackCollector->getAwaitingPostbacks();
                 break;
             case (self::PAGE_XML_EMULATOR):
-                $options = array_merge($options, $this->xmlEmulator->getTableWithXmlTemplates());
+                
+                if ($action === self::ACTION_XML) {
+                    $xml = $this->xmlEmulator->getXml($request);
+                    
+                    return $this->renderXmlPage($xml);
+                } else {
+                    $options = array_merge($options, $this->xmlEmulator->getTableWithXmlTemplates());
+                }
+                
                 break;
-            case (self::PAGE_XML_TYPE):
-                return $this->renderXmlPage($request);
         }
         
         return $this->renderPage($page, $options);
@@ -153,10 +159,6 @@ class HttpController extends AbstractController
      */
     private function handlePostRequest(Request $request, $page, $action = null)
     {
-        if ($page === 'upload') {
-            return $this->upload($request);
-        }
-        
         switch ($page) {
             case (self::PAGE_GEO):
                 $response = $this->geoSearch->processRequest($request);
@@ -167,6 +169,12 @@ class HttpController extends AbstractController
             case (self::PAGE_XML_EMULATOR):
                 $response = $this->xmlEmulator->processRequest($request);
                 break;
+            case (self::PAGE_SENDER):
+                if ($action === self::ACTION_UPLOAD) {
+                    $response = $this->postbackCollector->uploadArchiveFiles($request);
+                }
+                
+                break;
         }
         
         if (isset($response) && $response instanceof Download) {
@@ -174,29 +182,6 @@ class HttpController extends AbstractController
         }
         
         return $this->renderPage($page, ['response' => $response->getMessages()]);
-    }
-    
-    /**
-     * @param Request $request
-     *
-     * @return Response
-     * @throws \Exception
-     */
-    private function upload(Request $request)
-    {
-        $files = $request->files->all() ? : null;
-        
-        if (!$files) {
-            return $this->getOnlyAlertResponse('Cant find files for save', AlertMessageCollection::ALERT_TYPE_DANGER);
-        }
-        
-        $files = reset($files);
-        
-        foreach ($files as $file) {
-            $this->uploader->upload($file);
-        }
-        
-        return $this->getOnlyAlertResponse('Files have been successfully uploaded');
     }
     
     /**
@@ -228,25 +213,12 @@ class HttpController extends AbstractController
     }
     
     /**
-     * @param Request $request
+     * @param string $xml
      *
      * @return Response
      */
-    private function renderXmlPage(Request $request) : Response
+    private function renderXmlPage(string $xml) : Response
     {
-        parse_str($request->getQueryString(), $parameters);
-        
-        if (empty($parameters['key'])) {
-            return $this->getOnlyAlertResponse('Cannot parse key from url', AlertMessageCollection::ALERT_TYPE_DANGER);
-        }
-        
-        $xml = $this->xmlEmulator->getXmlByKey($parameters['key']);
-        
-        if ($xml === null) {
-            return $this->getOnlyAlertResponse('Incorrect or expired key', AlertMessageCollection::ALERT_TYPE_DANGER);
-        }
-        
-        
         return new Response($xml, 200, ['Content-Type' => 'text/xml']);
     }
     

@@ -33,12 +33,16 @@ class AlertMessageCollection
     
     /**
      * @param      $header
-     * @param      $body
+     * @param null $body
      * @param null $alertType
+     *
+     * @return $this
      */
     public function addAlert($header, $body = null, $alertType = null)
     {
         $this->messageList[$alertType ?? self::ALERT_TYPE_INFO][] = "$header: $body\n";
+        
+        return $this;
     }
     
     /**
