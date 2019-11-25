@@ -8,6 +8,7 @@
 
 namespace App\Services\Superintegrator;
 
+use App\Controller\HttpController;
 use App\Response\AlertMessageCollection;
 use App\Orm\Entity\Superintegrator\TestXml;
 use App\Exceptions\ExpectedException;
@@ -38,18 +39,25 @@ class XmlEmulatorService extends AbstractService
     }
     
     /**
-     * @param string $key
+     * @param Request $request
      *
-     * @return string|null
+     * @return mixed
+     * @throws ExpectedException
      */
-    public function getXmlByKey(string $key)
+    public function getXml(Request $request)
     {
+        parse_str($request->getQueryString(), $parameters);
+    
+        if (empty($parameters['key'])) {
+            throw new ExpectedException('Cannot parse key from url');
+        }
+        
         $query = $this->entityManager->createQuery('SELECT t.xml FROM ' . TestXml::class . ' t WHERE t.url LIKE :word');
-        $query->setParameter('word', "%{$key}%");
+        $query->setParameter('word', "%{$parameters['key']}%");
         $xml =  $query->getResult();
         
         if (!$xml) {
-            return null;
+            throw new ExpectedException('Incorrect or expired key');
         }
         
         //todo остыльно, но пока оставлю так
@@ -98,7 +106,7 @@ class XmlEmulatorService extends AbstractService
         $key       = $this->generateHashKey($xml);
         $entityXml->setName($name);
         $entityXml->setXml($xml);
-        $entityXml->setUrl('http://'.$_SERVER['HTTP_HOST'].'/xml/?key='.$key);
+        $entityXml->setUrl('http://'.$_SERVER['HTTP_HOST']. '/' . HttpController::PAGE_XML_EMULATOR . '/' . HttpController::ACTION_XML . '/?key='.$key);
         $this->entityManager->persist($entityXml);
         $this->entityManager->flush();
         
