@@ -25,6 +25,7 @@
                             {#Base content block#}
                             <div class="block">
                                 {% block content %}
+                                    {{ include('custom/time_to_new_year.html.twig') }}
                                 {% endblock %}
                             </div>
                             {#Response message block#}

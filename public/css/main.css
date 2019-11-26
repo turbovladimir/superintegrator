@@ -24,6 +24,7 @@
 
 div.block {
     margin-top: 20px;
+    bottom: 10px;
 }
 
 #alert_message {
