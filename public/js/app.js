@@ -21,5 +21,10 @@ $(document).ready(function () {
         this.submit();
     });
 
-    var clock = $('.clock').FlipClock({});
+    var timeToNewYear = new Date('2019.12.31').getTime() - Date.now();
+
+    var clock = $('.clock').FlipClock(Math.floor(timeToNewYear/1000), {
+        clockFace: 'DailyCounter',
+        countdown: true
+    });
 });
