@@ -7,7 +7,7 @@ services:
     class: App\Commands\ApiFetcher\ApiDataFetcherCommand
     abstract: true
     arguments:
-      - '@orm.model.archive'
+      - '@app.repository.archive'
       - '@monolog.logger'
 
   command.sender:
@@ -28,7 +28,7 @@ services:
     class: App\Commands\Fonbet\AffiseExportCommand
     parent: 'command.base_daemon'
     arguments:
-      - '@orm.model.message'
-      - '@orm.model.archive'
+      - '@app.repository.message'
+      - '@app.repository.archive'
     tags:
       - { name: console.command }

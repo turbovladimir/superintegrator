@@ -1,0 +1,20 @@
+services:
+  app.repository.post:
+    class: App\Repository\PostRepository
+    arguments:
+      - '@doctrine'
+
+  app.repository.message:
+    class: App\Repository\MessageRepository
+    arguments:
+      - '@doctrine'
+
+  app.repository.file:
+    class: App\Repository\FileRepository
+    arguments:
+      - '@doctrine'
+
+  app.repository.archive:
+    class: App\Repository\ArchiveRepository
+    arguments:
+      - '@doctrine'

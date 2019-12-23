@@ -1,4 +1,7 @@
 {
+    "cocur/slugify": {
+        "version": "v4.0.0"
+    },
     "comodojo/exceptions": {
         "version": "1.1.0"
     },
@@ -26,6 +29,9 @@
     "doctrine/common": {
         "version": "v2.10.0"
     },
+    "doctrine/data-fixtures": {
+        "version": "1.3.3"
+    },
     "doctrine/dbal": {
         "version": "v2.9.2"
     },
@@ -46,6 +52,18 @@
     },
     "doctrine/doctrine-cache-bundle": {
         "version": "1.3.5"
+    },
+    "doctrine/doctrine-fixtures-bundle": {
+        "version": "3.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "3.0",
+            "ref": "fc52d86631a6dfd9fdf3381d0b7e3df2069e51b3"
+        },
+        "files": [
+            "src/DataFixtures/AppFixtures.php"
+        ]
     },
     "doctrine/doctrine-migrations-bundle": {
         "version": "1.2",
@@ -101,6 +119,9 @@
     },
     "fig/link-util": {
         "version": "1.0.0"
+    },
+    "fzaninotto/faker": {
+        "version": "v1.9.1"
     },
     "guzzlehttp/guzzle": {
         "version": "6.3.3"

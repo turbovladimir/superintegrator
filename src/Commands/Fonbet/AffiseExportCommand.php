@@ -10,7 +10,8 @@ namespace App\Commands\Fonbet;
 
 use App\Commands\BaseDaemon;
 use App\Orm\Model\Archive;
-use App\Orm\Model\Message;
+use App\Repository\ArchiveRepository;
+use App\Repository\MessageRepository;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
@@ -28,8 +29,8 @@ class AffiseExportCommand extends BaseDaemon
     protected $destination = 'adsbang.affise.com';
     protected $urlPath = 'http://offers.adsbang.affise.com/postback';
     
-    private $messageModel;
-    private $archiveModel;
+    private $messageRepository;
+    private $archiveRepository;
     
     protected function configure()
     {
@@ -41,13 +42,13 @@ class AffiseExportCommand extends BaseDaemon
     /**
      * AffiseExportCommand constructor.
      *
-     * @param Message $messageModel
+     * @param MessageRepository $messageRepository
      * @param Archive $archiveModel
      */
-    public function __construct(Message $messageModel, Archive $archiveModel)
+    public function __construct(MessageRepository $messageRepository,ArchiveRepository $archiveRepository)
     {
-        $this->messageModel = $messageModel;
-        $this->archiveModel = $archiveModel;
+        $this->messageRepository = $messageRepository;
+        $this->archiveRepository = $archiveRepository;
         parent::__construct();
     }
     
@@ -56,11 +57,14 @@ class AffiseExportCommand extends BaseDaemon
      */
     protected function process()
     {
-        $log = $this->archiveModel->getLog($this->input->getArgument('source_name'));
-        $url = $this->createUrl($log);
+        $log = $this->archiveRepository->findOneBy(['source' => $this->input->getArgument('source_name')]);
+        $url = $this->createUrl($log->getLogData());
+        $em = $this->archiveRepository->getEntityManager();
+        $em->remove($log);
+        $em->flush();
         
         if ($url) {
-            $this->messageModel->saveMessages($this->destination, $url);
+            $this->messageRepository->saveMessages($this->destination, $url);
         }
     }
     

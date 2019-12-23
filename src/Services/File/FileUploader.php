@@ -10,8 +10,8 @@ namespace App\Services\File;
 
 
 use App\Exceptions\ExpectedException;
-use App\Orm\Entity\File;
-use App\Services\AbstractService;
+use App\Entity\File;
+use App\Repository\FileRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  *
  * @package App\Services\File
  */
-class FileUploader extends AbstractService
+class FileUploader
 {
     const DEFAULT_FILE_TYPE_CSV = 'csv';
     const DEFAULT_FILE_SYZE_LIMIT = 4 * 1000000;
@@ -35,6 +35,16 @@ class FileUploader extends AbstractService
      * @var string
      */
     private $fileType = self::DEFAULT_FILE_TYPE_CSV;
+    
+    /**
+     * @var FileRepository
+     */
+    private $fileRepository;
+    
+    public function __construct(FileRepository $fileRepository)
+    {
+        $this->fileRepository = $fileRepository;
+    }
     
     /**
      * @param $limit
@@ -82,7 +92,8 @@ class FileUploader extends AbstractService
         $fileEntity->setFileName($file->getClientOriginalName());
         $fileEntity->setType($file->getClientOriginalExtension());
         $fileEntity->setFileContent(fopen($file->getRealPath(), 'rb'));
-        $this->entityManager->persist($fileEntity);
-        $this->entityManager->flush();
+        $em =  $this->fileRepository->getEntityManager();
+        $em->persist($fileEntity);
+        $em->flush();
     }
 }

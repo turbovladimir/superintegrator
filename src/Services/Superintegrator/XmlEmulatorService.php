@@ -10,7 +10,7 @@ namespace App\Services\Superintegrator;
 
 use App\Controller\HttpController;
 use App\Response\AlertMessageCollection;
-use App\Orm\Entity\Superintegrator\TestXml;
+use App\Entity\Superintegrator\TestXml;
 use App\Exceptions\ExpectedException;
 use App\Services\AbstractService;
 use App\Utils\Serializer;

@@ -95,6 +95,10 @@ class HttpController extends AbstractController
      */
     public function index($page, $action = null, Request $request)
     {
+        if (!array_key_exists($page, self::ROUTS_PARAMS)) {
+            $page = 'base';
+        }
+        
         try {
             if ($request->getMethod() === 'POST') {
                 return $this->handlePostRequest($request, $page, $action);
@@ -119,10 +123,6 @@ class HttpController extends AbstractController
     private function handleGetRequets(Request $request, $page, $action = null)
     {
         $options = [];
-        
-        if (!array_key_exists($page, self::ROUTS_PARAMS)) {
-            $page = 'base';
-        }
         
         if ($action === self::ACTION_NEW) {
             $options['new_form'] = 1;

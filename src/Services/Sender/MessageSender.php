@@ -11,7 +11,7 @@ use App\Exceptions\EmptyDataException;
 use \GuzzleHttp\Client;
 use \GuzzleHttp\Exception\GuzzleException;
 use \App\Services\TaskServiceInterface;
-use \App\Orm\Model\Message;
+use App\Repository\MessageRepository;
 
 /**
  * Class Sender
@@ -25,18 +25,18 @@ class MessageSender implements TaskServiceInterface
     public const NUMBER_OF_ATTEMPTS = 3;
     
     /**
-     * @var Message
+     * @var MessageRepository
      */
-    private $messageModel;
+    private $messageRepository;
     
     /**
      * Sender constructor.
      *
-     * @param Message $messageModel
+     * @param MessageRepository $messageModel
      */
-    public function __construct(Message $messageModel)
+    public function __construct(MessageRepository $messageRepository)
     {
-        $this->messageModel = $messageModel;
+        $this->messageRepository = $messageRepository;
     }
     
     /**
@@ -45,20 +45,22 @@ class MessageSender implements TaskServiceInterface
     public function start()
     {
         $this->send(self::DEFAULT_SEND_PER_TASK);
-        $this->messageModel->deleteSendedMessage(self::DEFAULT_DELETE_PER_TASK);
+        $this->messageRepository->deleteSendedMessage(self::DEFAULT_DELETE_PER_TASK);
     }
     
     /**
      * @param $sendingPerTask
      *
      * @throws EmptyDataException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function send($sendingPerTask)
     {
         $client = new Client();
-        $messages = $this->messageModel->getAwaitingMessage($sendingPerTask, self::NUMBER_OF_ATTEMPTS);
+        $messages = $this->messageRepository->getAwaitingMessage($sendingPerTask, self::NUMBER_OF_ATTEMPTS);
         
-        if (empty($messages)) {
+        if (!$messages) {
             throw new EmptyDataException('Nothing to send');
         }
         
@@ -78,6 +80,6 @@ class MessageSender implements TaskServiceInterface
             }
         }
     
-        $this->messageModel->applyChanges();
+        $this->messageRepository->getEntityManager()->flush();
     }
 }

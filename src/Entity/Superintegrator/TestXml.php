@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Orm\Entity\Superintegrator;
+namespace App\Entity\Superintegrator;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Orm\Entity\BaseEntity;
+use App\Entity\BaseEntity;
 /**
  * TestXml
  *
