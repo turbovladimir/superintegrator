@@ -11,7 +11,6 @@ namespace App\Services\Superintegrator;
 use App\Exceptions\ExpectedException;
 use App\Response\Download;
 use App\Services\File\CsvFileManager;
-
 use App\Utils\StringHelper;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Request;
