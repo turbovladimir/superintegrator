@@ -3,13 +3,11 @@
 namespace App\Services\Superintegrator;
 
 use App\Exceptions\EmptyDataException;
-use App\Orm\Entity\File;
-use App\Orm\Model\Message as MessageModel;
+use App\Repository\FileRepository;
+use App\Repository\MessageRepository;
 use App\Response\AlertMessageCollection;
 use App\Services\File\FileUploader;
 use App\Services\TaskServiceInterface;
-use App\Services\AbstractService;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -19,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @package App\Services\Superintegrator
  */
-class PostbackCollector extends AbstractService implements TaskServiceInterface
+class PostbackCollector implements TaskServiceInterface
 {
     const DESTINATION = 'cityads';
     const FILE_NAME = 'archive';
@@ -32,9 +30,14 @@ class PostbackCollector extends AbstractService implements TaskServiceInterface
     const URLS_LIMIT = 50;
     
     /**
-     * @var MessageModel
+     * @var MessageRepository
      */
-    private $messageModel;
+    private $messageRepo;
+    
+    /**
+     * @var FileRepository
+     */
+    private $fileRepo;
     
     /**
      * @var FileUploader
@@ -44,15 +47,15 @@ class PostbackCollector extends AbstractService implements TaskServiceInterface
     /**
      * PostbackCollector constructor.
      *
-     * @param EntityManagerInterface $entityManager
-     * @param MessageModel           $messageModel
+     * @param FileRepository $fileRepo
+     * @param MessageRepository           $messageRepo
      * @param FileUploader           $uploader
      */
-    public function __construct(EntityManagerInterface $entityManager, MessageModel $messageModel, FileUploader $uploader)
+    public function __construct(FileRepository $fileRepo, MessageRepository $messageRepo, FileUploader $uploader)
     {
-        $this->messageModel = $messageModel;
+        $this->messageRepo = $messageRepo;
+        $this->fileRepo = $fileRepo;
         $this->uploader = $uploader;
-        parent::__construct($entityManager);
     }
     
     /**
@@ -69,7 +72,7 @@ class PostbackCollector extends AbstractService implements TaskServiceInterface
      */
     public function getAwaitingPostbacks()
     {
-        $messageCount = $this->messageModel->getAwaitingMessagesCount(self::DESTINATION);
+        $messageCount = $this->messageRepo->getAwaitingMessagesCount(self::DESTINATION);
         
         $response = new AlertMessageCollection('Awaiting postbacks', $messageCount);
         
@@ -102,21 +105,23 @@ class PostbackCollector extends AbstractService implements TaskServiceInterface
     
     /**
      * Ищет файлы архива и агрегирует данные для вставки в таблицу message
+     *
+     * @throws EmptyDataException
      */
     private function collect()
     {
         $urls = $this->getUrls();
-        $this->messageModel->saveMessages(self::DESTINATION, $urls);
+        $this->messageRepo->saveMessages(self::DESTINATION, $urls);
     }
     
     /**
-     * @return array
+     * @return |null
      * @throws EmptyDataException
+     * @throws \Doctrine\ORM\ORMException
      */
     private function getUrls()
     {
-        $repository = $this->entityManager->getRepository(File::class);
-        $files      = $repository->findBy(['type' => 'csv']);
+        $files = $this->fileRepo->findBy(['type' => 'csv']);
     
         if (empty($files)) {
             throw new EmptyDataException('There is no files in database');
@@ -134,7 +139,7 @@ class PostbackCollector extends AbstractService implements TaskServiceInterface
         }
         
         $urls = $this->transform(stream_get_contents($archiveFile->getFileContent()));
-        $this->entityManager->remove($archiveFile);
+        $this->fileRepo->getEntityManager()->remove($archiveFile);
         
         return $urls;
     }

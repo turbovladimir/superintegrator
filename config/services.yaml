@@ -6,7 +6,7 @@
 parameters:
 
 imports:
-    - { resource: orm.yaml }
+    - { resource: repositories.yaml }
     - { resource: commands.yaml }
 
 services:
@@ -30,7 +30,7 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    http_controller:
+    app.controller.http:
         class: App\Controller\HttpController
         arguments:
             - '@monolog.logger'
@@ -43,7 +43,7 @@ services:
     service.sender.message_sender:
         class: App\Services\Sender\MessageSender
         arguments:
-            - '@orm.model.message'
+            - '@app.repository.message'
             -
     service.super.geo_search:
         class: App\Services\Superintegrator\GeoSearchService
@@ -61,9 +61,11 @@ services:
     service.super.postback_collector:
         class: App\Services\Superintegrator\PostbackCollector
         arguments:
-            - '@doctrine.orm.entity_manager'
-            - '@orm.model.message'
+            - '@app.repository.file'
+            - '@app.repository.message'
             - '@service.file.uploader'
 
     service.file.uploader:
         class: App\Services\File\FileUploader
+        arguments:
+            - '@app.repository.file'

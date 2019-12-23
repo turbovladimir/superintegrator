@@ -6,11 +6,11 @@
  * Time: 16:28
  */
 
-namespace App\Orm\Entity;
+namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-class BaseEntity implements EntityInterface
+abstract class BaseEntity implements EntityInterface
 {
     /**
      * @var int

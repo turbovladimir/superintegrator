@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Orm\Entity;
+namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -8,7 +8,8 @@ use Doctrine\ORM\Mapping as ORM;
  * File
  *
  * @ORM\Table(name="files")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="App\Repository\FileRepository")
+ * @ORM\HasLifecycleCallbacks
  */
 class File extends BaseEntity
 {

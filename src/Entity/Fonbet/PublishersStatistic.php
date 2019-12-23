@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Orm\Entity\Fonbet;
+namespace App\Entity\Fonbet;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Orm\Entity\EntityInterface;
+use App\Entity\EntityInterface;
 
 /**
  * Postbacktable

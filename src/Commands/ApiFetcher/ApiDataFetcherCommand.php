@@ -11,6 +11,7 @@ namespace App\Commands\ApiFetcher;
 
 use App\Exceptions\EmptyDataException;
 use App\Orm\Model\Archive;
+use App\Repository\ArchiveRepository;
 use function GuzzleHttp\Psr7\parse_query;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -35,7 +36,7 @@ abstract class ApiDataFetcherCommand extends Command
      */
     protected $url;
     
-    protected $archive;
+    protected $archiveRepository;
     
     /**
      * @var InputInterface
@@ -70,14 +71,14 @@ abstract class ApiDataFetcherCommand extends Command
     protected $headers;
     
     /**
-     * PullApiDataCommand constructor.
+     * ApiDataFetcherCommand constructor.
      *
-     * @param Archive         $archive
-     * @param LoggerInterface $logger
+     * @param ArchiveRepository $archiveRepository
+     * @param LoggerInterface   $logger
      */
-    public function __construct(Archive $archive, LoggerInterface $logger)
+    public function __construct(ArchiveRepository $archiveRepository, LoggerInterface $logger)
     {
-        $this->archive = $archive;
+        $this->archiveRepository = $archiveRepository;
         $this->logger = $logger;
         parent::__construct($name = null);
     }
@@ -136,7 +137,7 @@ abstract class ApiDataFetcherCommand extends Command
     protected function saveResponseData($responseData)
     {
         $this->output->writeln(['save response in archives']);
-        $this->archive->saveLog($this->getName(), [$responseData]);
+        $this->archiveRepository->saveLog($this->getName(), [$responseData]);
     }
     
     /**

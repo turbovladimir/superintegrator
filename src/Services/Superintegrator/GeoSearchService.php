@@ -9,9 +9,9 @@
 namespace App\Services\Superintegrator;
 
 use App\Response\AlertMessageCollection;
-use App\Orm\Entity\Superintegrator\CountryRussia;
-use App\Orm\Entity\Superintegrator\WorldRegion;
-use App\Orm\Entity\Superintegrator\WorldRegionCodes;
+use App\Entity\Superintegrator\CountryRussia;
+use App\Entity\Superintegrator\WorldRegion;
+use App\Entity\Superintegrator\WorldRegionCodes;
 use App\Services\AbstractService;
 use App\Utils\StringHelper;
 use Symfony\Component\HttpFoundation\Request;

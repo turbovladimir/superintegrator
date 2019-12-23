@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Orm\Entity\Superintegrator;
+namespace App\Entity\Superintegrator;
 
-use App\Orm\Entity\EntityInterface;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\EntityInterface;
 
 /**
- * WorldRegion
+ * WorldRegionCodes
  *
- * @ORM\Table(name="cityads_world_region", uniqueConstraints={@ORM\UniqueConstraint(name="cityads_world_region_id_uindex", columns={"id"})})
+ * @ORM\Table(name="cityads_world_region_codes", uniqueConstraints={@ORM\UniqueConstraint(name="cityads_world_region_codes_id_uindex", columns={"id"})})
  * @ORM\Entity
  */
-class WorldRegion implements EntityInterface
+class WorldRegionCodes implements EntityInterface
 {
     /**
      * @var int
@@ -25,7 +25,7 @@ class WorldRegion implements EntityInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=80, nullable=false)
+     * @ORM\Column(name="name", type="string", length=2, nullable=false)
      */
     private $name;
 
@@ -59,6 +59,4 @@ class WorldRegion implements EntityInterface
     {
         return $this->cityadsId;
     }
-
-
 }
