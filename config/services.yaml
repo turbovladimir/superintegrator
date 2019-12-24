@@ -4,6 +4,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
+    ali_api_url: '%env(string:ALI_API_URL)%'
 
 imports:
     - { resource: repositories.yaml }
@@ -14,6 +15,8 @@ services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            $apiUrl: '%ali_api_url%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -23,9 +26,9 @@ services:
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
-    App\Controller\:
-        resource: '../src/Controller'
-        tags: ['controller.service_arguments']
+#    App\Controller\:
+#        resource: '../src/Controller'
+#        tags: ['controller.service_arguments']
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
@@ -34,38 +37,40 @@ services:
         class: App\Controller\HttpController
         arguments:
             - '@monolog.logger'
-            - '@service.super.geo_search'
-            - '@service.super.xml_emulator'
-            - '@service.super.postback_collector'
-            - '@service.super.ali_orders'
-            - '@service.file.uploader'
+            - '@app.service.super.geo_search'
+            - '@app.service.super.xml_emulator'
+            - '@app.service.super.postback_collector'
+            - '@app.service.super.ali_orders'
 
-    service.sender.message_sender:
+    app.service.sender.message_sender:
         class: App\Services\Sender\MessageSender
         arguments:
             - '@app.repository.message'
             -
-    service.super.geo_search:
+    app.service.super.geo_search:
         class: App\Services\Superintegrator\GeoSearchService
         arguments:
             - '@doctrine.orm.default_entity_manager'
 
-    service.super.xml_emulator:
+    app.service.super.xml_emulator:
         class: App\Services\Superintegrator\XmlEmulatorService
         arguments:
             - '@doctrine.orm.default_entity_manager'
 
-    service.super.ali_orders:
+    app.service.super.ali_orders:
         class: App\Services\Superintegrator\AliOrdersService
 
-    service.super.postback_collector:
+    app.service.super.postback_collector:
         class: App\Services\Superintegrator\PostbackCollector
         arguments:
             - '@app.repository.file'
             - '@app.repository.message'
-            - '@service.file.uploader'
+            - '@app.service.file.uploader'
 
-    service.file.uploader:
+    app.service.file.uploader:
         class: App\Services\File\FileUploader
         arguments:
             - '@app.repository.file'
+
+    app.service.app_fixture:
+        class: App\DataFixtures\AppFixtures

@@ -14,7 +14,7 @@ services:
     class: App\Commands\SenderCommand
     parent: 'command.base_daemon'
     arguments:
-      - '@service.sender.message_sender'
+      - '@app.service.sender.message_sender'
     tags:
       - { name: console.command }
 

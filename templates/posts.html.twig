@@ -1,0 +1,8 @@
+{% extends 'base.html.twig' %}
+{% block content %}
+    {% if posts is defined %}
+        {% for post in posts %}
+            <a href="#">{{ post.title }}</a><br><br>
+        {% endfor %}
+    {% endif %}
+{% endblock %}
