@@ -6,13 +6,13 @@ super_integrator.tool:
   path: /tools/{tool}
   controller: App\Controller\SuperIntegratorToolController::index
   defaults:
-    tool: geo
+    tool:
 
 super_integrator.tools.tool.action:
   path: /tools/{tool}/{action}
   controller: App\Controller\SuperIntegratorToolController::index
   defaults:
-    page: /
+    tool:
 
 # blog
 blog.list:

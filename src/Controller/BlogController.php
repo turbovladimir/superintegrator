@@ -9,7 +9,10 @@
 namespace App\Controller;
 
 
+use App\Entity\Blog\Post;
+use App\Form\PostType;
 use App\Repository\PostRepository;
+use Cocur\Slugify\Slugify;
 use Symfony\Component\HttpFoundation\Request;
 
 class BlogController extends BaseController
@@ -36,8 +39,30 @@ class BlogController extends BaseController
         return $this->mainPage();
     }
     
-    public function new()
+    /**
+     * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function new(Request $request)
     {
-        /* todo create new post*/
+        $slugify = new Slugify();
+        $post = new Post();
+        $form = $this->createForm(PostType::class, $post);
+        $form->handleRequest($request);
+    
+        if ($form->isSubmitted() && $form->isValid()) {
+            $post->setSlug($slugify->slugify($post->getTitle()));
+            $em = $this->postRepository->getEntityManager();
+            $em->persist($post);
+            $em->flush();
+        
+            return $this->redirectToRoute('blog.list');
+        }
+        
+        return $this->render('blog/new.html.twig', [
+            'form' => $form->createView()
+        ]);
     }
 }

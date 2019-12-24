@@ -96,7 +96,7 @@ class SuperIntegratorToolController extends BaseController
     public function index($tool, $action = null, Request $request)
     {
         if (!array_key_exists($tool, self::ROUTS_PARAMS)) {
-            $this->mainPage();
+            return $this->mainPage();
         }
         
         try {
