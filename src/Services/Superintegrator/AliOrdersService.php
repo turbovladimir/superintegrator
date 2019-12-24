@@ -46,11 +46,11 @@ class AliOrdersService
     private $apiUrl;
     
     /**
-     * @param string $apiUrl
+     * @param string $aliexpressApiUrl
      */
-    public function __construct(string $apiUrl)
+    public function __construct(string $aliexpressApiUrl)
     {
-        $this->apiUrl = $apiUrl;
+        $this->apiUrl = $aliexpressApiUrl;
     }
     
     /**

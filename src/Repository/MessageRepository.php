@@ -3,8 +3,6 @@
 namespace App\Repository;
 
 use App\Entity\Message;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
  * @method Message|null find($id, $lockMode = null, $lockVersion = null)
@@ -12,17 +10,9 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method Message[]    findAll()
  * @method Message[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class MessageRepository extends ServiceEntityRepository
+class MessageRepository extends BaseRepository
 {
-    public function __construct(RegistryInterface $registry)
-    {
-        parent::__construct($registry, Message::class);
-    }
-    
-    public function getEntityManager()
-    {
-        return parent::getEntityManager();
-    }
+    protected $entity = Message::class;
     
     /**
      * @param $limit
@@ -78,7 +68,7 @@ class MessageRepository extends ServiceEntityRepository
      */
     public function deleteSendedMessage($deletingCount)
     {
-        $sendedUrls = $this->_em->getRepository(Message::class)->findBy(['sended' => 1], [], $deletingCount);
+        $sendedUrls = $this->findBy(['sended' => 1], [], $deletingCount);
         
         if (empty($sendedUrls)) {
             return;
@@ -90,33 +80,4 @@ class MessageRepository extends ServiceEntityRepository
         
         $this->_em->flush();
     }
-
-    // /**
-    //  * @return Message[] Returns an array of Message objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('p.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?Message
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

@@ -5,6 +5,7 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     ali_api_url: '%env(string:ALI_API_URL)%'
+    app_domain: '%env(string:DOMAIN)%'
 
 imports:
     - { resource: repositories.yaml }
@@ -16,7 +17,8 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
-            $apiUrl: '%ali_api_url%'
+            $aliexpressApiUrl: '%ali_api_url%'
+            $appDomain: '%app_domain%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -55,7 +57,7 @@ services:
     app.service.super.xml_emulator:
         class: App\Services\Superintegrator\XmlEmulatorService
         arguments:
-            - '@doctrine.orm.default_entity_manager'
+            - '@app.repository.test_xml'
 
     app.service.super.ali_orders:
         class: App\Services\Superintegrator\AliOrdersService
