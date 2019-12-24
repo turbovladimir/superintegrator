@@ -36,13 +36,18 @@ services:
     # please note that last definitions always *replace* previous ones
 
     app.controller.http:
-        class: App\Controller\HttpController
+        class: App\Controller\SuperIntegratorToolController
         arguments:
             - '@monolog.logger'
             - '@app.service.super.geo_search'
             - '@app.service.super.xml_emulator'
             - '@app.service.super.postback_collector'
             - '@app.service.super.ali_orders'
+
+    app.controller.blog:
+        class: App\Controller\BlogController
+        arguments:
+            - '@app.repository.post'
 
     app.service.sender.message_sender:
         class: App\Services\Sender\MessageSender

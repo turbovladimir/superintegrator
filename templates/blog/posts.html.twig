@@ -2,7 +2,7 @@
 {% block content %}
     {% if posts is defined %}
         {% for post in posts %}
-            <a href="#">{{ post.title }}</a><br><br>
+            <a href="{{ path('blog.post', {'slug': post.slug}) }}">{{ post.title }}</a><br><br>
         {% endfor %}
     {% endif %}
 {% endblock %}

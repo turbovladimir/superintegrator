@@ -8,6 +8,7 @@
 
 namespace App\Services\Superintegrator;
 
+use App\Exceptions\ExpectedException;
 use App\Response\AlertMessageCollection;
 use App\Entity\Superintegrator\CountryRussia;
 use App\Entity\Superintegrator\WorldRegion;
@@ -61,6 +62,11 @@ class GeoSearchService extends AbstractService
         }
     
         $allGeo = $repository->findAll();
+        
+        if (empty($allGeo)) {
+            throw new ExpectedException('Empty data in geo tables!');
+        }
+        
         $geoCount = count($allGeo);
         $cityadsIds = [];
         

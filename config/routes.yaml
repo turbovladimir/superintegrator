@@ -1,11 +1,34 @@
-page:
-  path: /{page}
-  controller: App\Controller\HttpController::index
+main_page:
+  path: /
+  controller: App\Controller\BaseController::mainPage
+
+super_integrator.tool:
+  path: /tools/{tool}
+  controller: App\Controller\SuperIntegratorToolController::index
+  defaults:
+    tool: geo
+
+super_integrator.tools.tool.action:
+  path: /tools/{tool}/{action}
+  controller: App\Controller\SuperIntegratorToolController::index
   defaults:
     page: /
 
-action:
-  path: /{page}/{action}
-  controller: App\Controller\HttpController::index
+# blog
+blog.list:
+  path: /blog/{page}
+  controller: App\Controller\BlogController::list
+  defaults:
+    page: 1
+  requirements:
+    page: '\d+'
+
+blog.post:
+  path: /blog/post
+  controller: App\Controller\BlogController::show_post
+
+blog.post.new:
+  path: /blog/new
+  controller: App\Controller\BlogController::new
   defaults:
     page: /

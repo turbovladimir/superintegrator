@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\Entity\Post;
+use App\Entity\Blog\Post;
 
 /**
  * @method Post|null find($id, $lockMode = null, $lockVersion = null)

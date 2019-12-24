@@ -8,7 +8,7 @@
 
 namespace App\Services\Superintegrator;
 
-use App\Controller\HttpController;
+use App\Controller\SuperIntegratorToolController;
 use App\Repository\TestXmlRepository;
 use App\Response\AlertMessageCollection;
 use App\Entity\Superintegrator\TestXml;
@@ -110,7 +110,7 @@ class XmlEmulatorService
         $key       = $this->generateHashKey($xml);
         $entityXml->setName($name);
         $entityXml->setXml($xml);
-        $entityXml->setUrl('http://'.$_SERVER['HTTP_HOST']. '/' . HttpController::PAGE_XML_EMULATOR . '/' . HttpController::ACTION_XML . '/?key='.$key);
+        $entityXml->setUrl('http://'.$_SERVER['HTTP_HOST']. '/tools/' . SuperIntegratorToolController::PAGE_XML_EMULATOR . '/' . SuperIntegratorToolController::PAGE_XML_TYPE . '/?key='.$key);
         $this->testXmlRepository->getEntityManager()->persist($entityXml);
         $this->testXmlRepository->getEntityManager()->flush();
         
