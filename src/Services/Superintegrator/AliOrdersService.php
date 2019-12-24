@@ -18,7 +18,6 @@ use Symfony\Component\HttpFoundation\Request;
 class AliOrdersService
 {
     const FILE_NAME = 'aliexpress_orders';
-    const URL = 'https://gw.api.alibaba.com/openapi/param2/2/portals.open/api.getOrderStatus/30056?appSignature=9FIO77dDIidM&orderNumbers=';
     const LIMIT_OF_ORDERS_PER_REQUEST = 100;
     const HEADERS = [
         'baseCommissionRate',
@@ -40,6 +39,19 @@ class AliOrdersService
         'trackingId',
         'transactionTime',
     ];
+    
+    /**
+     * @var string
+     */
+    private $apiUrl;
+    
+    /**
+     * @param string $aliexpressApiUrl
+     */
+    public function __construct(string $aliexpressApiUrl)
+    {
+        $this->apiUrl = $aliexpressApiUrl;
+    }
     
     /**
      * @param Request $request
@@ -114,7 +126,7 @@ class AliOrdersService
     {
         $sortOrders = [];
         $httpClient = HttpClient::create();
-        $response   = $httpClient->request('GET', self::URL.implode(',', $orders));
+        $response   = $httpClient->request('GET', $this->apiUrl.implode(',', $orders));
         $content    = $response->toArray();
         $orders     = $content['result']['orders'];
         foreach ($orders as $order) {

@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+{% block content %}
+    <div class="block">
+        <a href="/blog/new">
+            <button class="btn btn-dark" type="submit">New</button>
+        </a>
+    </div>
+    {% if posts is defined %}
+        <div class="block">
+            <ul class="list-group list-group-flush">
+        {% for post in posts %}
+            {#<div class="block">#}
+                <li class="list-group-item">
+                    <a class="card-link" href="{{ path('blog.post', {'slug': post.slug}) }}">{{ post.title }}</a>
+                </li>
+            {#</div>#}
+        {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+{% endblock %}

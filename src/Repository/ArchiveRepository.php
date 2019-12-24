@@ -3,8 +3,6 @@
 namespace App\Repository;
 
 use App\Entity\Archive;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
  * @method Archive|null find($id, $lockMode = null, $lockVersion = null)
@@ -12,17 +10,9 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method Archive[]    findAll()
  * @method Archive[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ArchiveRepository extends ServiceEntityRepository
+class ArchiveRepository extends BaseRepository
 {
-    public function __construct(RegistryInterface $registry)
-    {
-        parent::__construct($registry, Archive::class);
-    }
-    
-    public function getEntityManager()
-    {
-        return parent::getEntityManager();
-    }
+    protected $entity = Archive::class;
     
     /**
      * @param $sourceName
@@ -37,38 +27,9 @@ class ArchiveRepository extends ServiceEntityRepository
             $archive = new Archive();
             $archive->setSource($sourceName);
             $archive->setLogData($log);
-            $this->entityManager->persist($archive);
+            $this->_em->persist($archive);
         }
         
         $this->_em->flush();
     }
-    
-    // /**
-    //  * @return Archive[] Returns an array of Archive objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('p.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?Archive
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

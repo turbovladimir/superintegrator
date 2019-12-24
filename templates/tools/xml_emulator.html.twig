@@ -2,7 +2,7 @@
 
 {% block content %}
     {% if new_form is defined %}
-        <form id="xml_new_form" method="post" action="/xml_emulator">
+        <form id="xml_new_form" method="post" action="/tools/xml_emulator">
             <div class="block">
                 <input type="text" class="form-control" placeholder="Name" name="name">
             </div>
@@ -42,7 +42,7 @@
         </script>
     {% else %}
             <div class="block">
-                <a href="/xml_emulator/new">
+                <a href="/tools/xml_emulator/new">
                     <button class="btn btn-dark" type="submit">New</button>
                 </a>
             </div>
@@ -63,7 +63,7 @@
                                 <th><output  form="xml_table_form" name={{ key }}>{{ value }}</output></th>
                             {% endfor %}
                             <th>
-                                <form method="post" id="xml"  action="/xml_emulator">
+                                <form method="post" id="xml"  action="/tools/xml_emulator">
                                     <button class="btn btn-dark" type="submit" form="xml" name="delete" value="{{ xml.id }}">Delete</button>
                                 </form>
                             </th>

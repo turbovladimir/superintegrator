@@ -8,17 +8,28 @@
 
 namespace App\Services\Superintegrator;
 
-use App\Controller\HttpController;
+use App\Controller\SuperIntegratorToolController;
+use App\Repository\TestXmlRepository;
 use App\Response\AlertMessageCollection;
 use App\Entity\Superintegrator\TestXml;
 use App\Exceptions\ExpectedException;
 use App\Services\AbstractService;
 use App\Utils\Serializer;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-class XmlEmulatorService extends AbstractService
+class XmlEmulatorService
 {
+    private $appDomain;
+    private $testXmlRepository;
+    
+    public function __construct(TestXmlRepository $testXmlRepository , string $appDomain)
+    {
+        $this->appDomain = $appDomain;
+        $this->testXmlRepository = $testXmlRepository;
+    }
+    
     /**
      * @param Request $request
      *
@@ -52,16 +63,7 @@ class XmlEmulatorService extends AbstractService
             throw new ExpectedException('Cannot parse key from url');
         }
         
-        $query = $this->entityManager->createQuery('SELECT t.xml FROM ' . TestXml::class . ' t WHERE t.url LIKE :word');
-        $query->setParameter('word', "%{$parameters['key']}%");
-        $xml =  $query->getResult();
-        
-        if (!$xml) {
-            throw new ExpectedException('Incorrect or expired key');
-        }
-        
-        //todo остыльно, но пока оставлю так
-        return reset($xml)['xml'];
+        return $this->testXmlRepository->getXmlBodyByKey($parameters['key']);
     }
     
     /**
@@ -72,14 +74,14 @@ class XmlEmulatorService extends AbstractService
      */
     private function deleteById($id)
     {
-        $xml = $this->entityManager->getRepository(TestXml::class)->findOneBy(['id' => $id]);
+        $xml = $this->testXmlRepository->findOneBy(['id' => $id]);
         
         if (!$xml) {
             throw new ExpectedException('Xml not found');
         }
         
-        $this->entityManager->remove($xml);
-        $this->entityManager->flush();
+        $this->testXmlRepository->getEntityManager()->remove($xml);
+        $this->testXmlRepository->getEntityManager()->flush();
         $response = new AlertMessageCollection();
         $response->addAlert('Success', 'Xml template was be deleted', AlertMessageCollection::ALERT_TYPE_SUCCESS);
     
@@ -92,6 +94,8 @@ class XmlEmulatorService extends AbstractService
      *
      * @return AlertMessageCollection
      * @throws ExpectedException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     private function createApiSource(string $name, string $xml)
     {
@@ -106,9 +110,9 @@ class XmlEmulatorService extends AbstractService
         $key       = $this->generateHashKey($xml);
         $entityXml->setName($name);
         $entityXml->setXml($xml);
-        $entityXml->setUrl('http://'.$_SERVER['HTTP_HOST']. '/' . HttpController::PAGE_XML_EMULATOR . '/' . HttpController::ACTION_XML . '/?key='.$key);
-        $this->entityManager->persist($entityXml);
-        $this->entityManager->flush();
+        $entityXml->setUrl('http://'.$_SERVER['HTTP_HOST']. '/tools/' . SuperIntegratorToolController::PAGE_XML_EMULATOR . '/' . SuperIntegratorToolController::PAGE_XML_TYPE . '/?key='.$key);
+        $this->testXmlRepository->getEntityManager()->persist($entityXml);
+        $this->testXmlRepository->getEntityManager()->flush();
         
         $response = new AlertMessageCollection();
         $response->addAlert('Success', 'Xml template was be saved', AlertMessageCollection::ALERT_TYPE_SUCCESS);
@@ -121,8 +125,8 @@ class XmlEmulatorService extends AbstractService
      */
     public function getTableWithXmlTemplates()
     {
-        $repository = $this->entityManager->getRepository(TestXml::class);
-        $collection = $repository->findAll();
+        
+        $collection = $this->testXmlRepository->findAll();
         $collection = json_decode(Serializer::get()->serialize($collection, 'json', [AbstractNormalizer::IGNORED_ATTRIBUTES => ['xml']]), true);
         
         if (!$collection) {

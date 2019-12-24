@@ -1,20 +1,26 @@
 services:
-  app.repository.post:
-    class: App\Repository\PostRepository
+  app.repository.base:
+    class: App\Repository\BaseRepository
+    abstract: true
     arguments:
       - '@doctrine'
+
+  app.repository.post:
+    class: App\Repository\PostRepository
+    parent: 'app.repository.base'
 
   app.repository.message:
     class: App\Repository\MessageRepository
-    arguments:
-      - '@doctrine'
+    parent: 'app.repository.base'
 
   app.repository.file:
     class: App\Repository\FileRepository
-    arguments:
-      - '@doctrine'
+    parent: 'app.repository.base'
 
   app.repository.archive:
     class: App\Repository\ArchiveRepository
-    arguments:
-      - '@doctrine'
+    parent: 'app.repository.base'
+
+  app.repository.test_xml:
+    class: App\Repository\TestXmlRepository
+    parent: 'app.repository.base'

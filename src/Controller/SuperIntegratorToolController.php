@@ -10,7 +10,6 @@ namespace App\Controller;
 
 use App\Response\AlertMessageCollection;
 use App\Response\Download;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use App\Services\Superintegrator\AliOrdersService;
@@ -19,18 +18,19 @@ use App\Services\Superintegrator\PostbackCollector;
 use App\Services\Superintegrator\XmlEmulatorService;
 use Psr\Log\LoggerInterface;
 
-class HttpController extends AbstractController
+class SuperIntegratorToolController extends BaseController
 {
     public const PAGE_MAIN = 'base';
     public const PAGE_GEO = 'geo';
     public const PAGE_ALI_ORDERS = 'ali_orders';
     public const PAGE_XML_EMULATOR = 'xml_emulator';
-    public const PAGE_XML_TYPE = 'xml';
     public const PAGE_SENDER = 'sender';
+    
+    public const PAGE_XML_TYPE = 'xml';
+    public const PAGE_JSON_TYPE = 'json';
     
     public const ACTION_NEW = 'new';
     public const ACTION_UPLOAD = 'upload';
-    public const ACTION_XML = 'get_xml';
     public const ACTION_json = 'get_json';
     
     private const ROUTS_PARAMS = [
@@ -93,22 +93,22 @@ class HttpController extends AbstractController
      *
      * @return Response
      */
-    public function index($page, $action = null, Request $request)
+    public function index($tool, $action = null, Request $request)
     {
-        if (!array_key_exists($page, self::ROUTS_PARAMS)) {
-            $page = 'base';
+        if (!array_key_exists($tool, self::ROUTS_PARAMS)) {
+            return $this->mainPage();
         }
         
         try {
             if ($request->getMethod() === 'POST') {
-                return $this->handlePostRequest($request, $page, $action);
+                return $this->handlePostRequest($request, $tool, $action);
             }
             
-            return $this->handleGetRequets($request, $page, $action);
+            return $this->handleGetRequets($request, $tool, $action);
         } catch (\Exception $exception) {
             $response = new AlertMessageCollection('Обнаружена ошибка', $exception->getMessage(), AlertMessageCollection::ALERT_TYPE_DANGER);
             
-            return $this->renderPage($page, ['response' => $response->getMessages()]);
+            return $this->renderPage($tool, ['response' => $response->getMessages()]);
         }
     }
     
@@ -134,7 +134,7 @@ class HttpController extends AbstractController
                 break;
             case (self::PAGE_XML_EMULATOR):
                 
-                if ($action === self::ACTION_XML) {
+                if ($action === self::PAGE_XML_TYPE) {
                     $xml = $this->xmlEmulator->getXml($request);
                     
                     return $this->renderXmlPage($xml);
@@ -209,7 +209,7 @@ class HttpController extends AbstractController
         $parameters['title'] = $this->getTitle($page);
         $parameters['description'] = $this->getDescription($page);
         
-        return $this->render($page . '.html.twig', $parameters);
+        return $this->render("tools/{$page}.html.twig", $parameters);
     }
     
     /**
