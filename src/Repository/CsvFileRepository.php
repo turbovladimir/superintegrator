@@ -12,5 +12,19 @@ use App\Entity\CsvFile;
  */
 class CsvFileRepository extends BaseRepository
 {
- protected $entity = CsvFile::class;
+     protected $entity = CsvFile::class;
+    
+    /**
+     * @param $name
+     *
+     * @return mixed
+     */
+     public function getByEstimatedFileName($name)
+     {
+         $query = $this->_em->createQuery('SELECT c FROM ' . CsvFile::class . ' c WHERE c.fileName LIKE :file_name');
+         
+         $query->setParameter('file_name', "%{$name}%");
+         
+         return  $query->getResult();
+     }
 }

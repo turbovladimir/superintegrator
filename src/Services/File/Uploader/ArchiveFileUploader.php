@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ArchiveFileUploader extends FileUploader
 {
-    public $fileName = 'archive';
+    public const FILE_NAME = 'archive';
     protected $fileType = 'csv';
     protected $filesizeLimit = 4 * 1000000; // 4 Mb
     
@@ -56,7 +56,7 @@ class ArchiveFileUploader extends FileUploader
      */
     private function isArchiveFile(UploadedFile $file)
     {
-        return strpos($file->getClientOriginalName(), $this->fileName) !== false;
+        return strpos($file->getClientOriginalName(), self::FILE_NAME) !== false;
     }
     
     /**
