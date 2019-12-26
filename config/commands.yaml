@@ -3,6 +3,12 @@ services:
     class: App\Commands\BaseDaemon
     abstract: true
 
+  command.postback_import:
+    class: App\Commands\PostbackImportCommand
+    arguments:
+      - '@app.service.super.cityads_postbck_manager'
+      - '@app.repository.message'
+
   command.api_data_fetcher:
     class: App\Commands\ApiFetcher\ApiDataFetcherCommand
     abstract: true

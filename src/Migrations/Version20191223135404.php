@@ -34,7 +34,7 @@ final class Version20191223135404 extends AbstractMigration
         $this->addSql('CREATE TABLE cityads_world_region_codes (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(2) NOT NULL COLLATE utf8_general_ci, cityads_id INT DEFAULT NULL, UNIQUE INDEX cityads_world_region_codes_id_uindex (id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB COMMENT = \'\' ');
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('CREATE TABLE files (id INT AUTO_INCREMENT NOT NULL, file_name LONGTEXT NOT NULL COLLATE utf8mb4_unicode_ci, file_content LONGBLOB NOT NULL, added_at DATETIME NOT NULL, type LONGTEXT NOT NULL COLLATE utf8mb4_unicode_ci, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB COMMENT = \'\' ');
+        $this->addSql('CREATE TABLE csv_files (id INT AUTO_INCREMENT NOT NULL, file_name LONGTEXT NOT NULL COLLATE utf8mb4_unicode_ci, file_content LONGBLOB NOT NULL, added_at DATETIME NOT NULL, type LONGTEXT NOT NULL COLLATE utf8mb4_unicode_ci, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB COMMENT = \'\' ');
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('CREATE TABLE fonbet_statistic_by_publishers (id INT AUTO_INCREMENT NOT NULL, wm_id INT NOT NULL, click_id LONGTEXT NOT NULL COLLATE utf8mb4_unicode_ci, registrations INT NOT NULL, deposits_amount LONGTEXT NOT NULL COLLATE utf8mb4_unicode_ci, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB COMMENT = \'\' ');
@@ -66,7 +66,7 @@ final class Version20191223135404 extends AbstractMigration
         $this->addSql('DROP TABLE cityads_world_region_codes');
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('DROP TABLE files');
+        $this->addSql('DROP TABLE csv_files');
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('DROP TABLE fonbet_statistic_by_publishers');

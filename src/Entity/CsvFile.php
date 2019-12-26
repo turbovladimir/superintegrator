@@ -7,11 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * File
  *
- * @ORM\Table(name="files")
- * @ORM\Entity(repositoryClass="App\Repository\FileRepository")
+ * @ORM\Table(name="csv_files")
+ * @ORM\Entity(repositoryClass="App\Repository\CsvFileRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class File extends BaseEntity
+class CsvFile extends BaseEntity
 {
     
     /**

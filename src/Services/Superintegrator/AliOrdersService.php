@@ -128,7 +128,13 @@ class AliOrdersService
         $httpClient = HttpClient::create();
         $response   = $httpClient->request('GET', $this->apiUrl.implode(',', $orders));
         $content    = $response->toArray();
+        
+        if (!isset($content['result']['orders'])) {
+            return [];
+        }
+        
         $orders     = $content['result']['orders'];
+        
         foreach ($orders as $order) {
             $sortOrders[] = $this->filterOrder($order);
         }
