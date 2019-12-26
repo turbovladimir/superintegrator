@@ -14,13 +14,17 @@ use League\Csv\Writer;
 class CsvFileManager
 {
     /**
-     * @param $content
+     * @param array $content
      *
      * @return string
      * @throws \League\Csv\CannotInsertRecord
      */
     public static function generateFile($content)
     {
+        if (empty($content)) {
+            return '';
+        }
+        
         $csv = Writer::createFromString('');
         $csv->insertOne(array_keys(reset($content)));
         $csv->insertAll($content);

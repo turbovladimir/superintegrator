@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+<form id="xml_new_form" method="post" action="/tools/xml_emulator">
+    <div class="block">
+        <input type="text" class="form-control" placeholder="Name" name="name">
+    </div>
+    <div class="block">
+        <textarea id="code" cols="60" rows="30" name="xml_str" ></textarea>
+    </div>
+    <div class="block">
+        <button class="btn btn-dark" type="submit" need_check="1" form="xml_new_form" name="new">Save xml</button>
+        <a href="javascript:autoFormatSelection()">
+            <button type="button" class="btn btn-dark">Format selected xml</button>
+        </a>
+        <a href="javascript:commentSelection(true)">
+            <button type="button" class="btn btn-dark">Comment selected xml</button>
+        </a>
+    </div>
+</form>
+
+<script type="text/javascript">
+    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        mode: "application/xml",
+        lineNumbers: true
+    });
+
+    function getSelectedRange() {
+        return {from: editor.getCursor(true), to: editor.getCursor(false)};
+    }
+
+    function autoFormatSelection() {
+        var range = getSelectedRange();
+        editor.autoFormatRange(range.from, range.to);
+    }
+
+    function commentSelection(isComment) {
+        var range = getSelectedRange();
+        editor.commentRange(isComment, range.from, range.to);
+    }
+</script>
+{% endblock %}

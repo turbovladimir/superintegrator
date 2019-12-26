@@ -13,8 +13,8 @@ services:
     class: App\Repository\MessageRepository
     parent: 'app.repository.base'
 
-  app.repository.file:
-    class: App\Repository\FileRepository
+  app.repository.csv_file:
+    class: App\Repository\CsvFileRepository
     parent: 'app.repository.base'
 
   app.repository.archive:

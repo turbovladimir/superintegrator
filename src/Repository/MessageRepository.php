@@ -44,7 +44,7 @@ class MessageRepository extends BaseRepository
     
     /**
      * @param        $destination
-     * @param        $urls
+     * @param array  $urls
      * @param null   $headers
      * @param string $method
      *

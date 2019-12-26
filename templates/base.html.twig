@@ -32,10 +32,8 @@
                             </div>
                             {#Response message block#}
                             {% if response is defined %}
-                                {% for alert_level, message in response %}
-                                    <div class="block">
-                                        <div id="alert_message" class="{{ alert_level }}">{{ message }}</div>
-                                    </div>
+                                {% for message_block in response %}
+                                    {{ message_block|raw }}
                                 {% endfor %}
                             {% endif %}
                         </div>

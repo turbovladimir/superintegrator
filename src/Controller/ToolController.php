@@ -8,86 +8,84 @@
 
 namespace App\Controller;
 
-use App\Response\AlertMessageCollection;
+use App\Response\AlertMessage;
 use App\Response\Download;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use App\Services\Superintegrator\AliOrdersService;
 use App\Services\Superintegrator\GeoSearchService;
-use App\Services\Superintegrator\PostbackCollector;
+use App\Services\Superintegrator\CityadsPostbackManager;
 use App\Services\Superintegrator\XmlEmulatorService;
 use Psr\Log\LoggerInterface;
 
-class SuperIntegratorToolController extends BaseController
+class ToolController extends BaseController
 {
     public const PAGE_MAIN = 'base';
     public const PAGE_GEO = 'geo';
     public const PAGE_ALI_ORDERS = 'ali_orders';
-    public const PAGE_XML_EMULATOR = 'xml_emulator';
-    public const PAGE_SENDER = 'sender';
+    public const XML_EMULATOR = 'xml_emulator';
+    public const SENDER = 'sender';
     
-    public const PAGE_XML_TYPE = 'xml';
-    public const PAGE_JSON_TYPE = 'json';
-    
+    public const ACTION_GET_XML_PAGE = 'xml';
+    public const ACTION_GET_JSON_PAGE = 'json';
     public const ACTION_NEW = 'new';
     public const ACTION_UPLOAD = 'upload';
-    public const ACTION_json = 'get_json';
     
     private const ROUTS_PARAMS = [
-        self::PAGE_MAIN         => [
+        self::PAGE_MAIN           => [
             'title' => 'Main page',
             'description' => 'Добро пожаловать в наш скромный ламповый сервис'
         ],
-        self::PAGE_GEO          => [
+        self::PAGE_GEO            => [
             'title' => 'Geo searching',
             'description' => 'Инструмент для поиска id гео объектов (страны, регионы, города), для получения id можно использовать как 2х буквенные коды стран так и полные ENG наименования'
         ],
-        self::PAGE_ALI_ORDERS   => [
+        self::PAGE_ALI_ORDERS     => [
             'title' => 'Ali orders',
             'description' => 'Позволяет забирать подробную информацию о заказах алиэкспресс'
         ],
-        self::PAGE_XML_EMULATOR => [
+        self::XML_EMULATOR        => [
             'title' => 'Xml emulator',
             'description' => 'При помощи данного инструмента вы можете создавать ссылки эмулирующие работу API с форматом ответа xml'
         ],
-        self::PAGE_SENDER       => [
+        self::SENDER              => [
             'title' => 'Sender',
             'description' => 'Переотправка постбэков и пикселей по файлам архива админки процессинга'
         ],
-        self::PAGE_XML_TYPE       => ['title' => ''],
+        self::ACTION_GET_XML_PAGE => ['title' => ''],
     ];
     
     private $geoSearch;
     private $xmlEmulator;
-    private $postbackCollector;
+    private $postbackManager;
     private $aliOrders;
     private $logger;
     
     /**
      * HttpController constructor.
      *
-     * @param LoggerInterface    $logger
-     * @param GeoSearchService   $geoSearch
-     * @param XmlEmulatorService $xmlEmulator
-     * @param PostbackCollector  $postbackCollector
-     * @param AliOrdersService   $aliOrders
+     * @param LoggerInterface        $logger
+     * @param GeoSearchService       $geoSearch
+     * @param XmlEmulatorService     $xmlEmulator
+     * @param CityadsPostbackManager $postbackManager
+     * @param AliOrdersService       $aliOrders
      */
     public function __construct(
         LoggerInterface $logger,
         GeoSearchService $geoSearch,
         XmlEmulatorService $xmlEmulator,
-        PostbackCollector $postbackCollector,
+        CityadsPostbackManager $postbackManager,
         AliOrdersService $aliOrders
     ) {
-        $this->logger            = $logger;
-        $this->geoSearch         = $geoSearch;
-        $this->xmlEmulator       = $xmlEmulator;
-        $this->postbackCollector = $postbackCollector;
-        $this->aliOrders         = $aliOrders;
+        $this->logger          = $logger;
+        $this->geoSearch       = $geoSearch;
+        $this->xmlEmulator     = $xmlEmulator;
+        $this->postbackManager = $postbackManager;
+        $this->aliOrders       = $aliOrders;
     }
     
     /**
-     * @param         $page
+     * @param         $tool
      * @param         $action
      * @param Request $request
      *
@@ -106,46 +104,40 @@ class SuperIntegratorToolController extends BaseController
             
             return $this->handleGetRequets($request, $tool, $action);
         } catch (\Exception $exception) {
-            $response = new AlertMessageCollection('Обнаружена ошибка', $exception->getMessage(), AlertMessageCollection::ALERT_TYPE_DANGER);
+            $response = new AlertMessage('Обнаружена ошибка', $exception->getMessage(), AlertMessage::TYPE_DANGER);
             
-            return $this->renderPage($tool, ['response' => $response->getMessages()]);
+            return $this->mainPage(['response' => $response->get()]);
         }
     }
     
     /**
      * @param Request $request
-     * @param         $page
+     * @param         $tool
      * @param null    $action
      *
      * @return Response
+     * @throws \App\Exceptions\ExpectedException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    private function handleGetRequets(Request $request, $page, $action = null)
+    private function handleGetRequets(Request $request, $tool, $action = null)
     {
         $options = [];
         
-        if ($action === self::ACTION_NEW) {
-            $options['new_form'] = 1;
-        }
-        
-        switch ($page) {
-            case (self::PAGE_SENDER):
-                $options['response'] = $this->postbackCollector->getAwaitingPostbacks();
+        switch ($tool) {
+            case (self::SENDER):
+                $options['response'] = $this->postbackManager->getAwaitingPostbacks();
                 break;
-            case (self::PAGE_XML_EMULATOR):
-                
-                if ($action === self::PAGE_XML_TYPE) {
-                    $xml = $this->xmlEmulator->getXml($request);
-                    
-                    return $this->renderXmlPage($xml);
-                } else {
-                    $options = array_merge($options, $this->xmlEmulator->getTableWithXmlTemplates());
+            case (self::XML_EMULATOR):
+                if ($action === self::ACTION_GET_XML_PAGE) {
+                        return $this->renderXmlPage($this->xmlEmulator->getXml($request));
                 }
                 
-                break;
+                if ($action !== self::ACTION_NEW) {
+                    $options = array_merge($options, $this->xmlEmulator->getTableWithXmlTemplates());
+                }
         }
         
-        return $this->renderPage($page, $options);
+        return $this->renderPage($tool, $action, $options);
     }
     
     /**
@@ -166,12 +158,13 @@ class SuperIntegratorToolController extends BaseController
             case (self::PAGE_ALI_ORDERS):
                 $response = $this->aliOrders->processRequest($request);
                 break;
-            case (self::PAGE_XML_EMULATOR):
+            case (self::XML_EMULATOR):
                 $response = $this->xmlEmulator->processRequest($request);
                 break;
-            case (self::PAGE_SENDER):
+            case (self::SENDER):
                 if ($action === self::ACTION_UPLOAD) {
-                    $response = $this->postbackCollector->uploadArchiveFiles($request);
+                    $response = $this->postbackManager->uploadArchiveFiles($request);
+                    $action = null;
                 }
                 
                 break;
@@ -181,7 +174,7 @@ class SuperIntegratorToolController extends BaseController
             return $response->get();
         }
         
-        return $this->renderPage($page, ['response' => $response->getMessages()]);
+        return $this->renderPage($page, $action, ['response' => $response->get()]);
     }
     
     /**
@@ -190,26 +183,27 @@ class SuperIntegratorToolController extends BaseController
      *
      * @return Response
      */
-    protected function getOnlyAlertResponse($message, $level = AlertMessageCollection::ALERT_TYPE_SUCCESS)
+    protected function getOnlyAlertResponse($message, $level = AlertMessage::TYPE_SUCCESS)
     {
-        $response = new AlertMessageCollection();
+        $response = new AlertMessage();
         $response->addAlert($message, null, $level);
         
-        return $this->renderPage('base', ['response' => $response->getMessages()]);
+        return $this->mainPage(['response' => $response->get()]);
     }
     
     /**
      * @param string $page
+     * @param null   $action
      * @param array  $parameters
      *
      * @return Response
      */
-    protected function renderPage(string $page, array $parameters = [])
+    protected function renderPage(string $tool, $action = null, array $parameters = [])
     {
-        $parameters['title'] = $this->getTitle($page);
-        $parameters['description'] = $this->getDescription($page);
+        $pathToTemplate = $action !== null ? "{$tool}/{$action}" : "{$tool}/index";
+        $parameters = array_merge($parameters, $this->getContent($tool));
         
-        return $this->render("tools/{$page}.html.twig", $parameters);
+        return $this->render("tools/{$pathToTemplate}.html.twig", $parameters);
     }
     
     /**
@@ -223,26 +217,22 @@ class SuperIntegratorToolController extends BaseController
     }
     
     /**
-     * @param $rout
+     * @param $tool
      *
-     * @return mixed
+     * @return array
      */
-    protected function getTitle($page)
+    protected function getContent($tool)
     {
-        if (array_key_exists($page, self::ROUTS_PARAMS)) {
-            return self::ROUTS_PARAMS[$page]['title'];
+        if (array_key_exists($tool, self::ROUTS_PARAMS)) {
+            return [
+                'title' => self::ROUTS_PARAMS[$tool]['title'],
+                'description' => self::ROUTS_PARAMS[$tool]['description'],
+            ];
         }
         
-        return self::ROUTS_PARAMS[self::PAGE_MAIN]['title'];
-    }
-    
-    /**
-     * @param $page
-     *
-     * @return string
-     */
-    protected function getDescription($page)
-    {
-        return self::ROUTS_PARAMS[$page]['description'];
+        return [
+            'title' => self::ROUTS_PARAMS[self::PAGE_MAIN]['title'],
+            'description' => self::ROUTS_PARAMS[self::PAGE_MAIN]['description']
+        ];
     }
 }

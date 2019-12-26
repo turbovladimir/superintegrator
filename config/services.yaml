@@ -35,13 +35,13 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    app.controller.http:
-        class: App\Controller\SuperIntegratorToolController
+    app.controller.tool:
+        class: App\Controller\ToolController
         arguments:
             - '@monolog.logger'
             - '@app.service.super.geo_search'
             - '@app.service.super.xml_emulator'
-            - '@app.service.super.postback_collector'
+            - '@app.service.super.cityads_postbck_manager'
             - '@app.service.super.ali_orders'
 
     app.controller.blog:
@@ -67,17 +67,17 @@ services:
     app.service.super.ali_orders:
         class: App\Services\Superintegrator\AliOrdersService
 
-    app.service.super.postback_collector:
-        class: App\Services\Superintegrator\PostbackCollector
+    app.service.super.cityads_postbck_manager:
+        class: App\Services\Superintegrator\CityadsPostbackManager
         arguments:
-            - '@app.repository.file'
+            - '@app.repository.csv_file'
             - '@app.repository.message'
-            - '@app.service.file.uploader'
+            - '@app.service.file.archive_uploader'
 
-    app.service.file.uploader:
-        class: App\Services\File\FileUploader
+    app.service.file.archive_uploader:
+        class: App\Services\File\Uploader\ArchiveFileUploader
         arguments:
-            - '@app.repository.file'
+            - '@app.repository.csv_file'
 
     app.service.app_fixture:
         class: App\DataFixtures\AppFixtures

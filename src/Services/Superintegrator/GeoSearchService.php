@@ -9,7 +9,7 @@
 namespace App\Services\Superintegrator;
 
 use App\Exceptions\ExpectedException;
-use App\Response\AlertMessageCollection;
+use App\Response\AlertMessage;
 use App\Entity\Superintegrator\CountryRussia;
 use App\Entity\Superintegrator\WorldRegion;
 use App\Entity\Superintegrator\WorldRegionCodes;
@@ -31,7 +31,7 @@ class GeoSearchService extends AbstractService
     /**
      * @param Request $request
      *
-     * @return AlertMessageCollection| null
+     * @return AlertMessage| null
      */
     public function processRequest(Request $request)
     {
@@ -89,11 +89,11 @@ class GeoSearchService extends AbstractService
             }
         }
 
-        $responseMessage = new AlertMessageCollection();
+        $responseMessage = new AlertMessage();
         empty($cityadsIds['existing']) ?:
         $responseMessage->addAlert('Successful found', implode(',', $cityadsIds['existing']));
         empty($cityadsIds['missing']) ?:
-            $responseMessage->addAlert('Not founded', implode(',', $cityadsIds['missing']), AlertMessageCollection::ALERT_TYPE_DANGER);
+            $responseMessage->addAlert('Not founded', implode(',', $cityadsIds['missing']), AlertMessage::TYPE_DANGER);
         
         return $responseMessage;
     }

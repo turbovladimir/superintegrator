@@ -13,8 +13,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class BaseController extends AbstractController
 {
-    public function mainPage()
+    
+    /**
+     * @param array $options
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function mainPage($options = [])
     {
-        return $this->render('base.html.twig');
+        return $this->render('base.html.twig', $options);
     }
 }

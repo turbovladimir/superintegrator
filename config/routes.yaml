@@ -4,13 +4,13 @@ main_page:
 
 super_integrator.tool:
   path: /tools/{tool}
-  controller: App\Controller\SuperIntegratorToolController::index
+  controller: App\Controller\ToolController::index
   defaults:
     tool:
 
 super_integrator.tools.tool.action:
   path: /tools/{tool}/{action}
-  controller: App\Controller\SuperIntegratorToolController::index
+  controller: App\Controller\ToolController::index
   defaults:
     tool:
 
