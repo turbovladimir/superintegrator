@@ -18,7 +18,7 @@ use Symfony\Component\Console\Input\InputOption;
 abstract class BaseDaemon extends Command
 {
     
-    protected $defaultName = 'daemon';
+    protected static $defaultName = 'daemon';
     protected $description = 'Команда базового демона';
     
     const DEFAULT_LIFETIME = 600;

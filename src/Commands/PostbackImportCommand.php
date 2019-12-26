@@ -20,7 +20,7 @@ use App\Services\Superintegrator\CityadsPostbackManager;
  */
 class PostbackImportCommand extends BaseDaemon
 {
-    protected $defaultName = 'collect_postbacks';
+    protected static $defaultName = 'collect_postbacks';
     protected $description = 'Вытасивает из архивных файлов и ставит в очередь постбэки';
     
     private $collector;

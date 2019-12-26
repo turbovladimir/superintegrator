@@ -17,7 +17,7 @@ use App\Services\Sender\MessageSender;
  */
 class SenderCommand extends BaseDaemon
 {
-    protected $defaultName = 'sender';
+    protected static $defaultName = 'sender';
     
     private $sender;
     
