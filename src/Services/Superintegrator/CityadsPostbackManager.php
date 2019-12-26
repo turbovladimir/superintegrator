@@ -4,7 +4,7 @@ namespace App\Services\Superintegrator;
 
 use App\Repository\CsvFileRepository;
 use App\Repository\MessageRepository;
-use App\Response\AlertMessageCollection;
+use App\Response\AlertMessage;
 use App\Services\File\Uploader\ArchiveFileUploader;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -60,33 +60,34 @@ class CityadsPostbackManager
     {
         $messageCount = $this->messageRepo->getAwaitingMessagesCount(self::DESTINATION);
         
-        $response = new AlertMessageCollection('Awaiting postbacks', $messageCount);
+        $response = new AlertMessage('Awaiting postbacks', $messageCount);
         
-        return $response->getMessages();
+        return $response->get();
     }
     
     /**
      * @param Request $request
      *
-     * @return AlertMessageCollection
+     * @return AlertMessage
      * @throws \Exception
      */
     public function uploadArchiveFiles(Request $request)
     {
-        $responseAlert = new AlertMessageCollection();
+        $responseAlert = new AlertMessage();
         $files = $request->files->all() ? : null;
     
         if (!$files) {
-            return $responseAlert->addAlert('Cant find files for save', AlertMessageCollection::ALERT_TYPE_DANGER);
+            return $responseAlert->addAlert('Cant find files for save', AlertMessage::TYPE_DANGER);
         }
     
         $files = reset($files);
     
         foreach ($files as $file) {
             $this->uploader->upload($file);
+            $responseAlert->addAlert("File {$file->getClientOriginalName()} have been successfully uploaded");
         }
         
-        return $responseAlert->addAlert('Files have been successfully uploaded');
+        return $responseAlert;
     }
     
     /**

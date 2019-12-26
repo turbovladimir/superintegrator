@@ -8,7 +8,7 @@
 
 namespace App\Controller;
 
-use App\Response\AlertMessageCollection;
+use App\Response\AlertMessage;
 use App\Response\Download;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -104,9 +104,9 @@ class ToolController extends BaseController
             
             return $this->handleGetRequets($request, $tool, $action);
         } catch (\Exception $exception) {
-            $response = new AlertMessageCollection('Обнаружена ошибка', $exception->getMessage(), AlertMessageCollection::ALERT_TYPE_DANGER);
+            $response = new AlertMessage('Обнаружена ошибка', $exception->getMessage(), AlertMessage::TYPE_DANGER);
             
-            return $this->mainPage(['response' => $response->getMessages()]);
+            return $this->mainPage(['response' => $response->get()]);
         }
     }
     
@@ -174,7 +174,7 @@ class ToolController extends BaseController
             return $response->get();
         }
         
-        return $this->renderPage($page, $action, ['response' => $response->getMessages()]);
+        return $this->renderPage($page, $action, ['response' => $response->get()]);
     }
     
     /**
@@ -183,12 +183,12 @@ class ToolController extends BaseController
      *
      * @return Response
      */
-    protected function getOnlyAlertResponse($message, $level = AlertMessageCollection::ALERT_TYPE_SUCCESS)
+    protected function getOnlyAlertResponse($message, $level = AlertMessage::TYPE_SUCCESS)
     {
-        $response = new AlertMessageCollection();
+        $response = new AlertMessage();
         $response->addAlert($message, null, $level);
         
-        return $this->mainPage(['response' => $response->getMessages()]);
+        return $this->mainPage(['response' => $response->get()]);
     }
     
     /**
