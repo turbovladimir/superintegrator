@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ArchiveFileUploader extends FileUploader
 {
-    private   $fileName = 'archive';
+    public const FILE_NAME = 'archive';
     protected $fileType = 'csv';
     protected $filesizeLimit = 4 * 1000000; // 4 Mb
     
@@ -32,7 +32,8 @@ class ArchiveFileUploader extends FileUploader
     /**
      * @param UploadedFile $file
      *
-     * @throws ExpectedException
+     * @throws UploadException
+     * @throws \App\Exceptions\ExpectedException
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
@@ -43,7 +44,7 @@ class ArchiveFileUploader extends FileUploader
         $fileEntity->setFileName($file->getClientOriginalName());
         $fileEntity->setType($file->getClientOriginalExtension());
         $fileEntity->setFileContent(fopen($file->getRealPath(), 'rb'));
-        $em =  $this->repository->getEntityManager();
+        $em = $this->repository->getEntityManager();
         $em->persist($fileEntity);
         $em->flush();
     }
@@ -55,7 +56,7 @@ class ArchiveFileUploader extends FileUploader
      */
     private function isArchiveFile(UploadedFile $file)
     {
-        return strpos($file->getClientOriginalName(), $this->fileName) !== false;
+        return strpos($file->getClientOriginalName(), self::FILE_NAME) !== false;
     }
     
     /**

@@ -63,7 +63,7 @@ abstract class FileUploader
      */
     protected function checkFile(UploadedFile $file)
     {
-        if ($file->getClientSize() > $this->filesizeLimit ) {
+        if ($file->getClientSize() > $this->filesizeLimit) {
             throw new UploadException('To large file');
         }
         

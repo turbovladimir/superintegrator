@@ -23,18 +23,18 @@ class PostbackImportCommand extends BaseDaemon
     protected static $defaultName = 'collect_postbacks';
     protected $description = 'Вытасивает из архивных файлов и ставит в очередь постбэки';
     
-    private $collector;
+    private $postbackManager;
     private $messageRepository;
     
     /**
      * PostbackImportCommand constructor.
      *
-     * @param CityadsPostbackManager $collector
+     * @param CityadsPostbackManager $postbackManager
      * @param MessageRepository      $messageRepository
      */
-    public function __construct(CityadsPostbackManager $collector, MessageRepository $messageRepository)
+    public function __construct(CityadsPostbackManager $postbackManager, MessageRepository $messageRepository)
     {
-        $this->collector = $collector;
+        $this->postbackManager   = $postbackManager;
         $this->messageRepository = $messageRepository;
         parent::__construct();
     }
@@ -45,8 +45,13 @@ class PostbackImportCommand extends BaseDaemon
     protected function process()
     {
         $this->messageRepository->getEntityManager()->transactional(function () {
-            $urls = $this->collector->getUrls();
+            $urls = $this->postbackManager->getUrls();
             $this->output->writeln('Getting '. count($urls) . ' urls from files');
+            
+            if (count($urls) === 0) {
+                exit();
+            }
+            
             $this->messageRepository->saveMessages(CityadsPostbackManager::DESTINATION, $urls);
             $this->output->writeln('Postbacks successfully was be imported in messages');
         });

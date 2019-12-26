@@ -97,15 +97,12 @@ class CityadsPostbackManager
     public function getUrls()
     {
         $urls = [];
-        $files = $this->fileRepo->findBy(['type' => 'csv']);
+        $files = $this->fileRepo->getByEstimatedFileName(ArchiveFileUploader::FILE_NAME);
     
         if (!empty($files)) {
-            foreach ($files as $file) {
-                if ($this->isArchiveFile($file)) {
-                    $urls = array_merge($urls, $this->getUrlRequests(stream_get_contents($file->getFileContent())));
-                    $this->fileRepo->getEntityManager()->remove($file);
-                }
-            }
+            $file = reset($files);
+            $urls = array_merge($urls, $this->getUrlRequests(stream_get_contents($file->getFileContent())));
+            $this->fileRepo->getEntityManager()->remove($file);
         }
         
         return $urls;

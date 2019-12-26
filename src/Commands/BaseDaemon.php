@@ -125,10 +125,11 @@ abstract class BaseDaemon extends Command
     private function processLoop()
     {
         $workerStartTime = time();
+        $stopFlag = false;
         
-        while (self::WORKER_LIFETIME < (time() - $workerStartTime)) {
+        while (self::WORKER_LIFETIME < (time() - $workerStartTime) && !$stopFlag) {
             sleep(1);
-            $this->process();
+            $stopFlag = $this->process();
         }
         
         exit();
