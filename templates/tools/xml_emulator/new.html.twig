@@ -1,14 +1,18 @@
 {% extends 'base.html.twig' %}
-
+{% block title %}
+    <div class="block rounded bg-light">
+        <h1>New xml</h1>
+    </div>
+{% endblock %}
 {% block content %}
-<form id="xml_new_form" method="post" action="/tools/xml_emulator">
-    <div class="block">
+<form id="xml_new_form" method="post" action="/tools/xml_emulator/save">
+    <div class="elem">
         <input type="text" class="form-control" placeholder="Name" name="name">
     </div>
-    <div class="block">
-        <textarea id="code" cols="60" rows="30" name="xml_str" ></textarea>
+    <div class="elem">
+        <textarea id="code" cols="60" rows="30" name="xml" ></textarea>
     </div>
-    <div class="block">
+    <div class="elem">
         <button class="btn btn-dark" type="submit" need_check="1" form="xml_new_form" name="new">Save xml</button>
         <a href="javascript:autoFormatSelection()">
             <button type="button" class="btn btn-dark">Format selected xml</button>

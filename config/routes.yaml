@@ -15,7 +15,7 @@ super_integrator.tools.tool.action:
     tool:
 
 # blog
-blog.list:
+blog:
   path: /blog/{page}
   controller: App\Controller\BlogController::list
   defaults:
@@ -23,12 +23,30 @@ blog.list:
   requirements:
     page: '\d+'
 
-blog.post:
-  path: /blog/post
-  controller: App\Controller\BlogController::show_post
-
 blog.post.new:
-  path: /blog/new
+  path: /blog/post/new
   controller: App\Controller\BlogController::new
   defaults:
     page: /
+
+blog.post.edit:
+  path: /blog/post/{id}/edit
+  controller: App\Controller\BlogController::new
+  defaults:
+    page: /
+
+blog.post.delete:
+  path: /blog/post/{id}/delete
+  controller: App\Controller\BlogController::delete
+  defaults:
+    page: /
+
+blog.post.save:
+  path: /blog/post/save
+  controller: App\Controller\BlogController::save
+  defaults:
+    page: /
+
+blog.post.view:
+  path: /blog/post/{slug}
+  controller: App\Controller\BlogController::show_post

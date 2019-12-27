@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+{% block title %}
+    <div class="block rounded bg-light">
+       <h1>{{ post is defined ? 'Edit post' : 'New post' }}</h1>
+    </div>
+{% endblock %}
+{% block content %}
+    <form method="post" action="/blog/post/save">
+        <div class="elem">
+            <input type="text" class="form-control" placeholder="Post title" name="title" value="{{ post.title is defined ? post.title : '' }}">
+        </div>
+        <div class="elem">
+            <textarea class="form-control" name="body" rows="10" placeholder="Post body">{{ post.body is defined ? post.body : '' }}</textarea>
+        </div>
+        <div class="elem">
+            {% if post is defined %}
+            <input type="hidden" name="id" value={{ post.id }}>
+            {% endif %}
+            <button class="btn btn-dark" type="submit" name="save">Save</button>
+        </div>
+    </form>
+{% endblock %}

@@ -10,6 +10,7 @@ namespace App\Controller;
 
 use App\Response\AlertMessage;
 use App\Response\Download;
+use function Sodium\library_version_major;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use App\Services\Superintegrator\AliOrdersService;
@@ -17,6 +18,7 @@ use App\Services\Superintegrator\GeoSearchService;
 use App\Services\Superintegrator\CityadsPostbackManager;
 use App\Services\Superintegrator\XmlEmulatorService;
 use Psr\Log\LoggerInterface;
+use Twig\Error\LoaderError;
 
 class ToolController extends BaseController
 {
@@ -30,6 +32,8 @@ class ToolController extends BaseController
     public const ACTION_GET_JSON_PAGE = 'json';
     public const ACTION_NEW = 'new';
     public const ACTION_UPLOAD = 'upload';
+    public const ACTION_DELETE = 'delete';
+    public const ACTION_SAVE = 'save';
     
     private const ROUTS_PARAMS = [
         self::PAGE_MAIN           => [
@@ -118,6 +122,8 @@ class ToolController extends BaseController
      * @return Response
      * @throws \App\Exceptions\ExpectedException
      * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     private function handleGetRequets(Request $request, $tool, $action = null)
     {
@@ -128,12 +134,16 @@ class ToolController extends BaseController
                 $options['response'] = $this->postbackManager->getAwaitingPostbacks();
                 break;
             case (self::XML_EMULATOR):
-                if ($action === self::ACTION_GET_XML_PAGE) {
+                switch ($action) {
+                    case self::ACTION_DELETE:
+                        $options['response'] = $this->xmlEmulator->delete($request->get('id'));
+                        break;
+                    case self::ACTION_NEW:
+                        break;
+                    case self::ACTION_GET_XML_PAGE:
                         return $this->renderXmlPage($this->xmlEmulator->getXml($request));
-                }
-                
-                if ($action !== self::ACTION_NEW) {
-                    $options = array_merge($options, $this->xmlEmulator->getTableWithXmlTemplates());
+                    default:
+                        $options = array_merge($options, $this->xmlEmulator->getTableWithXmlTemplates());
                 }
         }
         
@@ -145,8 +155,10 @@ class ToolController extends BaseController
      * @param         $page
      * @param null    $action
      *
-     * @return Response
+     * @return array|Response
      * @throws \App\Exceptions\ExpectedException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      * @throws \League\Csv\CannotInsertRecord
      */
     private function handlePostRequest(Request $request, $page, $action = null)
@@ -159,12 +171,13 @@ class ToolController extends BaseController
                 $response = $this->aliOrders->processRequest($request);
                 break;
             case (self::XML_EMULATOR):
-                $response = $this->xmlEmulator->processRequest($request);
+                if ($action === self::ACTION_SAVE) {
+                    $response = $this->xmlEmulator->create($request);
+                }
                 break;
             case (self::SENDER):
                 if ($action === self::ACTION_UPLOAD) {
                     $response = $this->postbackManager->uploadArchiveFiles($request);
-                    $action = null;
                 }
                 
                 break;
@@ -192,7 +205,7 @@ class ToolController extends BaseController
     }
     
     /**
-     * @param string $page
+     * @param string $tool
      * @param null   $action
      * @param array  $parameters
      *
@@ -203,7 +216,11 @@ class ToolController extends BaseController
         $pathToTemplate = $action !== null ? "{$tool}/{$action}" : "{$tool}/index";
         $parameters = array_merge($parameters, $this->getContent($tool));
         
-        return $this->render("tools/{$pathToTemplate}.html.twig", $parameters);
+        try {
+            return $this->render("tools/{$pathToTemplate}.html.twig", $parameters);
+        } catch (LoaderError $e) {
+            return $this->mainPage();
+        }
     }
     
     /**
