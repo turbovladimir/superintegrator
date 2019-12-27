@@ -58,14 +58,6 @@ class Post extends BaseEntity
     }
     
     /**
-     * @return string
-     */
-    public function getAddedAt() : string
-    {
-        return $this->addedAt;
-    }
-    
-    /**
      * @param string $addedAt
      */
     public function setAddedAt(string $addedAt) : void

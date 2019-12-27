@@ -19,7 +19,7 @@ class AlertMessage
     public const TYPE_DANGER = 'alert alert-danger';
     public const TYPE_INFO = 'alert alert-info';
     
-    private const HTML_BLOCK = '<div class="block"><div id="alert_message" class="%s">%s</div></div>';
+    private const HTML_BLOCK = '<div class="elem"><div id="alert_message" class="%s">%s</div></div>';
     
     /**
      * @var array

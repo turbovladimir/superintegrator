@@ -13,19 +13,20 @@
                 <div id="transparent_mask">
                     <div id="snowfall">
                         <div id="page-content">
-                            {% if title is defined %}
-                            <div class="block">
-                                <h1>{{ title }}</h1>
-                            </div>
-                            {% endif %}
-                            {% if description is defined %}
-                                <div class="block">
-                                    <button type="button" id="btn-tooltip" class="btn btn-secondary btn-sm" title="{{ description }}">hint</button>
-                                </div>
-                            {% endif %}
-
+                            {% block title %}
+                                {% if title is defined %}
+                                    <div class="block rounded bg-light">
+                                    <h1>{{ title }}</h1>
+                                    </div>
+                                {% endif %}
+                                {% if description is defined %}
+                                    <div class="block rounded bg-light">
+                                        <button type="button" id="btn-tooltip" class="btn btn-secondary btn-sm" title="{{ description }}">hint</button>
+                                    </div>
+                                {% endif %}
+                            {% endblock %}
                             {#Base content block#}
-                            <div class="block">
+                            <div class="block rounded bg-light">
                                 {% block content %}
                                     {{ include('custom/time_to_new_year.html.twig') }}
                                 {% endblock %}

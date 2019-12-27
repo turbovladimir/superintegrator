@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+{% block content %}
+    <div class="elem">
+        <a href="/blog/post/new">
+            <button class="btn btn-dark" type="submit">New post</button>
+        </a>
+    </div>
+    {% if posts is defined %}
+        <div class="elem">
+            <table class="table table-bordered">
+                {% for post in posts %}
+                    <tr>
+                        <th scope="col">
+                            <p class="text-dark">{{ post.addedAt }}</p>
+                        </th>
+                        <th scope="col">
+                            <a class="h5 text-dark" href="blog/post/{{ post.slug }}">{{ post.title }}</a>
+                        </th>
+                        <th scope="col">
+                            <form method="get"  action="/blog/post/{{ post.id }}/edit">
+                                <button class="btn btn-dark" type="submit">Edit</button>
+                            </form>
+                        </th>
+                        <th scope="col">
+                            <form method="get" action="/blog/post/{{ post.id }}/delete">
+                                <button class="btn btn-dark" type="submit">Delete</button>
+                            </form>
+                        </th>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% endif %}
+{% endblock %}
