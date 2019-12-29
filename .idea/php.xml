@@ -120,6 +120,7 @@
       <path value="$PROJECT_DIR$/vendor/psr/simple-cache" />
       <path value="$PROJECT_DIR$/vendor/league/url" />
       <path value="$PROJECT_DIR$/vendor/surpaimb/taobao-sdk" />
+      <path value="$PROJECT_DIR$/vendor/symfony/webpack-encore-bundle" />
     </include_path>
   </component>
   <component name="PhpInterpreters">
