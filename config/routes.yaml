@@ -2,6 +2,10 @@ main_page:
   path: /
   controller: App\Controller\BaseController::mainPage
 
+register:
+  path: /register
+  controller: App\Controller\RegisterController::register
+
 super_integrator.tool:
   path: /tools/{tool}
   controller: App\Controller\ToolController::index

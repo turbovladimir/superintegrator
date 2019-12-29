@@ -24,3 +24,7 @@ services:
   app.repository.test_xml:
     class: App\Repository\TestXmlRepository
     parent: 'app.repository.base'
+
+  app.repository.user:
+    class: App\Repository\UserRepository
+    parent: 'app.repository.base'
