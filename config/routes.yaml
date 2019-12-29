@@ -1,11 +1,52 @@
-page:
-  path: /{page}
-  controller: App\Controller\HttpController::index
+main_page:
+  path: /
+  controller: App\Controller\BaseController::mainPage
+
+super_integrator.tool:
+  path: /tools/{tool}
+  controller: App\Controller\ToolController::index
+  defaults:
+    tool:
+
+super_integrator.tools.tool.action:
+  path: /tools/{tool}/{action}
+  controller: App\Controller\ToolController::index
+  defaults:
+    tool:
+
+# blog
+blog:
+  path: /blog/{page}
+  controller: App\Controller\BlogController::list
+  defaults:
+    page: 1
+  requirements:
+    page: '\d+'
+
+blog.post.new:
+  path: /blog/post/new
+  controller: App\Controller\BlogController::new
   defaults:
     page: /
 
-action:
-  path: /{page}/{action}
-  controller: App\Controller\HttpController::index
+blog.post.edit:
+  path: /blog/post/{id}/edit
+  controller: App\Controller\BlogController::new
   defaults:
     page: /
+
+blog.post.delete:
+  path: /blog/post/{id}/delete
+  controller: App\Controller\BlogController::delete
+  defaults:
+    page: /
+
+blog.post.save:
+  path: /blog/post/save
+  controller: App\Controller\BlogController::save
+  defaults:
+    page: /
+
+blog.post.view:
+  path: /blog/post/{slug}
+  controller: App\Controller\BlogController::show_post

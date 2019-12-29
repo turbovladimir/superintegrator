@@ -19,6 +19,7 @@ abstract class BaseDaemon extends Command
 {
     
     protected static $defaultName = 'daemon';
+    protected $description = 'Команда базового демона';
     
     const DEFAULT_LIFETIME = 600;
     const WORKER_LIFETIME = 20;
@@ -51,7 +52,7 @@ abstract class BaseDaemon extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Команда базового демона')
+            ->setDescription($this->description)
             ->setHelp('Помощи ждать неоткуда');
         
         $this->addOption('daemonMode', null, InputOption::VALUE_OPTIONAL, 'Запуск в режиме демона', 0);
@@ -124,10 +125,11 @@ abstract class BaseDaemon extends Command
     private function processLoop()
     {
         $workerStartTime = time();
+        $stopFlag = false;
         
-        while (self::WORKER_LIFETIME < (time() - $workerStartTime)) {
+        while (self::WORKER_LIFETIME < (time() - $workerStartTime) && !$stopFlag) {
             sleep(1);
-            $this->process();
+            $stopFlag = $this->process();
         }
         
         exit();

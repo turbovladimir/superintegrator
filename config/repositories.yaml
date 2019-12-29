@@ -1,0 +1,26 @@
+services:
+  app.repository.base:
+    class: App\Repository\BaseRepository
+    abstract: true
+    arguments:
+      - '@doctrine'
+
+  app.repository.post:
+    class: App\Repository\PostRepository
+    parent: 'app.repository.base'
+
+  app.repository.message:
+    class: App\Repository\MessageRepository
+    parent: 'app.repository.base'
+
+  app.repository.csv_file:
+    class: App\Repository\CsvFileRepository
+    parent: 'app.repository.base'
+
+  app.repository.archive:
+    class: App\Repository\ArchiveRepository
+    parent: 'app.repository.base'
+
+  app.repository.test_xml:
+    class: App\Repository\TestXmlRepository
+    parent: 'app.repository.base'

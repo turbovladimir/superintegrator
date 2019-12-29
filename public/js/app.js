@@ -1,5 +1,8 @@
 $(document).ready(function () {
-// Enable dismissal of an alert via JavaScript
+    // help button
+    $('#btn-tooltip').tooltip();
+
+    // Enable dismissal of an alert via JavaScript
     $('.alert').alert();
 
     function printAlert(message, level = 'success') {
@@ -16,5 +19,12 @@ $(document).ready(function () {
         }
 
         this.submit();
+    });
+
+    var timeToNewYear = new Date('2019.12.31').getTime() - Date.now();
+
+    var clock = $('.clock').FlipClock(Math.floor(timeToNewYear/1000), {
+        clockFace: 'DailyCounter',
+        countdown: true
     });
 });

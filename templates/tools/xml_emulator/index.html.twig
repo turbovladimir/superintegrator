@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+        <a href="/tools/xml_emulator/new">
+            <button class="btn btn-dark" type="submit">New</button>
+        </a>
+    {% if xml_collection is defined %}
+        <div class="block">
+            <table class="table table-bordered bg-light">
+                <thead class="thead-dark">
+                <tr>
+                    {% for elem in table_head %}
+                        <th scope="col">{{ elem }}</th>
+                    {% endfor %}
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                {% for xml in xml_collection %}
+                    <tr>
+                        {% for key, value in xml %}
+                            <th><output  form="xml_table_form" name={{ key }}>{{ value }}</output></th>
+                        {% endfor %}
+                        <th>
+                            <form action="/tools/xml_emulator/delete">
+                                <button class="btn btn-dark" type="submit" name="id" value="{{ xml.id }}">Delete</button>
+                            </form>
+                        </th>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% endif %}
+{% endblock %}

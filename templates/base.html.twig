@@ -10,30 +10,35 @@
 
         <!-- Page Content -->
         <div id="page-content-wrapper" class="bg-light">
-            <div id="transparent_mask">
-                <div id="page-content">
-                    <div class="block">
-                        <h1>{{ title }}</h1>
-                    </div>
-
-                    {#Base content block#}
-                    {% block content %}
-                        {% if description is defined %}
-                            {% for key, value in description %}
-                                <h3>{{ key }}</h3>
-                                <span>{{ value }}</span>
-                            {% endfor %}
-                        {% endif %}
-                    {% endblock %}
-
-                    {#Response message block#}
-                    {% if response is defined %}
-                        {% for alert_level, message in response %}
-                            <div class="block">
-                                <div id="alert_message" class="{{ alert_level }}">{{ message }}</div>
+                <div id="transparent_mask">
+                    <div id="snowfall">
+                        <div id="page-content">
+                            {% block title %}
+                                {% if title is defined %}
+                                    <div class="block rounded bg-light">
+                                    <h1>{{ title }}</h1>
+                                    </div>
+                                {% endif %}
+                                {% if description is defined %}
+                                    <div class="block rounded bg-light">
+                                        <button type="button" id="btn-tooltip" class="btn btn-secondary btn-sm" title="{{ description }}">hint</button>
+                                    </div>
+                                {% endif %}
+                            {% endblock %}
+                            {#Base content block#}
+                            <div class="block rounded bg-light">
+                                {% block content %}
+                                    {{ include('custom/time_to_new_year.html.twig') }}
+                                {% endblock %}
                             </div>
-                        {% endfor %}
-                    {% endif %}
+                            {#Response message block#}
+                            {% if response is defined %}
+                                {% for message_block in response %}
+                                    {{ message_block|raw }}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -3,27 +3,41 @@
 
 }
 
+#snowfall {
+    background-image: url("https://media.giphy.com/media/Kfrq2V2A7wODGMdEXQ/giphy.gif");
+    width: 100vw;
+    min-height: 100vw;
+}
+
 #transparent_mask {
     background: rgba(255, 247, 232, 0.70);
     display: flex;
     min-height: 100vw;
+    height: 100%;
 }
 
 #page-content {
     min-width: 90%;
-    margin-left: 20px;
-    margin-right: 20px;
+    padding: 30px;
 }
 
 div.block {
-    margin-top: 20px;
+    padding: 10px;
+}
+
+div.elem {
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 #alert_message {
     width: fit-content;
-    margin: 5px;
 }
 
 th {
     text-align: center;
+}
+
+p {
+    margin: 5px;
 }

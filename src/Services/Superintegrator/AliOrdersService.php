@@ -11,7 +11,6 @@ namespace App\Services\Superintegrator;
 use App\Exceptions\ExpectedException;
 use App\Response\Download;
 use App\Services\File\CsvFileManager;
-
 use App\Utils\StringHelper;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,7 +18,6 @@ use Symfony\Component\HttpFoundation\Request;
 class AliOrdersService
 {
     const FILE_NAME = 'aliexpress_orders';
-    const URL = 'https://gw.api.alibaba.com/openapi/param2/2/portals.open/api.getOrderStatus/30056?appSignature=9FIO77dDIidM&orderNumbers=';
     const LIMIT_OF_ORDERS_PER_REQUEST = 100;
     const HEADERS = [
         'baseCommissionRate',
@@ -41,6 +39,19 @@ class AliOrdersService
         'trackingId',
         'transactionTime',
     ];
+    
+    /**
+     * @var string
+     */
+    private $apiUrl;
+    
+    /**
+     * @param string $aliexpressApiUrl
+     */
+    public function __construct(string $aliexpressApiUrl)
+    {
+        $this->apiUrl = $aliexpressApiUrl;
+    }
     
     /**
      * @param Request $request
@@ -115,9 +126,15 @@ class AliOrdersService
     {
         $sortOrders = [];
         $httpClient = HttpClient::create();
-        $response   = $httpClient->request('GET', self::URL.implode(',', $orders));
+        $response   = $httpClient->request('GET', $this->apiUrl.implode(',', $orders));
         $content    = $response->toArray();
+        
+        if (!isset($content['result']['orders'])) {
+            return [];
+        }
+        
         $orders     = $content['result']['orders'];
+        
         foreach ($orders as $order) {
             $sortOrders[] = $this->filterOrder($order);
         }

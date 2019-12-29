@@ -8,7 +8,6 @@
 
 namespace App\Response;
 
-
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
@@ -17,7 +16,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
  *
  * Class Download
  *
- * @package App\Response
+ * @package App\Controller\Response
  */
 class Download
 {
@@ -29,8 +28,8 @@ class Download
     /**
      * Download constructor.
      *
-     * @param $fileName
-     * @param $fileContent
+     * @param string $fileName
+     * @param  string $fileContent
      */
     public function __construct($fileName, $fileContent)
     {

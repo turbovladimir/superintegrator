@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+{% block content %}
+    {% if post is defined %}
+            <h3 class="h3">{{ post.title }}</h3>
+                <p class="text-secondary">{{ post.addedAt }}</p>
+            <div class="block">
+                <a href="/blog"><button class="btn btn-dark" type="submit">Назад</button></a>
+            </div>
+            <div class="block">
+                <p>{{ post.body|raw }}</p>
+            </div>
+    {% endif %}
+{% endblock %}

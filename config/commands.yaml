@@ -3,18 +3,24 @@ services:
     class: App\Commands\BaseDaemon
     abstract: true
 
+  command.postback_import:
+    class: App\Commands\PostbackImportCommand
+    arguments:
+      - '@app.service.super.cityads_postbck_manager'
+      - '@app.repository.message'
+
   command.api_data_fetcher:
     class: App\Commands\ApiFetcher\ApiDataFetcherCommand
     abstract: true
     arguments:
-      - '@orm.model.archive'
+      - '@app.repository.archive'
       - '@monolog.logger'
 
   command.sender:
     class: App\Commands\SenderCommand
     parent: 'command.base_daemon'
     arguments:
-      - '@service.sender.message_sender'
+      - '@app.service.sender.message_sender'
     tags:
       - { name: console.command }
 
@@ -28,7 +34,7 @@ services:
     class: App\Commands\Fonbet\AffiseExportCommand
     parent: 'command.base_daemon'
     arguments:
-      - '@orm.model.message'
-      - '@orm.model.archive'
+      - '@app.repository.message'
+      - '@app.repository.archive'
     tags:
       - { name: console.command }
