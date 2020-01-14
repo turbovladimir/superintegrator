@@ -1,10 +1,21 @@
+services:
+    processing.log.processor.pid:
+        class: Monolog\Processor\ProcessIdProcessor
+        tags:
+            - { name: monolog.processor }
+    formatter:
+        class: Monolog\Formatter\LineFormatter
+        arguments:
+            - "---------------------------------------------------------------------------------------------\n
+            [PID:%%extra.process_id%%] [%%datetime%%] [%%level_name%%] [CHANNEL:%%channel%%] %%message%% [CONTEXT:%%context%%]\n"
+
 monolog:
     handlers:
         main:
             type: rotating_file
-            path: "log/errors.log"
-            level: error
+            path: "log/info.log"
             max_files: 10
+            formatter: formatter
         nested:
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%.log"
