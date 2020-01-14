@@ -18,7 +18,7 @@ use App\Repository\MessageRepository;
  *
  * @package App\Services\Sender
  */
-class MessageSender implements TaskServiceInterface
+class MessageSender
 {
     public const DEFAULT_SEND_PER_TASK = 50;
     public const DEFAULT_DELETE_PER_TASK = 50;
@@ -40,22 +40,14 @@ class MessageSender implements TaskServiceInterface
     }
     
     /**
-     * @return mixed|void
-     */
-    public function start()
-    {
-        $this->send(self::DEFAULT_SEND_PER_TASK);
-        $this->messageRepository->deleteSendedMessage(self::DEFAULT_DELETE_PER_TASK);
-    }
-    
-    /**
-     * @param $sendingPerTask
+     * @param bool $deleteAfterSending
+     * @param int  $sendingPerTask
      *
      * @throws EmptyDataException
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function send($sendingPerTask)
+    public function send($deleteAfterSending = false, $sendingPerTask = self::DEFAULT_SEND_PER_TASK)
     {
         $client = new Client();
         $messages = $this->messageRepository->getAwaitingMessage($sendingPerTask, self::NUMBER_OF_ATTEMPTS);
@@ -81,5 +73,9 @@ class MessageSender implements TaskServiceInterface
         }
     
         $this->messageRepository->getEntityManager()->flush();
+    
+        if ($deleteAfterSending) {
+            $this->messageRepository->deleteSendedMessage(self::DEFAULT_DELETE_PER_TASK);
+        }
     }
 }

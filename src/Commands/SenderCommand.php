@@ -9,6 +9,8 @@
 namespace App\Commands;
 
 use App\Services\Sender\MessageSender;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Class CronCommand
@@ -24,16 +26,32 @@ class SenderCommand extends BaseDaemon
     /**
      * SenderCommand constructor.
      *
-     * @param MessageSender $sender
+     * @param LoggerInterface $logger
+     * @param MessageSender   $sender
      */
-    public function __construct(MessageSender $sender)
+    public function __construct(LoggerInterface $logger, MessageSender $sender)
     {
         $this->sender = $sender;
-        parent::__construct($name = null);
+        parent::__construct($logger);
     }
     
+    /**
+     *
+     */
+    protected function configure()
+    {
+        parent::configure();
+        
+        $this->addOption('delete_after_sending', null,InputOption::VALUE_OPTIONAL);
+    }
+    
+    /**
+     * @throws \App\Exceptions\EmptyDataException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     protected function process()
     {
-        $this->sender->start();
+        $this->sender->send((bool)$this->input->getOption('delete_after_sending'));
     }
 }

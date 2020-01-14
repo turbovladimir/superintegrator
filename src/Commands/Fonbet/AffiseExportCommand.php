@@ -12,6 +12,7 @@ use App\Commands\BaseDaemon;
 use App\Orm\Model\Archive;
 use App\Repository\ArchiveRepository;
 use App\Repository\MessageRepository;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
@@ -42,14 +43,15 @@ class AffiseExportCommand extends BaseDaemon
     /**
      * AffiseExportCommand constructor.
      *
+     * @param LoggerInterface   $logger
      * @param MessageRepository $messageRepository
-     * @param Archive $archiveModel
+     * @param ArchiveRepository $archiveRepository
      */
-    public function __construct(MessageRepository $messageRepository,ArchiveRepository $archiveRepository)
+    public function __construct(LoggerInterface $logger, MessageRepository $messageRepository,ArchiveRepository $archiveRepository)
     {
         $this->messageRepository = $messageRepository;
         $this->archiveRepository = $archiveRepository;
-        parent::__construct();
+        parent::__construct($logger);
     }
     
     /**

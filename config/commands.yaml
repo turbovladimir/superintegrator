@@ -2,6 +2,8 @@ services:
   command.base_daemon:
     class: App\Commands\BaseDaemon
     abstract: true
+    arguments:
+      - '@monolog.logger'
 
   command.postback_import:
     class: App\Commands\PostbackImportCommand
@@ -14,7 +16,6 @@ services:
     abstract: true
     arguments:
       - '@app.repository.archive'
-      - '@monolog.logger'
 
   command.sender:
     class: App\Commands\SenderCommand

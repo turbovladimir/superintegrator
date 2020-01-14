@@ -11,6 +11,7 @@ namespace App\Commands;
 
 use App\Repository\MessageRepository;
 use App\Services\Superintegrator\CityadsPostbackManager;
+use Psr\Log\LoggerInterface;
 
 
 /**
@@ -29,14 +30,15 @@ class PostbackImportCommand extends BaseDaemon
     /**
      * PostbackImportCommand constructor.
      *
+     * @param LoggerInterface        $logger
      * @param CityadsPostbackManager $postbackManager
      * @param MessageRepository      $messageRepository
      */
-    public function __construct(CityadsPostbackManager $postbackManager, MessageRepository $messageRepository)
+    public function __construct(LoggerInterface $logger, CityadsPostbackManager $postbackManager, MessageRepository $messageRepository)
     {
         $this->postbackManager   = $postbackManager;
         $this->messageRepository = $messageRepository;
-        parent::__construct();
+        parent::__construct($logger);
     }
     
     /**
