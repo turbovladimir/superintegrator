@@ -22,7 +22,6 @@ abstract class BaseDaemon extends Command
     protected $description = 'Команда базового демона';
     
     const DEFAULT_LIFETIME = 600;
-    const WORKER_LIFETIME = 20;
     const WORERS_DEFAULT_COUNT = 10;
     
     private $workersCount = self::WORERS_DEFAULT_COUNT;
@@ -40,6 +39,11 @@ abstract class BaseDaemon extends Command
     protected $output;
     
     protected $logger;
+    
+    /**
+     * Основной метод в котором происходит выполнение логики дочерних команд
+     */
+    abstract protected function process() : void ;
     
     /**
      * BaseDaemon constructor.
@@ -74,48 +78,26 @@ abstract class BaseDaemon extends Command
     {
         $this->output = $output;
         $this->input  = $input;
-        // outputs multiple lines to the console (adding "\n" at the end of each line)
-        $output->writeln(
-            [
-                'Демон просыпается',
-                '============',
-                '',
-            ]
-        );
+        $daemonMode   = (bool) $this->input->getOption('daemonMode');
         
-        $this->start();
-        
-        $output->write('И ложится спать');
-    }
-    
-    private function start()
-    {
-        $daemonMode = (bool) $this->input->getOption('daemonMode');
-        $startedAt  = time();
-        
-        while (true) {
-            try {
-                if (self::DEFAULT_LIFETIME < (time() - $startedAt)) {
-                    //todo надо доделать для мультипоточности
-                    //$this->stop();
-                    break;
-                }
-                
-                //todo зарезолвить екстеншен для пхп
-                if ($daemonMode && extension_loaded('pcntl')) {
-                    $this->startMultiThread();
-                } else {
-                    $this->process();
-                }
-            } catch (EmptyDataException $emptyDataException) {
-                $this->output->writeln([$emptyDataException->getMessage()]);
-                exit();
-            } catch (\Exception $exception) {
-                $this->logger->error($exception->getMessage(), $exception->getTrace());
+        $this->logger->info('Start executing '.$this->getName());
+        try {
+            //todo зарезолвить екстеншен для пхп
+            if ($daemonMode && extension_loaded('pcntl')) {
+                $this->startMultiThread();
+            } else {
+                $this->processLoop();
             }
+        } catch (\Exception $exception) {
+            $this->logger->error($exception->getMessage(), $exception->getTrace());
+            exit();
         }
+        
     }
     
+    /**
+     *
+     */
     private function startMultiThread()
     {
         while ($this->workersCount) {
@@ -134,20 +116,18 @@ abstract class BaseDaemon extends Command
         
     }
     
+    /**
+     *
+     */
     private function processLoop()
     {
         $workerStartTime = time();
-        $stopFlag = false;
         
-        while (self::WORKER_LIFETIME < (time() - $workerStartTime) && !$stopFlag) {
-            sleep(1);
-            $stopFlag = $this->process();
+        while (self::DEFAULT_LIFETIME >= (time() - $workerStartTime)) {
+            $this->process();
+            sleep(5);
         }
         
         exit();
     }
-    
-    abstract protected function process();
-    
-    
 }

@@ -12,6 +12,7 @@ use \GuzzleHttp\Client;
 use \GuzzleHttp\Exception\GuzzleException;
 use \App\Services\TaskServiceInterface;
 use App\Repository\MessageRepository;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Sender
@@ -28,15 +29,18 @@ class MessageSender
      * @var MessageRepository
      */
     private $messageRepository;
+    private $logger;
     
     /**
-     * Sender constructor.
+     * MessageSender constructor.
      *
-     * @param MessageRepository $messageModel
+     * @param MessageRepository $messageRepository
+     * @param LoggerInterface   $logger
      */
-    public function __construct(MessageRepository $messageRepository)
+    public function __construct(MessageRepository $messageRepository, LoggerInterface $logger)
     {
         $this->messageRepository = $messageRepository;
+        $this->logger = $logger;
     }
     
     /**
@@ -67,6 +71,7 @@ class MessageSender
                 $attempts = $message->getAttempts();
                 $message->setAttempts($attempts++);
                 $message->setErrorText($e->getMessage());
+                $this->logger->warning($e->getMessage(), $message);
                 sleep(1);
                 continue;
             }
@@ -75,6 +80,7 @@ class MessageSender
         $this->messageRepository->getEntityManager()->flush();
     
         if ($deleteAfterSending) {
+            $this->logger->info('Start deleting sended messages');
             $this->messageRepository->deleteSendedMessage(self::DEFAULT_DELETE_PER_TASK);
         }
     }

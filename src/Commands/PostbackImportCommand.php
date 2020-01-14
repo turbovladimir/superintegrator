@@ -44,16 +44,17 @@ class PostbackImportCommand extends BaseDaemon
     /**
      * @throws \Throwable
      */
-    protected function process()
+    protected function process() : void
     {
         $this->messageRepository->getEntityManager()->transactional(function () {
             $urls = $this->postbackManager->getUrls();
-            $this->output->writeln('Getting '. count($urls) . ' urls from files');
+            $urlsCount = count($urls);
             
-            if (count($urls) === 0) {
-                exit();
+            if ($urlsCount === 0) {
+                return;
             }
             
+            $this->logger->info('Getting '. $urlsCount . ' urls from files');
             $this->messageRepository->saveMessages(CityadsPostbackManager::DESTINATION, $urls);
             $this->output->writeln('Postbacks successfully was be imported in messages');
         });

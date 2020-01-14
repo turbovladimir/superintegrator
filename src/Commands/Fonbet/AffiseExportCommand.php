@@ -57,7 +57,7 @@ class AffiseExportCommand extends BaseDaemon
     /**
      * @throws \Exception
      */
-    protected function process()
+    protected function process() : void
     {
         $log = $this->archiveRepository->findOneBy(['source' => $this->input->getArgument('source_name')]);
         $url = $this->createUrl($log->getLogData());

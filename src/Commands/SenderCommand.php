@@ -50,7 +50,7 @@ class SenderCommand extends BaseDaemon
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    protected function process()
+    protected function process() : void
     {
         $this->sender->send((bool)$this->input->getOption('delete_after_sending'));
     }
