@@ -21,10 +21,31 @@ $(document).ready(function () {
         this.submit();
     });
 
-    var timeToNewYear = new Date('2019.12.31').getTime() - Date.now();
+    var currentYear = new Date().getFullYear();
+    var SeasonsTimes = {
+        'Spring': `${currentYear}.03.01`,
+        'Summer': `${currentYear}.06.01`,
+        'Autumn': `${currentYear}.09.01`,
+        'Winter': `${currentYear}.12.01`};
 
-    var clock = $('.clock').FlipClock(Math.floor(timeToNewYear/1000), {
-        clockFace: 'DailyCounter',
-        countdown: true
-    });
+    for (let [season, time] of Object.entries(SeasonsTimes)) {
+        var timeToSeasonStart = new Date(time).getTime() - Date.now();
+
+        if (timeToSeasonStart > 0)  {
+            activateSeasonTimer(season, timeToSeasonStart);
+            break;
+        }
+    }
+
+    function activateSeasonTimer(season, time) {
+        $('#block-content').append(`
+<div class="block" id="season_timer"><h3 style="text-align: center">Time to ${season}</h3></div>
+<div class="block" style="width: 700px; margin-left: auto; margin-right: auto">
+    <div class="clock"></div></div>`);
+
+        var clock = $('.clock').FlipClock(Math.floor(time/1000), {
+            clockFace: 'DailyCounter',
+            countdown: true
+        });
+    }
 });

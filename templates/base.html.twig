@@ -26,9 +26,8 @@
                                 {% endif %}
                             {% endblock %}
                             {#Base content block#}
-                            <div class="block rounded bg-light">
+                            <div class="block rounded bg-light" id="block-content">
                                 {% block content %}
-                                    {{ include('custom/time_to_new_year.html.twig') }}
                                 {% endblock %}
                             </div>
                             {#Response message block#}
