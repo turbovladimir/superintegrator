@@ -187,7 +187,7 @@ class ToolController extends BaseController
             return $response->get();
         }
         
-        return $this->renderPage($page, $action, ['response' => $response->get()]);
+        return $this->renderPage($page, null, ['response' => $response->get()]);
     }
     
     /**

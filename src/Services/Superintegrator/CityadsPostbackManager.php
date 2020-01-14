@@ -117,18 +117,23 @@ class CityadsPostbackManager
     {
         $urls = [];
         
-        $fileContent = explode("\n", $fileContent);
-        $headers     = reset($fileContent);
+        $rows = explode("\r\n", $fileContent);
+        $headers     = reset($rows);
         $headers     = array_flip(explode(';', $headers));
-        array_shift($fileContent);
+        array_shift($rows);
+        $rows = array_filter($rows);
         
         if (isset($headers['request_type']) && isset($headers['request_url'])) {
             $requestTypeIndex = $headers['request_type'];
             $requestUrlIndex  = $headers['request_url'];
     
-            foreach ($fileContent as $row) {
+            foreach ($rows as $row) {
                 if (!empty($row)) {
                     $row = explode(';', $row);
+                    
+                    if (count($row) !== count($headers)) {
+                        throw new \LogicException('Incorrect archive parsing');
+                    }
             
                     if ($row[$requestTypeIndex] === 'pixel') {
                         $url = self::URL_PIXEL_DOMAIN.$row[$requestUrlIndex];

@@ -42,22 +42,34 @@ abstract class BaseDaemon extends Command
     protected $logger;
     
     /**
+     * BaseDaemon constructor.
+     *
      * @param LoggerInterface $logger
      */
-    public function setLogger(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger)
     {
+        parent::__construct($name = null);
         $this->logger = $logger;
     }
     
+    /**
+     *
+     */
     protected function configure()
     {
         $this
             ->setDescription($this->description)
-            ->setHelp('Помощи ждать неоткуда');
+            ->setHelp('');
         
         $this->addOption('daemonMode', null, InputOption::VALUE_OPTIONAL, 'Запуск в режиме демона', 0);
     }
     
+    /**
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return int|void|null
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->output = $output;
