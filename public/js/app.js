@@ -38,7 +38,7 @@ $(document).ready(function () {
     }
 
     function activateSeasonTimer(season, time) {
-        $('#block-content').append(`
+        $('#timer_season').append(`
 <div class="block" id="season_timer"><h3 style="text-align: center">Time to ${season}</h3></div>
 <div class="block" style="width: 700px; margin-left: auto; margin-right: auto">
     <div class="clock"></div></div>`);
