@@ -34,8 +34,11 @@ class PostbackImportCommand extends BaseDaemon
      * @param CityadsPostbackManager $postbackManager
      * @param MessageRepository      $messageRepository
      */
-    public function __construct(LoggerInterface $logger, CityadsPostbackManager $postbackManager, MessageRepository $messageRepository)
-    {
+    public function __construct(
+        LoggerInterface $logger,
+        CityadsPostbackManager $postbackManager,
+        MessageRepository $messageRepository
+    ) {
         $this->postbackManager   = $postbackManager;
         $this->messageRepository = $messageRepository;
         parent::__construct($logger);
