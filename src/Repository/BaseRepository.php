@@ -11,7 +11,7 @@ namespace App\Repository;
 
 use App\Entity\EntityInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Persistence\ManagerRegistry;
 
 abstract class BaseRepository extends ServiceEntityRepository
 {
@@ -23,9 +23,9 @@ abstract class BaseRepository extends ServiceEntityRepository
     /**
      * BaseRepository constructor.
      *
-     * @param RegistryInterface $registry
+     * @param ManagerRegistry $registry
      */
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, $this->entity);
     }
