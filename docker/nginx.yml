@@ -1,0 +1,19 @@
+version: '3.7'
+
+services:
+  nginx:
+    container_name: c-nginx
+    image: nginx:alpine
+    ports:
+      - '80:80'
+      - '443:443'
+    extra_hosts:
+      - '${DOMAIN}:127.0.0.1'
+    volumes:
+      - ./images/nginx/config:/etc/nginx/conf.d
+      - ${APP_PATH}:/var/www/superintegrator
+
+networks:
+  docker_default:
+    external: true
+    name: host
