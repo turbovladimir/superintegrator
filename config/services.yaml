@@ -4,6 +4,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
+    environment: '%env(string:APP_ENV)%'
     ali_api_url: '%env(string:ALI_API_URL)%'
     app_domain: '%env(string:DOMAIN)%'
 
@@ -17,6 +18,7 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
+            $env: '%environment%'
             $aliexpressApiUrl: '%ali_api_url%'
             $appDomain: '%app_domain%'
 
@@ -43,6 +45,7 @@ services:
             - '@app.service.super.xml_emulator'
             - '@app.service.super.cityads_postbck_manager'
             - '@app.service.super.ali_orders'
+            - '@app.service.super.cryptor'
 
     app.controller.blog:
         class: App\Controller\BlogController
@@ -54,6 +57,12 @@ services:
         arguments:
             - '@app.repository.message'
             - '@monolog.logger'
+
+    app.service.super.cryptor:
+        class: App\Services\Superintegrator\Cryptor
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+
 
     app.service.super.geo_search:
         class: App\Services\Superintegrator\GeoSearchService

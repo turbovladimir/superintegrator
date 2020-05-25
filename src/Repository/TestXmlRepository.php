@@ -3,7 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Superintegrator\TestXml;
-use App\Exceptions\ExpectedException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * @method TestXml|null find($id, $lockMode = null, $lockVersion = null)
@@ -38,7 +38,7 @@ class TestXmlRepository extends BaseRepository
      * @param $key
      *
      * @return mixed
-     * @throws ExpectedException
+     * @throws
      */
     public function getXmlBodyByKey($key)
     {
@@ -47,7 +47,7 @@ class TestXmlRepository extends BaseRepository
         $xml =  $query->getResult();
     
         if (!$xml) {
-            throw new ExpectedException('Incorrect or expired key');
+            throw new BadRequestHttpException('Incorrect or expired key');
         }
         
         return reset($xml)['xml'];

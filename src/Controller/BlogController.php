@@ -11,9 +11,10 @@ namespace App\Controller;
 use App\Entity\Blog\Post;
 use App\Repository\PostRepository;
 use Cocur\Slugify\Slugify;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 
-class BlogController extends BaseController
+class BlogController extends AbstractController
 {
     private $postRepository;
     

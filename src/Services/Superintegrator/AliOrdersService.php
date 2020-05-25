@@ -8,12 +8,12 @@
 
 namespace App\Services\Superintegrator;
 
-use App\Exceptions\ExpectedException;
 use App\Response\Download;
 use App\Services\File\CsvFileManager;
 use App\Utils\StringHelper;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AliOrdersService
 {
@@ -57,7 +57,7 @@ class AliOrdersService
      * @param Request $request
      *
      * @return Download
-     * @throws ExpectedException
+     * @throws BadRequestHttpException
      * @throws \League\Csv\CannotInsertRecord
      */
     public function processRequest(Request $request)
@@ -71,7 +71,7 @@ class AliOrdersService
             return new Download($name, $content);
         }
         
-        throw new ExpectedException('Empty orders field');
+        throw new BadRequestHttpException('Empty orders field');
     }
     
     
