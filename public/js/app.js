@@ -22,18 +22,36 @@ $(document).ready(function () {
     });
 
     var currentYear = new Date().getFullYear();
-    var SeasonsTimes = {
+    var seasonsData = Object.entries({
         'Spring': `${currentYear}.03.01`,
         'Summer': `${currentYear}.06.01`,
         'Autumn': `${currentYear}.09.01`,
-        'Winter': `${currentYear}.12.01`};
+        'Winter': `${currentYear}.12.01`});
+    let i = 0;
 
-    for (let [season, time] of Object.entries(SeasonsTimes)) {
+    for (let [season, time] of seasonsData) {
         var timeToSeasonStart = new Date(time).getTime() - Date.now();
 
         if (timeToSeasonStart > 0)  {
             activateSeasonTimer(season, timeToSeasonStart);
+            let prevSeason = seasonsData[ i - 1][0];
+
+            if (prevSeason) {
+                setUpWallPaperBySeason(prevSeason.toLowerCase());
+            }
+
             break;
+        }
+
+        i++;
+    }
+    
+    function setUpWallPaperBySeason(season) {
+        let backImg = "url('../images/" + season +"_back.jpg')";
+        $('#page-content-wrapper').css('background-image', backImg);
+
+        if (season === 'winter') {
+            $('#snowfall').css('background-image', "https://media.giphy.com/media/Kfrq2V2A7wODGMdEXQ/giphy.gif");
         }
     }
 

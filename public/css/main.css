@@ -1,10 +1,4 @@
-#page-content-wrapper {
-    background-image: url('../images/background.jpg');
-
-}
-
 #snowfall {
-    background-image: url("https://media.giphy.com/media/Kfrq2V2A7wODGMdEXQ/giphy.gif");
     width: 100vw;
     min-height: 100vw;
 }
