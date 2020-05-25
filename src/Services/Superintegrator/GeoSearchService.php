@@ -8,7 +8,6 @@
 
 namespace App\Services\Superintegrator;
 
-use App\Exceptions\ExpectedException;
 use App\Response\AlertMessage;
 use App\Entity\Superintegrator\CountryRussia;
 use App\Entity\Superintegrator\WorldRegion;
@@ -16,6 +15,7 @@ use App\Entity\Superintegrator\WorldRegionCodes;
 use App\Services\AbstractService;
 use App\Utils\StringHelper;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Class GeoSearchService
@@ -64,7 +64,7 @@ class GeoSearchService extends AbstractService
         $allGeo = $repository->findAll();
         
         if (empty($allGeo)) {
-            throw new ExpectedException('Empty data in geo tables!');
+            throw new BadRequestHttpException('Empty data in geo tables!');
         }
         
         $geoCount = count($allGeo);

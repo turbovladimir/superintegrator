@@ -10,7 +10,8 @@ namespace App\Controller;
 
 use App\Response\AlertMessage;
 use App\Response\Download;
-use function Sodium\library_version_major;
+use App\Services\Superintegrator\Cryptor;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use App\Services\Superintegrator\AliOrdersService;
@@ -20,12 +21,13 @@ use App\Services\Superintegrator\XmlEmulatorService;
 use Psr\Log\LoggerInterface;
 use Twig\Error\LoaderError;
 
-class ToolController extends BaseController
+class ToolController extends AbstractController
 {
     public const PAGE_MAIN = 'base';
     public const PAGE_GEO = 'geo';
     public const PAGE_ALI_ORDERS = 'ali_orders';
     public const XML_EMULATOR = 'xml_emulator';
+    public const CRYPTOR = 'cryptor';
     public const SENDER = 'sender';
     
     public const ACTION_GET_XML_PAGE = 'xml';
@@ -52,6 +54,10 @@ class ToolController extends BaseController
             'title' => 'Xml emulator',
             'description' => 'При помощи данного инструмента вы можете создавать ссылки эмулирующие работу API с форматом ответа xml'
         ],
+        self::CRYPTOR              => [
+            'title' => 'Cryptor',
+            'description' => 'Encrypt/decrypt string by salt'
+        ],
         self::SENDER              => [
             'title' => 'Sender',
             'description' => 'Переотправка постбэков и пикселей по файлам архива админки процессинга'
@@ -59,33 +65,41 @@ class ToolController extends BaseController
         self::ACTION_GET_XML_PAGE => ['title' => ''],
     ];
     
+    private $env;
     private $geoSearch;
     private $xmlEmulator;
     private $postbackManager;
     private $aliOrders;
     private $logger;
+    private $cryptor;
     
     /**
      * HttpController constructor.
      *
+     * @param string                 $env
      * @param LoggerInterface        $logger
      * @param GeoSearchService       $geoSearch
      * @param XmlEmulatorService     $xmlEmulator
      * @param CityadsPostbackManager $postbackManager
      * @param AliOrdersService       $aliOrders
+     * @param Cryptor                $cryptor
      */
     public function __construct(
         LoggerInterface $logger,
         GeoSearchService $geoSearch,
         XmlEmulatorService $xmlEmulator,
         CityadsPostbackManager $postbackManager,
-        AliOrdersService $aliOrders
+        AliOrdersService $aliOrders,
+        Cryptor $cryptor,
+        string $env
     ) {
+        $this->env             = $env;
         $this->logger          = $logger;
         $this->geoSearch       = $geoSearch;
         $this->xmlEmulator     = $xmlEmulator;
         $this->postbackManager = $postbackManager;
         $this->aliOrders       = $aliOrders;
+        $this->cryptor         = $cryptor;
     }
     
     /**
@@ -95,10 +109,10 @@ class ToolController extends BaseController
      *
      * @return Response
      */
-    public function index($tool, $action = null, Request $request)
+    public function index($tool = null, $action = null, Request $request)
     {
         if (!array_key_exists($tool, self::ROUTS_PARAMS)) {
-            return $this->mainPage();
+            return $this->redirect('/');
         }
         
         try {
@@ -110,8 +124,21 @@ class ToolController extends BaseController
         } catch (\Exception $exception) {
             $response = new AlertMessage('Обнаружена ошибка', $exception->getMessage(), AlertMessage::TYPE_DANGER);
             
-            return $this->mainPage(['response' => $response->get()]);
+            if ($this->env === 'dev') {
+                $response->addAlert('Trace', $exception->getTraceAsString(), AlertMessage::TYPE_DANGER);
+            }
+            
+            return $this->mainPageAction(['response' => $response->get()]);
         }
+    }
+    
+    /**
+     * @param array $parameters
+     *
+     * @return Response
+     */
+    public function mainPageAction($parameters = []) : Response {
+        return $this->render('base.html.twig', $parameters);
     }
     
     /**
@@ -120,10 +147,7 @@ class ToolController extends BaseController
      * @param null    $action
      *
      * @return Response
-     * @throws \App\Exceptions\ExpectedException
-     * @throws \Doctrine\ORM\NonUniqueResultException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+    * @throws
      */
     private function handleGetRequets(Request $request, $tool, $action = null)
     {
@@ -156,10 +180,7 @@ class ToolController extends BaseController
      * @param null    $action
      *
      * @return array|Response
-     * @throws \App\Exceptions\ExpectedException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     * @throws \League\Csv\CannotInsertRecord
+     * @throws
      */
     private function handlePostRequest(Request $request, $page, $action = null)
     {
@@ -179,8 +200,9 @@ class ToolController extends BaseController
                 if ($action === self::ACTION_UPLOAD) {
                     $response = $this->postbackManager->uploadArchiveFiles($request);
                 }
-                
                 break;
+            case (self::CRYPTOR):
+                $response = $this->cryptor->processRequest($request);
         }
         
         if (isset($response) && $response instanceof Download) {
@@ -201,7 +223,7 @@ class ToolController extends BaseController
         $response = new AlertMessage();
         $response->addAlert($message, null, $level);
         
-        return $this->mainPage(['response' => $response->get()]);
+        return $this->mainPageAction(['response' => $response->get()]);
     }
     
     /**
@@ -219,7 +241,7 @@ class ToolController extends BaseController
         try {
             return $this->render("tools/{$pathToTemplate}.html.twig", $parameters);
         } catch (LoaderError $e) {
-            return $this->mainPage();
+            return $this->mainPageAction();
         }
     }
     

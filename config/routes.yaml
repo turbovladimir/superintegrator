@@ -1,6 +1,6 @@
 main_page:
   path: /
-  controller: App\Controller\BaseController::mainPage
+  controller: App\Controller\ToolController::mainPageAction
 
 super_integrator.tool:
   path: /tools/{tool}

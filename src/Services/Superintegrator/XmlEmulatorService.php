@@ -12,9 +12,9 @@ use App\Controller\ToolController;
 use App\Repository\TestXmlRepository;
 use App\Response\AlertMessage;
 use App\Entity\Superintegrator\TestXml;
-use App\Exceptions\ExpectedException;
 use App\Utils\Serializer;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class XmlEmulatorService
@@ -32,14 +32,14 @@ class XmlEmulatorService
      * @param Request $request
      *
      * @return mixed
-     * @throws ExpectedException
+     * @throws
      */
     public function getXml(Request $request)
     {
         parse_str($request->getQueryString(), $parameters);
     
         if (empty($parameters['key'])) {
-            throw new ExpectedException('Cannot parse key from url');
+            throw new BadRequestHttpException('Cannot parse key from url');
         }
         
         return $this->testXmlRepository->getXmlBodyByKey($parameters['key']);
@@ -49,16 +49,14 @@ class XmlEmulatorService
      * @param $id
      *
      * @return AlertMessage
-     * @throws ExpectedException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws
      */
     public function delete($id)
     {
         $xml = $this->testXmlRepository->findOneBy(['id' => $id]);
         
         if (!$xml) {
-            throw new ExpectedException('Xml not found');
+            throw new BadRequestHttpException('Xml not found');
         }
         
         $this->testXmlRepository->getEntityManager()->remove($xml);
@@ -73,9 +71,7 @@ class XmlEmulatorService
      * @param Request $request
      *
      * @return AlertMessage
-     * @throws ExpectedException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws
      */
     public function create(Request $request)
     {
@@ -85,7 +81,7 @@ class XmlEmulatorService
         $doc = simplexml_load_string($xml);
         
         if (!$doc) {
-            throw new ExpectedException('Invalid xml. Errors: '.implode("\n", libxml_get_errors()));
+            throw new BadRequestHttpException('Invalid xml. Errors: '.implode("\n", libxml_get_errors()));
         }
         
         $entityXml = new TestXml();

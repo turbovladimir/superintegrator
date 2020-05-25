@@ -32,10 +32,7 @@ class ArchiveFileUploader extends FileUploader
     /**
      * @param UploadedFile $file
      *
-     * @throws UploadException
-     * @throws \App\Exceptions\ExpectedException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws
      */
     public function upload(UploadedFile $file)
     {
@@ -62,8 +59,7 @@ class ArchiveFileUploader extends FileUploader
     /**
      * @param UploadedFile $file
      *
-     * @throws UploadException
-     * @throws \App\Exceptions\ExpectedException
+     * @throws
      */
     protected function checkFile(UploadedFile $file)
     {
