@@ -12,6 +12,7 @@ namespace App\Repository;
 use App\Entity\EntityInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Log\LoggerInterface;
 
 abstract class BaseRepository extends ServiceEntityRepository
 {
@@ -21,20 +22,25 @@ abstract class BaseRepository extends ServiceEntityRepository
     protected $entity;
     
     /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+    
+    /**
+     * @var \Doctrine\ORM\EntityManager
+     */
+    protected $entityManager;
+    
+    /**
      * BaseRepository constructor.
      *
      * @param ManagerRegistry $registry
+     * @param LoggerInterface $logger
      */
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, LoggerInterface $logger)
     {
+        $this->logger = $logger;
         parent::__construct($registry, $this->entity);
-    }
-    
-    /**
-     * @return \Doctrine\ORM\EntityManager
-     */
-    public function getEntityManager()
-    {
-        return parent::getEntityManager();
+        $this->entityManager = parent::getEntityManager();
     }
 }

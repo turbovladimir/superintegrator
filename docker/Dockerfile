@@ -58,6 +58,24 @@ RUN docker-php-ext-configure intl \
     && echo "upload_max_filesize=100M" >> /usr/local/etc/php/conf.d/common.ini \
     && echo "post_max_size=100M" >> /usr/local/etc/php/conf.d/common.ini \
     && echo "max_execution_time=300" >> /usr/local/etc/php/conf.d/common.ini \
-    && echo 'date.timezone = "Europe/Moscow"\n' > /usr/local/etc/php/conf.d/timezone.ini \
+    && echo 'date.timezone = "Europe/Moscow"\n' > /usr/local/etc/php/conf.d/timezone.ini
 
+#----------------------------------------------------------
+# Switch User
+#----------------------------------------------------------
 
+RUN useradd -mU app \
+    && echo "app ALL=(ALL) NOPASSWD: ALL">> /etc/sudoers \
+    && chown -R app:app /var/www
+
+#----------------------------------------------------------
+# Switch User
+#----------------------------------------------------------
+
+USER app
+
+#----------------------------------------------------------
+# Dir
+#----------------------------------------------------------
+RUN mkdir /var/www/superintegrator
+WORKDIR /var/www/superintegrator

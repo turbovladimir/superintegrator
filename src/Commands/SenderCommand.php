@@ -36,22 +36,12 @@ class SenderCommand extends BaseDaemon
     }
     
     /**
-     *
-     */
-    protected function configure()
-    {
-        parent::configure();
-        
-        $this->addOption('delete_after_sending', null,InputOption::VALUE_OPTIONAL);
-    }
-    
-    /**
      * @throws \App\Exceptions\EmptyDataException
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
     protected function process() : void
     {
-        $this->sender->send((bool)$this->input->getOption('delete_after_sending'));
+        $this->sender->send();
     }
 }

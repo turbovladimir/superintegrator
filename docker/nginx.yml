@@ -2,18 +2,20 @@ version: '3.7'
 
 services:
   nginx:
-    container_name: c-nginx
+    container_name: c-nginx-super
     image: nginx:alpine
     ports:
-      - '80:80'
-      - '443:443'
-    extra_hosts:
-      - '${DOMAIN}:127.0.0.1'
+      - '81:80'
+      - '444:443'
     volumes:
-      - ./images/nginx/config:/etc/nginx/conf.d
       - ${APP_PATH}:/var/www/superintegrator
+      - ./nginx/hosts:/etc/hosts
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      default:
+        ipv4_address: 172.20.0.3
 
 networks:
-  docker_default:
-    external: true
-    name: host
+  default:
+    external:
+      name: super_network

@@ -48,10 +48,9 @@ class MessageSender
      * @param int  $sendingPerTask
      *
      * @throws EmptyDataException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws
      */
-    public function send($deleteAfterSending = false, $sendingPerTask = self::DEFAULT_SEND_PER_TASK)
+    public function send($deleteAfterSending = true, $sendingPerTask = self::DEFAULT_SEND_PER_TASK)
     {
         $client = new Client();
         $messages = $this->messageRepository->getAwaitingMessage($sendingPerTask, self::NUMBER_OF_ATTEMPTS);
@@ -80,7 +79,6 @@ class MessageSender
         $this->messageRepository->getEntityManager()->flush();
     
         if ($deleteAfterSending) {
-            $this->logger->info('Start deleting sended messages');
             $this->messageRepository->deleteSendedMessage(self::DEFAULT_DELETE_PER_TASK);
         }
     }
