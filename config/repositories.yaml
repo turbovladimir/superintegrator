@@ -4,6 +4,7 @@ services:
     abstract: true
     arguments:
       - '@doctrine'
+      - '@monolog.logger'
 
   app.repository.post:
     class: App\Repository\PostRepository

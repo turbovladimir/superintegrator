@@ -68,14 +68,18 @@ class MessageRepository extends BaseRepository
      */
     public function deleteSendedMessage($deletingCount)
     {
-        $sendedUrls = $this->findBy(['sended' => 1], [], $deletingCount);
+        $this->logger->info('Start deleting sended messages');
+        $sentMessages = $this->findBy(['sended' => 1], [], $deletingCount);
         
-        if (empty($sendedUrls)) {
+        if (empty($sentMessages)) {
+            $this->logger->info('No messages found');
             return;
         }
+    
+        $this->logger->info('Found' . count($sentMessages) . ' sent messages. Start deleting...');
         
-        foreach ($sendedUrls as $urlEntity) {
-            $this->_em->remove($urlEntity);
+        foreach ($sentMessages as $message) {
+            $this->_em->remove($message);
         }
         
         $this->_em->flush();

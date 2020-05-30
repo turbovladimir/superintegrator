@@ -3,19 +3,22 @@ version: '3.5'
 services:
   superintegrator:
     container_name: c-superintegrator
-    image: superintegrator-app
+    image: superintegrator
     build:
-      context: './images/app'
+      context: '.'
     environment:
       XDEBUG_CONFIG: "remote_host=${XDEBUG_HOST} remote_port=${XDEBUG_PORT}"
-      PHP_IDE_CONFIG: serverName=${XDEBUG_SERVER}
-      extra_hosts:
-        - '${DOMAIN}:127.0.0.1'
+      PHP_IDE_CONFIG: serverName="xdebug_server"
+    extra_hosts:
+      - ${DOMAIN}:${HOST}
     volumes:
       - ${APP_PATH}:/var/www/superintegrator
+    networks:
+      default:
+        ipv4_address: 172.20.0.2
 
 networks:
-  docker_default:
-    external: true
-    name: host
+  default:
+    external:
+      name: super_network
 
