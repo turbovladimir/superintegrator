@@ -53,14 +53,16 @@ class XmlEmulatorService
      */
     public function delete($id)
     {
-        $xml = $this->testXmlRepository->findOneBy(['id' => $id]);
+        /**
+         * @var $xml TestXml
+         */
+        $xml = $this->testXmlRepository->find($id);
         
         if (!$xml) {
             throw new BadRequestHttpException('Xml not found');
         }
         
-        $this->testXmlRepository->getEntityManager()->remove($xml);
-        $this->testXmlRepository->getEntityManager()->flush();
+        $this->testXmlRepository->delete($xml);
         $response = new AlertMessage();
         $response->addAlert('Success', 'Xml template was be deleted');
     
@@ -88,9 +90,8 @@ class XmlEmulatorService
         $key       = $this->generateHashKey($xml);
         $entityXml->setName($name);
         $entityXml->setXml($xml);
-        $entityXml->setUrl('http://'.$this->appDomain. '/tools/' . ToolController::XML_EMULATOR . '/' . ToolController::ACTION_GET_XML_PAGE . '/?key='.$key);
-        $this->testXmlRepository->getEntityManager()->persist($entityXml);
-        $this->testXmlRepository->getEntityManager()->flush();
+        $entityXml->setHash($key);
+        $this->testXmlRepository->save($entityXml);
         
         $response = new AlertMessage();
         $response->addAlert('Success', 'Xml template was be saved');
@@ -105,7 +106,7 @@ class XmlEmulatorService
     {
         
         $collection = $this->testXmlRepository->findAll();
-        $collection = json_decode(Serializer::get()->serialize($collection, 'json', [AbstractNormalizer::IGNORED_ATTRIBUTES => ['xml']]), true);
+        $collection = json_decode(Serializer::get()->serialize($collection, 'json', [AbstractNormalizer::IGNORED_ATTRIBUTES => ['xml', 'hash']]), true);
         
         if (!$collection) {
             return [];

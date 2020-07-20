@@ -1,14 +1,7 @@
 # This file is the entry point to configure your own services.
 # Files in the packages/ subdirectory configure your dependencies.
-
-# Put parameters here that don't need to change on each machine where the app is deployed
-# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
-parameters:
-    environment: '%env(string:APP_ENV)%'
-    ali_api_url: '%env(string:ALI_API_URL)%'
-    app_domain: '%env(string:DOMAIN)%'
-
 imports:
+    - { resource: parameters.yaml }
     - { resource: repositories.yaml }
     - { resource: commands.yaml }
 

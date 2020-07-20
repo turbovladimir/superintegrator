@@ -14,25 +14,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class TestXmlRepository extends BaseRepository
 {
     /**
-     * @param $sourceName
-     * @param $logs
-     *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     */
-    public function saveLog($sourceName, $logs)
-    {
-        foreach ($logs as $log) {
-            $TestXml = new TestXml();
-            $TestXml->setSource($sourceName);
-            $TestXml->setLogData($log);
-            $this->_em->persist($TestXml);
-        }
-        
-        $this->_em->flush();
-    }
-    
-    /**
      * @param $key
      *
      * @return mixed

@@ -2,8 +2,11 @@
 
 namespace App\Entity\Superintegrator;
 
+use App\Controller\ToolController;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\BaseEntity;
+use http\Env;
+
 /**
  * TestXml
  *
@@ -30,9 +33,9 @@ class TestXml extends BaseEntity
     /**
      * @var string
      *
-     * @ORM\Column(name="url", type="string", length=80, nullable=false)
+     * @ORM\Column(name="hash", type="string", length=80, nullable=false)
      */
-    private $url;
+    private $hash;
     
     /**
      * @return string
@@ -59,14 +62,6 @@ class TestXml extends BaseEntity
     }
     
     /**
-     * @return string
-     */
-    public function getUrl() : string
-    {
-        return $this->url;
-    }
-    
-    /**
      * @param $xml
      */
     public function setXml($xml)
@@ -75,11 +70,27 @@ class TestXml extends BaseEntity
     }
     
     /**
-     * @param $url
+     * @param string $hash
      */
-    public function setUrl($url)
+    public function setHash(string $hash) : void
     {
-        $this->url = $url;
+        $this->hash = $hash;
     }
-
+    
+    /**
+     * @return string
+     */
+    public function getHash() : string
+    {
+        return $this->hash;
+    }
+    
+    /**
+     *
+     * @return string
+     */
+    public function getUrl()
+    {
+        return 'http://'. DOMAIN . '/tools/' . ToolController::XML_EMULATOR . '/' . ToolController::ACTION_GET_XML_PAGE . '/?key='. $this->hash;
+    }
 }

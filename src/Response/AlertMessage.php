@@ -42,10 +42,10 @@ class AlertMessage
      */
     public function addAlert($header, $body = null, $type = null)
     {
-        $message  = $body === null ? $header : "$header: $body";
         $this->messageList[] = [
             'type' => $type ?? self::TYPE_INFO,
-            'message' =>  $message
+            'header' => '<h4 class="alert-heading">' . $header . '</h4>',
+            'body' =>  $body,
         ];
         
         return $this;
@@ -59,7 +59,8 @@ class AlertMessage
         $formattedResponse = [];
         
         foreach ($this->messageList as $message) {
-            $formattedResponse[] = sprintf(self::HTML_BLOCK, $message['type'], $message['message']);
+            $content = str_replace("\r\n", "</br>", implode('<hr>',[$message['header'], $message['body']]));
+            $formattedResponse[] = sprintf(self::HTML_BLOCK, $message['type'], $content);
         }
 
         return $formattedResponse;
