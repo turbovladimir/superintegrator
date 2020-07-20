@@ -6,6 +6,7 @@ use App\Repository\CsvFileRepository;
 use App\Repository\MessageRepository;
 use App\Response\AlertMessage;
 use App\Services\File\Uploader\ArchiveFileUploader;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -39,17 +40,27 @@ class CityadsPostbackManager
     private $uploader;
     
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+    
+    /**
      * PostbackCollector constructor.
      *
      * @param CsvFileRepository $fileRepo
      * @param MessageRepository $messageRepo
      * @param ArchiveFileUploader      $uploader
      */
-    public function __construct(CsvFileRepository $fileRepo, MessageRepository $messageRepo, ArchiveFileUploader $uploader)
-    {
+    public function __construct(
+        CsvFileRepository $fileRepo,
+        MessageRepository $messageRepo,
+        ArchiveFileUploader $uploader,
+        LoggerInterface $logger
+    ) {
         $this->messageRepo = $messageRepo;
         $this->fileRepo = $fileRepo;
         $this->uploader = $uploader;
+        $this->logger = $logger;
     }
     
     /**
@@ -96,16 +107,18 @@ class CityadsPostbackManager
      */
     public function getUrls()
     {
-        $urls = [];
         $files = $this->fileRepo->getByEstimatedFileName(ArchiveFileUploader::FILE_NAME);
     
         if (!empty($files)) {
             $file = reset($files);
-            $urls = array_merge($urls, $this->getUrlRequests(stream_get_contents($file->getFileContent())));
-            $this->fileRepo->getEntityManager()->remove($file);
+            $this->fileRepo->delete($file);
+            $urls = $this->getUrlRequests(stream_get_contents($file->getFileContent()));
+            $this->logger->info('Getting '. count($urls) . " urls from `{$file->getFileName()}`");
+            
+            return $urls;
         }
         
-        return $urls;
+        return null;
     }
     
     /**

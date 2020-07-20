@@ -55,9 +55,9 @@ class AffiseExportCommand extends BaseDaemon
     }
     
     /**
-     * @throws \Exception
+     * @inheritDoc
      */
-    protected function process() : void
+    protected function process() : bool
     {
         $log = $this->archiveRepository->findOneBy(['source' => $this->input->getArgument('source_name')]);
         $url = $this->createUrl($log->getLogData());
@@ -68,6 +68,8 @@ class AffiseExportCommand extends BaseDaemon
         if ($url) {
             $this->messageRepository->saveMessages($this->destination, $url);
         }
+        
+        return true;
     }
     
     /**

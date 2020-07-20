@@ -17,8 +17,6 @@ use Symfony\Component\Console\Input\InputOption;
 
 abstract class BaseDaemon extends Command
 {
-    
-    protected static $defaultName = 'daemon';
     protected $description = 'Команда базового демона';
     
     const DEFAULT_LIFETIME = 600;
@@ -42,8 +40,9 @@ abstract class BaseDaemon extends Command
     
     /**
      * Основной метод в котором происходит выполнение логики дочерних команд
+     * @return bool
      */
-    abstract protected function process() : void ;
+    abstract protected function process() : bool ;
     
     /**
      * BaseDaemon constructor.
@@ -52,7 +51,7 @@ abstract class BaseDaemon extends Command
      */
     public function __construct(LoggerInterface $logger)
     {
-        parent::__construct($name = null);
+        parent::__construct(null);
         $this->logger = $logger;
     }
     
@@ -124,7 +123,12 @@ abstract class BaseDaemon extends Command
         $workerStartTime = time();
         
         while (self::DEFAULT_LIFETIME >= (time() - $workerStartTime)) {
-            $this->process();
+            $result = $this->process();
+            
+            if (!$result) {
+                break;
+            }
+            
             sleep(5);
         }
         

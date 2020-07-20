@@ -12,8 +12,6 @@ use App\Entity\Archive;
  */
 class ArchiveRepository extends BaseRepository
 {
-    protected $entity = Archive::class;
-    
     /**
      * @param $sourceName
      * @param $logs
@@ -31,5 +29,10 @@ class ArchiveRepository extends BaseRepository
         }
         
         $this->_em->flush();
+    }
+    
+    protected function getEntityName()
+    {
+        return Archive::class;
     }
 }

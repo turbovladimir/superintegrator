@@ -5,13 +5,6 @@ services:
     arguments:
       - '@monolog.logger'
 
-  command.postback_import:
-    class: App\Commands\PostbackImportCommand
-    arguments:
-      - '@monolog.logger'
-      - '@app.service.super.cityads_postbck_manager'
-      - '@app.repository.message'
-
   command.api_data_fetcher:
     class: App\Commands\ApiFetcher\ApiDataFetcherCommand
     abstract: true
@@ -23,7 +16,8 @@ services:
     parent: 'command.base_daemon'
     arguments:
       - '@monolog.logger'
-      - '@app.service.sender.message_sender'
+      - '@app.service.super.cityads_postbck_manager'
+      - '@app.service.sender.message_manager'
     tags:
       - { name: console.command }
 

@@ -41,24 +41,6 @@ class MessageRepository extends BaseRepository
     }
     
     /**
-     * @param        $destination
-     * @param array  $urls
-     * @param null   $headers
-     * @param string $method
-     *
-     * @throws \Exception
-     */
-    public function saveMessages($destination, $urls, $headers = null, $method = 'GET')
-    {
-        foreach ($urls as $url) {
-            $message = new Message($destination, $url, $headers, $method);
-            $this->_em->persist($message);
-        }
-        
-        $this->_em->flush();
-    }
-    
-    /**
      * @param $deletingCount
      *
      * @throws \Doctrine\ORM\ORMException
@@ -77,10 +59,10 @@ class MessageRepository extends BaseRepository
         $this->logger->info('Found' . count($sentMessages) . ' sent messages. Start deleting...');
         
         foreach ($sentMessages as $message) {
-            $this->_em->remove($message);
+            $this->getEntityManager()->remove($message);
         }
         
-        $this->_em->flush();
+        $this->getEntityManager()->flush();
     }
     
     /**

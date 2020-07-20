@@ -52,8 +52,8 @@ services:
         arguments:
             - '@app.repository.post'
 
-    app.service.sender.message_sender:
-        class: App\Services\Sender\MessageSender
+    app.service.sender.message_manager:
+        class: App\Services\Sender\MessageManager
         arguments:
             - '@app.repository.message'
             - '@monolog.logger'
@@ -83,6 +83,7 @@ services:
             - '@app.repository.csv_file'
             - '@app.repository.message'
             - '@app.service.file.archive_uploader'
+            - '@monolog.logger'
 
     app.service.file.archive_uploader:
         class: App\Services\File\Uploader\ArchiveFileUploader

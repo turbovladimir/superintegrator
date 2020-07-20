@@ -8,9 +8,10 @@
 
 namespace App\Commands;
 
-use App\Services\Sender\MessageSender;
+use App\Exceptions\EmptyDataException;
+use App\Services\Sender\MessageManager;
+use App\Services\Superintegrator\CityadsPostbackManager;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Class CronCommand
@@ -19,19 +20,24 @@ use Symfony\Component\Console\Input\InputOption;
  */
 class SenderCommand extends BaseDaemon
 {
-    protected static $defaultName = 'sender';
-    
-    private $sender;
+    protected static $defaultName = 'postback:sender';
+    private $messageManager;
+    private $cityadsPostbackManager;
     
     /**
      * SenderCommand constructor.
      *
-     * @param LoggerInterface $logger
-     * @param MessageSender   $sender
+     * @param LoggerInterface        $logger
+     * @param CityadsPostbackManager $cityadsPostbackManager
+     * @param MessageManager         $messageManager
      */
-    public function __construct(LoggerInterface $logger, MessageSender $sender)
+    public function __construct(
+        LoggerInterface $logger,
+        CityadsPostbackManager $cityadsPostbackManager,
+        MessageManager $messageManager)
     {
-        $this->sender = $sender;
+        $this->messageManager         = $messageManager;
+        $this->cityadsPostbackManager = $cityadsPostbackManager;
         parent::__construct($logger);
     }
     
@@ -40,8 +46,37 @@ class SenderCommand extends BaseDaemon
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    protected function process() : void
+    protected function process() : bool
     {
-        $this->sender->send();
+        $this->parseFilesToArchiveUrls();
+    
+        try {
+            $this->messageManager->send();
+        } catch (EmptyDataException $exception) {
+            $this->logger->info($exception->getMessage());
+            
+            return false;
+        }
+        
+        return true;
+    }
+    
+    /**
+     * @throws
+     */
+    private function parseFilesToArchiveUrls() : void
+    {
+        $this->logger->info('Start parse archive files');
+        $createdMessages = 0;
+        
+        while ($urls = $this->cityadsPostbackManager->getUrls()) {
+            $createdMessages += $urlCnt = count($urls);
+    
+            foreach ($urls as $url) {
+                $this->messageManager->saveMessage(CityadsPostbackManager::DESTINATION, $url);
+            }
+        }
+        
+        $this->logger->info("`{$createdMessages}` messages were created");
     }
 }
