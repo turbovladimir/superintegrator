@@ -12,8 +12,6 @@ use App\Entity\Message;
  */
 class MessageRepository extends BaseRepository
 {
-    protected $entity = Message::class;
-    
     /**
      * @param $limit
      * @param $attemptsLimit
@@ -83,5 +81,13 @@ class MessageRepository extends BaseRepository
         }
         
         $this->_em->flush();
+    }
+    
+    /**
+     * @return string
+     */
+    protected function getEntityName()
+    {
+        return Message::class;
     }
 }

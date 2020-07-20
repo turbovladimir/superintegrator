@@ -41,9 +41,7 @@ class ArchiveFileUploader extends FileUploader
         $fileEntity->setFileName($file->getClientOriginalName());
         $fileEntity->setType($file->getClientOriginalExtension());
         $fileEntity->setFileContent(fopen($file->getRealPath(), 'rb'));
-        $em = $this->repository->getEntityManager();
-        $em->persist($fileEntity);
-        $em->flush();
+        $this->repository->save($fileEntity);
     }
     
     /**
@@ -64,7 +62,7 @@ class ArchiveFileUploader extends FileUploader
     protected function checkFile(UploadedFile $file)
     {
         if (!$this->isArchiveFile($file)) {
-            throw new UploadException('There is not archive file');
+            throw new UploadException('You can upload only archive files');
         }
         
         parent::checkFile($file);

@@ -13,8 +13,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class TestXmlRepository extends BaseRepository
 {
-    protected $entity = TestXml::class;
-    
     /**
      * @param $sourceName
      * @param $logs
@@ -51,5 +49,13 @@ class TestXmlRepository extends BaseRepository
         }
         
         return reset($xml)['xml'];
+    }
+    
+    /**
+     * @return string
+     */
+    protected function getEntityName()
+    {
+        return TestXml::class;
     }
 }

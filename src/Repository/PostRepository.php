@@ -12,5 +12,8 @@ use App\Entity\Blog\Post;
  */
 class PostRepository extends BaseRepository
 {
-    protected $entity = Post::class;
+    protected function getEntityName()
+    {
+        return Post::class;
+    }
 }

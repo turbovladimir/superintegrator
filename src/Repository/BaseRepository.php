@@ -27,11 +27,6 @@ abstract class BaseRepository extends ServiceEntityRepository
     protected $logger;
     
     /**
-     * @var \Doctrine\ORM\EntityManager
-     */
-    protected $entityManager;
-    
-    /**
      * BaseRepository constructor.
      *
      * @param ManagerRegistry $registry
@@ -40,7 +35,18 @@ abstract class BaseRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry, LoggerInterface $logger)
     {
         $this->logger = $logger;
-        parent::__construct($registry, $this->entity);
-        $this->entityManager = parent::getEntityManager();
+        parent::__construct($registry, $this->getEntityName());
+    }
+    
+    /**
+     * @param EntityInterface $entity
+     *
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function save(EntityInterface $entity)
+    {
+        $this->getEntityManager()->persist($entity);
+        $this->getEntityManager()->flush();
     }
 }

@@ -12,7 +12,10 @@ use App\Entity\CsvFile;
  */
 class CsvFileRepository extends BaseRepository
 {
-     protected $entity = CsvFile::class;
+     protected function getEntityName()
+     {
+         return CsvFile::class;
+     }
     
     /**
      * @param $name
