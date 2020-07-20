@@ -1,4 +1,24 @@
+function copyToClipboard(element) {
+    let $temp = $("<input>");
+    $("body").append($temp);
+    let color = $(element).css("background-color");
+    $(element).css("background-color", "#a2a2a2");
+    $temp.val($(element).html()).select();
+    document.execCommand("copy");
+    $temp.remove();
+    setTimeout(function () {
+        $(element).css("background-color", color);
+    }, 100);
+}
+
 $(document).ready(function () {
+    $( "#alert_message_lg" ).each(function() {
+        let randomId = 'pre_' + Math.random().toString(36).substring(7);
+        this.id = randomId
+        let imgTag = '<i class="fa fa-clone" aria-hidden="true" onclick="copyToClipboard(\'#'+randomId+'\')"></i>';
+        $(this).before(imgTag);
+    });
+
     // help button
     $('#btn-tooltip').tooltip();
 

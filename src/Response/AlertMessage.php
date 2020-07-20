@@ -19,7 +19,8 @@ class AlertMessage
     public const TYPE_DANGER = 'alert alert-danger';
     public const TYPE_INFO = 'alert alert-info';
     
-    private const HTML_BLOCK = '<div class="elem"><div id="alert_message" class="%s">%s</div></div>';
+    private const HTML_BLOCK = '<div class="elem"><div id="%s" class="%s">%s</div></div>';
+    private const MAX_CHARS_ALERT = 120;
     
     /**
      * @var array
@@ -59,8 +60,14 @@ class AlertMessage
         $formattedResponse = [];
         
         foreach ($this->messageList as $message) {
+            $id = 'alert_message';
+            
+            if (strlen($message['body']) > self::MAX_CHARS_ALERT) {
+                $id = 'alert_message_lg';
+            }
+            
             $content = str_replace("\r\n", "</br>", implode('<hr>',[$message['header'], $message['body']]));
-            $formattedResponse[] = sprintf(self::HTML_BLOCK, $message['type'], $content);
+            $formattedResponse[] = sprintf(self::HTML_BLOCK, $id, $message['type'], $content);
         }
 
         return $formattedResponse;
