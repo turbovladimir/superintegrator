@@ -26,7 +26,7 @@ $(document).ready(function () {
     $('.alert').alert();
 
     function printAlert(message, level = 'success') {
-        var alertClass = '"alert alert-' + level + '"';
+        let alertClass = '"alert alert-' + level + '"';
         $('div[id="alert_message"]').remove(); // remove all elem by class
         $('#page-content').append('<div id="alert_message" class=' + alertClass + ">" + message + '</div>')
     }
@@ -41,37 +41,29 @@ $(document).ready(function () {
         this.submit();
     });
 
-    var currentYear = new Date().getFullYear();
-    var seasonsData = Object.entries({
-        'Spring': `${currentYear}.03.01`,
-        'Summer': `${currentYear}.06.01`,
-        'Autumn': `${currentYear}.09.01`,
-        'Winter': `${currentYear}.12.01`});
-    let i = 0;
+    let seasonsAndMonths = {
+        winter: [12,1,2],
+        spring: [3,4,5],
+        summer: [6,7,8],
+        autumn: [9,10,11],
+    };
 
-    for (let [season, time] of seasonsData) {
-        var timeToSeasonStart = new Date(time).getTime() - Date.now();
+    let date = new Date();
+    let currentMont = date.getMonth() + 1;
 
-        if (timeToSeasonStart > 0)  {
-            activateSeasonTimer(season, timeToSeasonStart);
-            let prevSeason = seasonsData[ i - 1][0];
-
-            if (prevSeason) {
-                setUpWallPaperBySeason(prevSeason.toLowerCase());
-            }
-
-            break;
+    $.each(seasonsAndMonths, function (season, months) {
+        if ($.inArray(currentMont, months) !== -1) {
+            setUpWallPaperBySeason(season);
+            //activateSeasonTimer(season, timeToSeasonStart);
         }
-
-        i++;
-    }
+    })
     
     function setUpWallPaperBySeason(season) {
         let backImg = "url('../images/" + season +"_back.jpg')";
         $('#page-content-wrapper').css('background-image', backImg);
 
         if (season === 'winter') {
-            $('#snowfall').css('background-image', "https://media.giphy.com/media/Kfrq2V2A7wODGMdEXQ/giphy.gif");
+            $('#snowfall').css("background-image", "url(https://media.giphy.com/media/Kfrq2V2A7wODGMdEXQ/giphy.gif)");
         }
     }
 
@@ -81,7 +73,7 @@ $(document).ready(function () {
 <div class="block" style="width: 700px; margin-left: auto; margin-right: auto">
     <div class="clock"></div></div>`);
 
-        var clock = $('.clock').FlipClock(Math.floor(time/1000), {
+        $('.clock').FlipClock(Math.floor(time/1000), {
             clockFace: 'DailyCounter',
             countdown: true
         });
