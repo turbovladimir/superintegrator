@@ -10,7 +10,7 @@ namespace App\Commands;
 
 use App\Exceptions\EmptyDataException;
 use App\Services\Sender\MessageManager;
-use App\Services\Superintegrator\CityadsPostbackManager;
+use App\Services\Tools\CityadsPostbackManager;
 use Psr\Log\LoggerInterface;
 
 /**

@@ -6,7 +6,7 @@
  * Time: 19:24
  */
 
-namespace App\Services\Superintegrator;
+namespace App\Services\Tools;
 
 use App\Controller\ToolController;
 use App\Repository\TestXmlRepository;

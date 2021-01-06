@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Services\Superintegrator;
+namespace App\Services\Tools;
 
 
 use App\Response\AlertMessage;

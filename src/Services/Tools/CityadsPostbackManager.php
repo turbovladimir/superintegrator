@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Superintegrator;
+namespace App\Services\Tools;
 
 use App\Repository\CsvFileRepository;
 use App\Repository\MessageRepository;
@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * Class PostbackCollector
  *
- * @package App\Services\Superintegrator
+ * @package App\Services\Tools
  */
 class CityadsPostbackManager
 {

@@ -6,7 +6,7 @@
  * Time: 14:42
  */
 
-namespace App\Services\Superintegrator;
+namespace App\Services\Tools;
 
 use App\Response\Download;
 use App\Services\File\CsvFileManager;

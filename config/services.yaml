@@ -6,6 +6,7 @@ imports:
     - { resource: commands.yaml }
 
 services:
+    - { resource: tools.yaml }
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
@@ -50,38 +51,6 @@ services:
         arguments:
             - '@app.repository.message'
             - '@monolog.logger'
-
-    app.service.super.cryptor:
-        class: App\Services\Superintegrator\Cryptor
-        arguments:
-            - '@doctrine.orm.default_entity_manager'
-
-
-    app.service.super.geo_search:
-        class: App\Services\Superintegrator\GeoSearchService
-        arguments:
-            - '@doctrine.orm.default_entity_manager'
-
-    app.service.super.xml_emulator:
-        class: App\Services\Superintegrator\XmlEmulatorService
-        arguments:
-            - '@app.repository.test_xml'
-
-    app.service.super.ali_orders:
-        class: App\Services\Superintegrator\AliOrdersService
-
-    app.service.super.cityads_postbck_manager:
-        class: App\Services\Superintegrator\CityadsPostbackManager
-        arguments:
-            - '@app.repository.csv_file'
-            - '@app.repository.message'
-            - '@app.service.file.archive_uploader'
-            - '@monolog.logger'
-
-    app.service.file.archive_uploader:
-        class: App\Services\File\Uploader\ArchiveFileUploader
-        arguments:
-            - '@app.repository.csv_file'
 
     app.service.app_fixture:
         class: App\DataFixtures\AppFixtures
