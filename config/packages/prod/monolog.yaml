@@ -1,38 +1,16 @@
-services:
-    processing.log.processor.pid:
-        class: Monolog\Processor\ProcessIdProcessor
-        tags:
-            - { name: monolog.processor }
-    formatter:
-        class: Monolog\Formatter\LineFormatter
-        arguments:
-            - "---------------------------------------------------------------------------------------------\n
-            [PID:%%extra.process_id%%] [%%datetime%%] [%%level_name%%] [CHANNEL:%%channel%%] %%message%% [CONTEXT:%%context%%]\n"
-
 monolog:
     handlers:
         main:
-            type: rotating_file
-            path: "log/info.log"
-            max_files: 10
-            formatter: formatter
+            type: fingers_crossed
+            action_level: error
+            handler: nested
+            excluded_http_codes: [404, 405]
+            buffer_size: 50 # How many messages should be saved? Prevent memory leaks
         nested:
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%.log"
             level: debug
-        emergency:
-            type: stream
-            path: "%kernel.logs_dir%/emergency-%kernel.environment%.log"
-            level: emergency
         console:
             type: console
             process_psr_3_messages: false
             channels: ["!event", "!doctrine"]
-        deprecation:
-            type: stream
-            path: "%kernel.logs_dir%/%kernel.environment%.deprecations.log"
-        deprecation_filter:
-            type: filter
-            handler: deprecation
-            max_level: info
-            channels: ["php"]

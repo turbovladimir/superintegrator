@@ -5,7 +5,7 @@
     </div>
 {% endblock %}
 {% block content %}
-<form id="xml_new_form" method="post" action="/tools/xml_emulator/save">
+<form id="xml_new_form" method="post" action="/tools/xml_emulator">
     <div class="elem">
         <input type="text" class="form-control" placeholder="Name" name="name">
     </div>
@@ -13,7 +13,7 @@
         <textarea id="code" cols="60" rows="30" name="xml" ></textarea>
     </div>
     <div class="elem">
-        <button class="btn btn-dark" type="submit" need_check="1" form="xml_new_form" name="new">Save xml</button>
+        <button class="btn btn-dark" type="submit" form="xml_new_form" name="action" value="save">Save xml</button>
         <a href="javascript:autoFormatSelection()">
             <button type="button" class="btn btn-dark">Format selected xml</button>
         </a>

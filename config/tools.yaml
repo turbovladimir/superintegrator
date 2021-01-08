@@ -1,0 +1,47 @@
+services:
+
+  tools.collection:
+    class: App\Services\ToolsCollection
+    arguments:
+      - '@service_container'
+
+  tools.cryptor:
+    class: App\Services\Tools\Cryptor
+    public: true
+
+  tools.text_comparator:
+    class: App\Services\Tools\TextComparator
+    public: true
+
+  tools.geo:
+    class: App\Services\Tools\GeoSearchService
+    public: true
+    arguments:
+      - '@doctrine.orm.default_entity_manager'
+
+  tools.xml_emulator:
+    class: App\Services\Tools\XmlEmulator
+    public: true
+    arguments:
+      - '@repository.test_xml'
+      - '%env(string:DOMAIN)%'
+
+  tools.ali_orders:
+    class: App\Services\Tools\AliOrdersService
+    public: true
+    arguments:
+      - '%env(string:ALI_API_URL)%'
+
+  tools.cityads_postbck_manager:
+    class: App\Services\Tools\CityadsPostbackManager
+    public: true
+    arguments:
+      - '@repository.csv_file'
+      - '@repository.message'
+      - '@file.archive_uploader'
+      - '@monolog.logger'
+
+  file.archive_uploader:
+    class: App\Services\File\Uploader\ArchiveFileUploader
+    arguments:
+      - '@repository.csv_file'

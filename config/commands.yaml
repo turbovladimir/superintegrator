@@ -9,14 +9,14 @@ services:
     class: App\Commands\ApiFetcher\ApiDataFetcherCommand
     abstract: true
     arguments:
-      - '@app.repository.archive'
+      - '@repository.archive'
 
   command.sender:
     class: App\Commands\SenderCommand
     parent: 'command.base_daemon'
     arguments:
       - '@monolog.logger'
-      - '@app.service.super.cityads_postbck_manager'
+      - '@tools.cityads_postbck_manager'
       - '@app.service.sender.message_manager'
     tags:
       - { name: console.command }
@@ -32,7 +32,7 @@ services:
     parent: 'command.base_daemon'
     arguments:
       - '@monolog.logger'
-      - '@app.repository.message'
-      - '@app.repository.archive'
+      - '@repository.message'
+      - '@repository.archive'
     tags:
       - { name: console.command }

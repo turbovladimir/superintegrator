@@ -1,0 +1,11 @@
+services:
+  app.controller.tool:
+    class: App\Controller\ToolController
+    arguments:
+      $logger: '@monolog.logger'
+      $tools: '@tools.collection'
+
+  app.controller.blog:
+    class: App\Controller\BlogController
+    arguments:
+      - '@repository.post'

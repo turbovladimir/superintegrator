@@ -6,16 +6,17 @@
  * Time: 14:42
  */
 
-namespace App\Services\Superintegrator;
+namespace App\Services\Tools;
 
-use App\Response\Download;
+use App\Response\FileDownloadResponse;
 use App\Services\File\CsvFileManager;
 use App\Utils\StringHelper;
+use League\Csv\AbstractCsv;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class AliOrdersService
+class AliOrdersService implements Tool
 {
     const FILE_NAME = 'aliexpress_orders';
     const LIMIT_OF_ORDERS_PER_REQUEST = 100;
@@ -52,23 +53,22 @@ class AliOrdersService
     {
         $this->apiUrl = $aliexpressApiUrl;
     }
+
+    public function getToolInfo(): array {
+        return [
+            'title' => 'Ali orders',
+            'description' => 'Позволяет забирать подробную информацию о заказах алиэкспресс'
+        ];
+    }
     
     /**
-     * @param Request $request
-     *
-     * @return Download
-     * @throws BadRequestHttpException
-     * @throws \League\Csv\CannotInsertRecord
+     * @inheritDoc
      */
-    public function processRequest(Request $request)
-    {
-        parse_str($request->getContent(), $parameters);
-        
+    public function process(array $parameters, $action = null) {
         if (isset($parameters['csv_export']) && !empty($parameters['orders'])) {
-            $name = $this->getFileName();
-            $content = $this->generateFileContent(StringHelper::splitId($parameters['orders']));
+            $csv = $this->generateCsvReportFile(StringHelper::splitId($parameters['orders']));
 
-            return new Download($name, $content);
+            return new FileDownloadResponse($csv->getPathname(), $this->getFileName());
         }
         
         throw new BadRequestHttpException('Empty orders field');
@@ -81,8 +81,7 @@ class AliOrdersService
      * @return string
      * @throws \League\Csv\CannotInsertRecord
      */
-    private function generateFileContent(array $orders)
-    {
+    private function generateCsvReportFile(array $orders) : AbstractCsv {
     
         if (count($orders) > self::LIMIT_OF_ORDERS_PER_REQUEST) {
         
@@ -116,11 +115,7 @@ class AliOrdersService
      * @param $orders
      *
      * @return array
-     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws
      */
     private function fetchOrders($orders)
     {

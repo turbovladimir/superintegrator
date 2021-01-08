@@ -9,7 +9,7 @@
 namespace App\Services\Sender;
 use App\Entity\Message;
 use App\Exceptions\EmptyDataException;
-use App\Services\Superintegrator\CityadsPostbackManager;
+use App\Services\Tools\CityadsPostbackManager;
 use \GuzzleHttp\Client;
 use \GuzzleHttp\Exception\GuzzleException;
 use App\Repository\MessageRepository;

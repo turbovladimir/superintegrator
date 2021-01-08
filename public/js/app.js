@@ -59,7 +59,7 @@ $(document).ready(function () {
     })
     
     function setUpWallPaperBySeason(season) {
-        let backImg = "url('../images/" + season +"_back.jpg')";
+        let backImg = "url('/images/" + season +"_back.jpg')";
         $('#page-content-wrapper').css('background-image', backImg);
 
         if (season === 'winter') {

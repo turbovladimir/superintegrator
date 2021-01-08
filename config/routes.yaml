@@ -2,17 +2,22 @@ main_page:
   path: /
   controller: App\Controller\ToolController::mainPageAction
 
-super_integrator.tool:
-  path: /tools/{tool}
-  controller: App\Controller\ToolController::index
-  defaults:
-    tool:
+tools:
+  path: /tools
+  controller: App\Controller\ToolController::mainPageAction
 
-super_integrator.tools.tool.action:
+tool.common:
   path: /tools/{tool}/{action}
   controller: App\Controller\ToolController::index
+  requirements:
+    action: 'new|update|list'
   defaults:
     tool:
+    action: null
+
+tool.xml_page:
+  path: /xml
+  controller: App\Controller\ToolController::xmlPage
 
 # blog
 blog:

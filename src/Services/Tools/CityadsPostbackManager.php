@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Services\Superintegrator;
+namespace App\Services\Tools;
 
 use App\Repository\CsvFileRepository;
 use App\Repository\MessageRepository;
-use App\Response\AlertMessage;
+use App\Response\ResponseMessage;
 use App\Services\File\Uploader\ArchiveFileUploader;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Парсит файлы архива и отправляет в бд для последующей отправки
- *
+ * @todo отрефачить до более абстрактного или удалить
  * Class PostbackCollector
  *
- * @package App\Services\Superintegrator
+ * @package App\Services\Tools
  */
 class CityadsPostbackManager
 {
@@ -62,6 +62,13 @@ class CityadsPostbackManager
         $this->uploader = $uploader;
         $this->logger = $logger;
     }
+
+    public function getToolInfo(): array {
+        return [
+            'title' => 'Sender',
+            'description' => 'Переотправка постбэков и пикселей по файлам архива админки процессинга'
+        ];
+    }
     
     /**
      * @return mixed
@@ -71,7 +78,7 @@ class CityadsPostbackManager
     {
         $messageCount = $this->messageRepo->getAwaitingMessagesCount(self::DESTINATION);
         
-        $response = new AlertMessage('Awaiting postbacks', $messageCount);
+        $response = new ResponseMessage('Awaiting postbacks', $messageCount);
         
         return $response->get();
     }
@@ -79,23 +86,23 @@ class CityadsPostbackManager
     /**
      * @param Request $request
      *
-     * @return AlertMessage
+     * @return ResponseMessage
      * @throws \Exception
      */
     public function uploadArchiveFiles(Request $request)
     {
-        $responseAlert = new AlertMessage();
+        $responseAlert = new ResponseMessage();
         $files = $request->files->all() ? : null;
     
         if (!$files) {
-            return $responseAlert->addAlert('Cant find files for save', AlertMessage::TYPE_DANGER);
+            return $responseAlert->addError('Cant find files for save');
         }
     
         $files = reset($files);
     
         foreach ($files as $file) {
             $this->uploader->upload($file);
-            $responseAlert->addAlert("File {$file->getClientOriginalName()} have been successfully uploaded");
+            $responseAlert->addInfo("File {$file->getClientOriginalName()} have been successfully uploaded");
         }
         
         return $responseAlert;
