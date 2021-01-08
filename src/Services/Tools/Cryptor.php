@@ -4,41 +4,44 @@
 namespace App\Services\Tools;
 
 
-use App\Response\AlertMessage;
-use App\Services\AbstractService;
-use Symfony\Component\HttpFoundation\Request;
+use App\Exceptions\Warning;
+use App\Response\ResponseMessage;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class Cryptor extends AbstractService
+class Cryptor implements Tool
 {
-    public function processRequest(Request $request) : AlertMessage {
-        parse_str($request->getContent(), $parameters);
-        
-        if (
-            empty($parameters['cryptor_row']) ||
-            empty($parameters['cryptor_salt']) ||
-            empty($parameters['action'])
-        ) {
-            throw new BadRequestHttpException('All fields needs to be filled!');
+    public function getToolInfo(): array {
+        return [
+            'title' => 'Cryptor',
+            'description' => 'Encrypt/decrypt string by salt'
+        ];
+    }
+
+    public function process(array $parameters, $action = null) {
+        if (empty($parameters['row']) && empty($parameters['salt'])) {
+            throw new BadRequestHttpException('Where are no required parameters from form');
         }
-        
-        $action = $parameters['action'];
-        $salt = $parameters['cryptor_salt'];
+
+        $salt = $parameters['salt'];
         $cipherMethod = 'aes-128-ctr';
         
         if ($action === 'encrypt') {
-            $token = $parameters['cryptor_row'];
+            $token = $parameters['row'];
             $encIv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($cipherMethod));
             $data = openssl_encrypt($token, $cipherMethod, $salt, 0, $encIv). "::" . bin2hex($encIv);
         } elseif ($action === 'decrypt') {
-            list($cryptedToken, $encIv) = explode("::",$parameters['cryptor_row']);
+            if (!strpos($parameters['row'], '::')) {
+                throw new Warning('Are you sure what this row was encrypt early?');
+            }
+
+            list($cryptedToken, $encIv) = explode("::",$parameters['row']);
             $data = openssl_decrypt($cryptedToken, $cipherMethod, $salt, 0, hex2bin($encIv));
         } else {
             throw new BadRequestHttpException('Incorrect action type!');
         }
     
-        $alertMessage = new AlertMessage();
-        $alertMessage->addAlert($action, $data);
+        $alertMessage = new ResponseMessage();
+        $alertMessage->addInfo($action, $data);
         
         return $alertMessage;
     }

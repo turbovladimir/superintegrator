@@ -1,26 +1,34 @@
 services:
+
+  tools.collection:
+    class: App\Services\ToolsCollection
+    arguments:
+      - '@service_container'
+
   tools.cryptor:
     class: App\Services\Tools\Cryptor
     public: true
-    arguments:
-      - '@doctrine.orm.default_entity_manager'
 
-  tools.geo_search:
+  tools.text_comparator:
+    class: App\Services\Tools\TextComparator
+    public: true
+
+  tools.geo:
     class: App\Services\Tools\GeoSearchService
     public: true
     arguments:
       - '@doctrine.orm.default_entity_manager'
 
   tools.xml_emulator:
-    class: App\Services\Tools\XmlEmulatorService
+    class: App\Services\Tools\XmlEmulator
     public: true
     arguments:
       - '@repository.test_xml'
       - '%env(string:DOMAIN)%'
 
   tools.ali_orders:
-    public: true
     class: App\Services\Tools\AliOrdersService
+    public: true
     arguments:
       - '%env(string:ALI_API_URL)%'
 

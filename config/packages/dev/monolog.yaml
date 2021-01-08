@@ -1,24 +1,19 @@
-services:
-    processing.log.processor.pid:
-        class: Monolog\Processor\ProcessIdProcessor
-        tags:
-            - { name: monolog.processor }
-    formatter:
-        class: Monolog\Formatter\LineFormatter
-        arguments:
-            - "---------------------------------------------------------------------------------------------\n
-            [PID:%%extra.process_id%%] [%%datetime%%] [%%level_name%%] [CHANNEL:%%channel%%] %%message%% [CONTEXT:%%context%%]\n"
-
 monolog:
     handlers:
         main:
-            type: rotating_file
-            path: "log/info.log"
-            max_files: 10
-            level: info
-            formatter: formatter
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%.log"
+            level: debug
+            channels: ["!event"]
+        # uncomment to get logging in your browser
+        # you may have to allow bigger header sizes in your Web server configuration
+        #firephp:
+        #    type: firephp
+        #    level: info
+        #chromephp:
+        #    type: chromephp
+        #    level: info
         console:
             type: console
             process_psr_3_messages: false
             channels: ["!event", "!doctrine", "!console"]
-            formatter: formatter

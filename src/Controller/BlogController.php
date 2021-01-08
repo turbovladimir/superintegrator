@@ -59,8 +59,6 @@ class BlogController extends AbstractController
      */
     public function save(Request $request)
     {
-        $em = $this->postRepository->getEntityManager();
-        
         if ($id = $request->get('id')) {
             $post = $this->postRepository->findOneBy(['id' => $id]);
         } else {
@@ -71,8 +69,7 @@ class BlogController extends AbstractController
         $post->setTitle($title);
         $post->setSlug((new Slugify())->slugify($post->getTitle()));
         $post->setBody($request->get('body'));
-        $em->persist($post);
-        $em->flush();
+        $this->postRepository->save($post);
         
         return $this->redirectToRoute('blog');
     }
@@ -86,10 +83,8 @@ class BlogController extends AbstractController
      */
     public function delete($id)
     {
-        $em = $this->postRepository->getEntityManager();
         $entity = $this->postRepository->findOneBy(['id' => $id]);
-        $em->remove($entity);
-        $em->flush();
+        $this->postRepository->delete($entity);
         
         return $this->redirectToRoute('blog');
     }

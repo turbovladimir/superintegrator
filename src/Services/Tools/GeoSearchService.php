@@ -8,12 +8,13 @@
 
 namespace App\Services\Tools;
 
-use App\Response\AlertMessage;
+use App\Response\ResponseData;
+use App\Response\ResponseMessage;
 use App\Entity\Superintegrator\CountryRussia;
 use App\Entity\Superintegrator\WorldRegion;
 use App\Entity\Superintegrator\WorldRegionCodes;
-use App\Services\AbstractService;
 use App\Utils\StringHelper;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -22,32 +23,44 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  *
  * @package App\Services\Tools
  */
-class GeoSearchService extends AbstractService
+class GeoSearchService implements Tool
 {
     private const GEO_TYPE_WORLD_REGIONS = 1;
     private const GEO_TYPE_WORLD_REGIONS_CODES = 2;
     private const GEO_TYPE_RUSSIA_CITIES = 3;
-    
+
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager) {
+        $this->entityManager = $entityManager;
+    }
+
+    public function getToolInfo(): array {
+        return [
+            'name' => 'geo',
+            'title' => 'Geo searching',
+            'description' => 'Инструмент для поиска id гео объектов (страны, регионы, города), для получения id можно использовать как 2х буквенные коды стран так и полные ENG наименования'
+        ];
+    }
+
     /**
-     * @param Request $request
-     *
-     * @return AlertMessage| null
+     * @inheritDoc
      */
-    public function processRequest(Request $request)
-    {
-        parse_str($request->getContent(), $parameters);
-        
-        if (!$parameters || empty($parameters['geo_type']) || empty($parameters['list'])) {
+    public function process(array $parameters, $action = null) {
+        if (!$action) {
             return null;
         }
-    
-        $geoArray = StringHelper::splitId($parameters['list']);
-    
-        if (!$geoArray) {
-            return null;
+
+        if (!$parameters ||
+            empty($parameters['action']) ||
+            empty($parameters['list']) ||
+            !($geoArray = StringHelper::splitId($parameters['list']))) {
+            throw new BadRequestHttpException('Empty or incorrect geo list');
         }
+
+        $typeId = (int)substr($parameters['action'], -1, 1);
     
-        switch ((int)$parameters['geo_type']) {
+        switch ($typeId) {
             case self::GEO_TYPE_WORLD_REGIONS:
                 $repository = $this->entityManager->getRepository(WorldRegion::class);
                 break;
@@ -57,14 +70,12 @@ class GeoSearchService extends AbstractService
             case self::GEO_TYPE_RUSSIA_CITIES:
                 $repository = $this->entityManager->getRepository(CountryRussia::class);
                 break;
-            default:
-                return null;
         }
     
         $allGeo = $repository->findAll();
         
         if (empty($allGeo)) {
-            throw new BadRequestHttpException('Empty data in geo tables!');
+            throw new BadRequestHttpException('No data with geo in database');
         }
         
         $geoCount = count($allGeo);
@@ -89,11 +100,11 @@ class GeoSearchService extends AbstractService
             }
         }
 
-        $responseMessage = new AlertMessage();
+        $responseMessage = new ResponseMessage();
         empty($cityadsIds['existing']) ?:
-        $responseMessage->addAlert('Successful found', implode(',', $cityadsIds['existing']));
+        $responseMessage->addInfo('Successful found', implode(',', $cityadsIds['existing']));
         empty($cityadsIds['missing']) ?:
-            $responseMessage->addAlert('Not founded', implode(',', $cityadsIds['missing']), AlertMessage::TYPE_DANGER);
+            $responseMessage->addError('Not founded', implode(',', $cityadsIds['missing']));
         
         return $responseMessage;
     }

@@ -8,6 +8,7 @@
 
 namespace App\Services\File;
 
+use League\Csv\AbstractCsv;
 use League\Csv\Reader;
 use League\Csv\Writer;
 
@@ -19,8 +20,7 @@ class CsvFileManager
      * @return string
      * @throws \League\Csv\CannotInsertRecord
      */
-    public static function generateFile($content)
-    {
+    public static function generateFile(array $content) : AbstractCsv {
         if (empty($content)) {
             return '';
         }
@@ -29,7 +29,7 @@ class CsvFileManager
         $csv->insertOne(array_keys(reset($content)));
         $csv->insertAll($content);
         
-        return $csv->getContent();
+        return $csv;
     }
     
     /**

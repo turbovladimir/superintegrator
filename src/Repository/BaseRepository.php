@@ -61,4 +61,11 @@ abstract class BaseRepository extends ServiceEntityRepository
         $this->getEntityManager()->remove($entity);
         $this->getEntityManager()->flush();
     }
+
+    /**
+     * @return mixed[]
+     */
+    public function getColumnNames() {
+        return $this->_em->getClassMetadata($this->getEntityName())->getColumnNames();
+    }
 }

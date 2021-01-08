@@ -7,11 +7,19 @@
         </div>
     </div>
     <div class="list-group list-group-flush">
-        <a href="/tools/geo" class="list-group-item list-group-item-action bg-light">Geo search</a>
-        <a href="/tools/ali_orders" class="list-group-item list-group-item-action bg-light">Aliexpress orders</a>
-        <a href="/tools/sender" class="list-group-item list-group-item-action bg-light">Sender</a>
-        <a href="/tools/xml_emulator" class="list-group-item list-group-item-action bg-light">Xml emulator</a>
-        <a href="/tools/cryptor" class="list-group-item list-group-item-action bg-light">Cryptor</a>
+        <div class="dropdown show">
+            <a class="list-group-item list-group-item-action bg-light dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Tools
+            </a>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <a href="/tools/geo" class="dropdown-item">Geo search</a>
+                <a href="/tools/ali_orders" class="dropdown-item">Aliexpress orders</a>
+{#                <a href="/tools/sender" class="dropdown-item">Sender</a>#}
+                <a href="/tools/xml_emulator" class="dropdown-item">Xml emulator</a>
+                <a href="/tools/cryptor" class="dropdown-item">Cryptor</a>
+                <a href="/tools/text_comparator" class="dropdown-item">Text comparator</a>
+            </div>
+        </div>
         <a href="/blog" class="list-group-item list-group-item-action bg-light">Blog</a>
     </div>
 {% endblock %}

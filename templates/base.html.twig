@@ -1,6 +1,36 @@
 <!DOCTYPE html>
 <html>
-{{ include ('head.html.twig') }}
+{% block head %}
+    <head>
+        <meta charset="UTF-8">
+        <meta content='width=device-width, initial-scale=1' name='viewport'/>
+        <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+        <title>{% if title is defined %}{{ title }}{% else %}superintegrator{% endif %}</title>
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+              integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+        <!-- Custom styles for this template -->
+        <link rel="stylesheet" href="{{ asset('css/simple-sidebar.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/main.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/extentions/codemirror.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/extentions/flipclock.css') }}">
+
+        {#Javascripts#}
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+                integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+                integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+                integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+        <script src="https://kit.fontawesome.com/193fc108fb.js" crossorigin="anonymous"></script>
+        <script src="{{ asset('js/extentions/codemirror/codemirror.js') }}"></script>
+        <script src="{{ asset('js/extentions/codemirror/mode/xml.js') }}"></script>
+        <script src="{{ asset('js/extentions/codemirror/format/formatting.js') }}"></script>
+        <script src="{{ asset('js/extentions/flipclock/flipclock.js') }}"></script>
+        <script src="{{ asset('js/app.js') }}"></script>
+    </head>
+{% endblock %}
 {% block body %}
     <body>
     <div class="d-flex" id="wrapper">
@@ -21,7 +51,7 @@
                                 {% endif %}
                                 {% if description is defined %}
                                     <div class="block rounded bg-light">
-                                        <button type="button" id="btn-tooltip" class="btn btn-secondary btn-sm" title="{{ description }}">hint</button>
+                                        <button type="button" id="btn-tooltip" class="btn btn-secondary btn-sm" title="{{ description }}">Подсказонька</button>
                                     </div>
                                 {% endif %}
                             {% endblock %}
@@ -32,10 +62,8 @@
                                 {% endblock %}
                             </div>
                             {#Response message block#}
-                            {% if response is defined %}
-                                {% for message_block in response %}
-                                    {{ message_block|raw }}
-                                {% endfor %}
+                            {% if message is defined %}
+                                {{ message|raw }}
                             {% endif %}
                         </div>
                     </div>

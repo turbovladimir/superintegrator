@@ -2,10 +2,10 @@
 {% block content %}
     <form id="cryptor_form" method="post" action="/tools/cryptor">
         <div class="form-group mb-2">
-            <textarea id="cryptor_row" class="form-control" name="cryptor_row" placeholder="Enter row"></textarea>
+            <textarea id="cryptor_row" class="form-control" name="row" placeholder="Enter row"></textarea>
         </div>
         <div class="form-group mb-2">
-            <input type="password" class="form-control" name="cryptor_salt" placeholder="Salt">
+            <input type="password" class="form-control" name="salt" placeholder="Salt">
         </div>
         <button type="submit" name="action" value="encrypt" class="btn btn-primary">Encrypt</button>
         <button type="submit" name="action" value="decrypt" class="btn btn-primary">Decrypt</button>

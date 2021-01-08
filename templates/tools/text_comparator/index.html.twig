@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+{% block head %}
+    {{ parent() }}
+    <style type="text/css">
+        ins {
+            background: #dfd none repeat scroll 0 0;
+            color: green;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        del {
+            background: #fdd none repeat scroll 0 0;
+            color: red;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        span.replace ins {
+            background: #ffa none repeat scroll 0 0;
+            color: #aa0;
+        }
+
+        span.replace del {
+            display: none;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <form method="post" action="text_comparator">
+        <div class="form-group mb-2">
+            <textarea  class="form-control" name="from" placeholder="Text from"></textarea>
+            <textarea  class="form-control" name="to" placeholder="Text to"></textarea>
+        </div>
+        <div class="form-group mb-2">
+            <button class="btn btn-dark" name="action" value="compare" type="submit">Отправить</button>
+        </div>
+    </form>
+
+{% endblock %}

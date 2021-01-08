@@ -21,8 +21,8 @@ class TestXmlRepository extends BaseRepository
      */
     public function getXmlBodyByKey($key)
     {
-        $query = $this->_em->createQuery('SELECT t.xml FROM ' . TestXml::class . ' t WHERE t.url LIKE :word');
-        $query->setParameter('word', "%{$key}%");
+        $query = $this->_em->createQuery('SELECT t.xml FROM ' . TestXml::class . ' t WHERE t.hash LIKE :hash');
+        $query->setParameter('hash', "$key");
         $xml =  $query->getResult();
     
         if (!$xml) {
