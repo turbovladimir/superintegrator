@@ -39,14 +39,12 @@ class ToolController extends AbstractController
      * ToolController constructor.
      * @param LoggerInterface $logger
      * @param ToolsCollection $tools
-     * @param string $env
      */
     public function __construct(
         LoggerInterface $logger,
         ToolsCollection $tools
-//        string $env
     ) {
-//        $this->isProduction = $env === 'prod';
+        $this->isProduction = $_ENV['APP_ENV'] === 'prod';
         $this->tools = $tools;
         $this->logger = $logger;
     }
