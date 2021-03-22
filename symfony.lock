@@ -611,6 +611,9 @@
     "true/punycode": {
         "version": "v2.1.1"
     },
+    "turbovladimir/tools": {
+        "version": "1.0"
+    },
     "twig/twig": {
         "version": "v2.12.1"
     },

@@ -58,10 +58,14 @@ class ToolController extends AbstractController
      */
     public function index($tool = null, $action = null, Request $request)
     {
+        if (!$tool && !$action) {
+            return $this->render('base.html.twig');
+        }
+
         try {
             return $this->handle($request, $tool, $action);
         } catch (Warning $warning) {
-            return $this->mainPageAction((new ResponseMessage())->addWarning($warning->getMessage()));
+            $message = (new ResponseMessage())->addWarning($warning->getMessage());
         } catch (ToolNotFoundException $exception) {
             return $this->redirect('/');
         } catch (\Exception $exception) {
@@ -74,18 +78,17 @@ class ToolController extends AbstractController
                             $exception->getFile(),
                             $exception->getLine()));
             }
-            
-            return $this->mainPageAction($message);
         }
+
+        return $this->render('base.html.twig', $message->getData());
     }
-    
+
     /**
-     * @param ResponseMessage $message
-     *
+     * @param Request $request
      * @return Response
      */
-    public function mainPageAction(ResponseMessage $message) : Response {
-        return $this->render('base.html.twig', $message->getData());
+    public function mainPage(Request $request) : Response {
+        return $this->index(null, null, $request);
     }
 
     /**
