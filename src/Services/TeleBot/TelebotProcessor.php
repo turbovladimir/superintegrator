@@ -20,7 +20,7 @@ class TelebotProcessor
         $this->logger = $telebotLogger;
         $this->telebotLogDir = $telebotLogDir;
         $this->telebotToken = $telebotToken;
-        $this->client = new Client(['base_url' => 'api.telegram.org']);
+        $this->client = new Client(['base_url' => 'https://api.telegram.org']);
     }
 
     /**
