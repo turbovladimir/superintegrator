@@ -11,16 +11,14 @@ class TelebotProcessor
 {
     private $domain;
     private $logger;
-    private $client;
     private $telebotLogDir;
     private $telebotToken;
 
     public function __construct($domain, LoggerInterface $telebotLogger, string $telebotLogDir, string $telebotToken) {
-        $this->domain = $domain;
+        $this->domain = 'integratorapp.tk';
         $this->logger = $telebotLogger;
         $this->telebotLogDir = $telebotLogDir;
         $this->telebotToken = $telebotToken;
-        $this->client = new Client(['base_url' => 'https://api.telegram.org']);
     }
 
     /**
@@ -72,17 +70,18 @@ class TelebotProcessor
 
     private function makeRequest(string $apiMethod, string $httpMethod, array $params = []) {
         $this->logger->debug('Sent request to api!', ['method' => $apiMethod, 'httpMethod' => $httpMethod, 'params' => $params]);
+        $client = new Client();
 
         try {
             if ($httpMethod === 'GET') {
                 $query = http_build_query($params);
-                $this->client->get("bot{$this->telebotToken}/{$apiMethod}?{$query}");
+                $client->get("https://api.telegram.org/bot{$this->telebotToken}/{$apiMethod}?{$query}");
             } elseif ($httpMethod === 'POST') {
-                $this->client->post("bot{$this->telebotToken}/{$apiMethod}", ['json' => $params]);
+                $client->post("https://api.telegram.org/bot{$this->telebotToken}/{$apiMethod}", ['json' => $params]);
             }
         } catch (\Throwable $exception) {
             $this->logger->debug("Catch exception during send request to api: {$exception->getMessage()}");
+            throw $exception;
         }
-
     }
 }
