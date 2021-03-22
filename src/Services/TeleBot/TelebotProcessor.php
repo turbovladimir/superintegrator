@@ -33,7 +33,7 @@ class TelebotProcessor
             return;
         }
 
-        $this->logger->debug(print_r($inputData, true));
+        $this->logger->debug('Get message from api: ' . print_r($inputData, true));
         $messageData = $inputData['message'];
 
         if (empty($messageData['text'])) {
@@ -71,11 +71,18 @@ class TelebotProcessor
     }
 
     private function makeRequest(string $apiMethod, string $httpMethod, array $params = []) {
-        if ($httpMethod === 'GET') {
-            $query = http_build_query($params);
-            $this->client->get("bot{$this->telebotToken}/{$apiMethod}?{$query}");
-        } elseif ($httpMethod === 'POST') {
-            $this->client->post("bot{$this->telebotToken}/{$apiMethod}", ['json' => $params]);
+        $this->logger->debug('Sent request to api!', ['method' => $apiMethod, 'httpMethod' => $httpMethod, 'params' => $params]);
+
+        try {
+            if ($httpMethod === 'GET') {
+                $query = http_build_query($params);
+                $this->client->get("bot{$this->telebotToken}/{$apiMethod}?{$query}");
+            } elseif ($httpMethod === 'POST') {
+                $this->client->post("bot{$this->telebotToken}/{$apiMethod}", ['json' => $params]);
+            }
+        } catch (\Throwable $exception) {
+            $this->logger->debug("Catch exception during send request to api: {$exception->getMessage()}");
         }
+
     }
 }
