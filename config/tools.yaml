@@ -1,12 +1,11 @@
 services:
-
   tools.collection:
     class: App\Services\ToolsCollection
     arguments:
       - '@service_container'
 
   tools.cryptor:
-    class: App\Services\Tools\Cryptor
+    class: App\Services\Tools\CryptorTool
     public: true
 
   tools.text_comparator:
@@ -31,15 +30,6 @@ services:
     public: true
     arguments:
       - '%env(string:ALI_API_URL)%'
-
-  tools.cityads_postbck_manager:
-    class: App\Services\Tools\CityadsPostbackManager
-    public: true
-    arguments:
-      - '@repository.csv_file'
-      - '@repository.message'
-      - '@file.archive_uploader'
-      - '@monolog.logger'
 
   file.archive_uploader:
     class: App\Services\File\Uploader\ArchiveFileUploader

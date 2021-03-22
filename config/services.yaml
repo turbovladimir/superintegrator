@@ -1,5 +1,3 @@
-# This file is the entry point to configure your own services.
-# Files in the packages/ subdirectory configure your dependencies.
 imports:
     - { resource: parameters.yaml }
     - { resource: repositories.yaml }
@@ -8,29 +6,27 @@ imports:
     - { resource: controllers.yaml }
 
 services:
-    # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
-
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
+        bind:
+            $env: '%env(APP_ENV)%'
+            $domain: '%env(DOMAIN)%'
+            $telebotLogDir: '%telebot_log_dir%'
+            $telebotToken: '%env(BOT_TOKEN)%'
     App\:
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Entity,Migrations,Repositories,Tests,Kernel.php}'
-
-    # controllers are imported separately to make sure services can be injected
-    # as action arguments even if you don't extend any base controller class
     App\Controller\:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
-
     App\Services\Tools\:
         resource: '../src/Services/Tools'
         tags: [ 'tool' ]
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    monolog.my_line_formatter:
+        class: Monolog\Formatter\LineFormatter
+        arguments: [ null, null, true ]
 
     app.service.sender.message_manager:
         class: App\Services\Sender\MessageManager
@@ -38,5 +34,7 @@ services:
             - '@repository.message'
             - '@monolog.logger'
 
-    app.service.app_fixture:
-        class: App\DataFixtures\AppFixtures
+    app.service.telebot.processor:
+        class: App\Services\TeleBot\TelebotProcessor
+        arguments:
+            $telebotLogger: '@monolog.logger'

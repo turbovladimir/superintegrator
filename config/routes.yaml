@@ -1,10 +1,10 @@
 main_page:
   path: /
-  controller: App\Controller\ToolController::mainPageAction
+  controller: App\Controller\ToolController::mainPage
 
 tools:
   path: /tools
-  controller: App\Controller\ToolController::mainPageAction
+  controller: App\Controller\ToolController::mainPage
 
 tool.common:
   path: /tools/{tool}/{action}
@@ -12,12 +12,29 @@ tool.common:
   requirements:
     action: 'new|update|list'
   defaults:
-    tool:
+    tool: null
     action: null
 
 tool.xml_page:
   path: /xml
   controller: App\Controller\ToolController::xmlPage
+
+#telebot
+telebot_api.index:
+  path: /telebot
+  controller: App\Controller\TelebotController::index
+
+telebot_api.show_logs:
+  path: /telebot/show_logs
+  controller: App\Controller\TelebotController::showDebugLogs
+
+telebot_api.clear_logs:
+  path: /telebot/clear_logs
+  controller: App\Controller\TelebotController::clearDebugLogs
+
+telebot_api.set_hook:
+  path: /telebot/set_hook
+  controller: App\Controller\TelebotController::setHook
 
 # blog
 blog:

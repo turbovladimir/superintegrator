@@ -9,3 +9,9 @@ services:
     class: App\Controller\BlogController
     arguments:
       - '@repository.post'
+
+  app.controller.telebot:
+    class: App\Controller\TelebotController
+    arguments:
+      - '@app.service.telebot.processor'
+      - '@monolog.logger'

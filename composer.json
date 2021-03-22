@@ -1,8 +1,10 @@
 {
+    "name": "turbo/super-app",
     "type": "project",
     "license": "proprietary",
+    "description": "",
     "require": {
-        "php": "^7.1.3",
+        "php": ">=7.2",
         "ext-ctype": "*",
         "ext-curl": "*",
         "ext-iconv": "*",
@@ -41,6 +43,7 @@
         "symfony/web-link": "4.3.*",
         "symfony/webpack-encore-bundle": "^1.7",
         "symfony/yaml": "4.3.*",
+        "turbovladimir/tools": "^1.0",
         "twig/twig": "2.12.1"
     },
     "require-dev": {
@@ -51,6 +54,12 @@
         "symfony/test-pack": "*",
         "symfony/web-server-bundle": "4.3.*"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/turbovladimir/tools.git"
+        }
+    ],
     "config": {
         "preferred-install": {
             "*": "dist"
