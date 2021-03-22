@@ -35,7 +35,9 @@ class TelebotController extends AbstractController
         return new JsonResponse('Done!');
     }
 
-    public function setHook() {
+    public function setHook() : JsonResponse {
         $this->processor->setHook();
+
+        return new JsonResponse('Done!');
     }
 }
