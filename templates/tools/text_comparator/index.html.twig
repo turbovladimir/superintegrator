@@ -28,6 +28,7 @@
 {% endblock %}
 {% block content %}
     <form method="post" action="text_comparator">
+        <input type="hidden" name="token" value="{{ csrf_token('token') }}"/>
         <div class="form-group mb-2">
             <textarea  class="form-control" name="from" placeholder="Text from"></textarea>
             <textarea  class="form-control" name="to" placeholder="Text to"></textarea>

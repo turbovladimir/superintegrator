@@ -39,12 +39,14 @@ class ToolController extends AbstractController
      * ToolController constructor.
      * @param LoggerInterface $logger
      * @param ToolsCollection $tools
+     * @param string $env
      */
     public function __construct(
         LoggerInterface $logger,
-        ToolsCollection $tools
+        ToolsCollection $tools,
+        string $env
     ) {
-        $this->isProduction = $_ENV['APP_ENV'] === 'prod';
+        $this->isProduction = $env === 'prod';
         $this->tools = $tools;
         $this->logger = $logger;
     }
@@ -56,12 +58,8 @@ class ToolController extends AbstractController
      *
      * @return Response
      */
-    public function index($tool = null, $action = null, Request $request)
+    public function index($tool, $action, Request $request)
     {
-        if (!$tool && !$action) {
-            return $this->render('base.html.twig');
-        }
-
         try {
             return $this->handle($request, $tool, $action);
         } catch (Warning $warning) {
@@ -81,14 +79,6 @@ class ToolController extends AbstractController
         }
 
         return $this->render('base.html.twig', $message->getData());
-    }
-
-    /**
-     * @param Request $request
-     * @return Response
-     */
-    public function mainPage(Request $request) : Response {
-        return $this->index(null, null, $request);
     }
 
     /**
@@ -115,13 +105,16 @@ class ToolController extends AbstractController
         $tool = $this->tools->getToolByName($toolName);
 
         if ($request->getMethod() === Request::METHOD_POST) {
-            parse_str($request->getContent(), $requestParameters);
-        } else {
-            parse_str($request->getQueryString(), $requestParameters);
-        }
+            if (!$this->isCsrfTokenValid('token', $request->request->get('token'))) {
+                $this->logger->alert(sprintf('Something nasty is going one from ip `%s`', $request->getClientIp()));
+                throw new \InvalidArgumentException('Incorrect or empty csrf token!');
+            }
 
-        if (!empty($requestParameters['action']) || $action) {
-            $responseData = $tool->process($requestParameters, $requestParameters['action'] ?? $action);
+             parse_str($request->getContent(), $requestParameters);
+
+            if (!empty($requestParameters['action']) || $action) {
+                $responseData = $tool->process($requestParameters, $requestParameters['action'] ?? $action);
+            }
         }
 
         $pathToTemplate =  $action ? "{$toolName}/{$action}" : "{$toolName}/index";

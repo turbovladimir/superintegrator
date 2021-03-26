@@ -8,15 +8,13 @@
 
 namespace App\Services\Tools;
 
-use App\Response\ResponseData;
 use App\Response\ResponseMessage;
 use App\Entity\Superintegrator\CountryRussia;
 use App\Entity\Superintegrator\WorldRegion;
 use App\Entity\Superintegrator\WorldRegionCodes;
-use App\Utils\StringHelper;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Tools\Assistant\StringAssistant;
 
 /**
  * Class GeoSearchService
@@ -54,7 +52,7 @@ class GeoSearchService implements Tool
         if (!$parameters ||
             empty($parameters['action']) ||
             empty($parameters['list']) ||
-            !($geoArray = StringHelper::splitId($parameters['list']))) {
+            !($geoData = StringAssistant::splitId($parameters['list']))) {
             throw new BadRequestHttpException('Empty or incorrect geo list');
         }
 
@@ -81,7 +79,7 @@ class GeoSearchService implements Tool
         $geoCount = count($allGeo);
         $cityadsIds = [];
         
-        foreach ($geoArray as $geoName) {
+        foreach ($geoData as $geoName) {
             $i = 0;
         
             while ($i < $geoCount) {

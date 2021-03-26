@@ -6,6 +6,7 @@
 {% endblock %}
 {% block content %}
 <form id="xml_new_form" method="post" action="/tools/xml_emulator">
+    <input type="hidden" name="token" value="{{ csrf_token('token') }}"/>
     <div class="elem">
         <input type="text" class="form-control" placeholder="Name" name="name">
     </div>

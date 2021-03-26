@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
 {% block content %}
     <form id="cryptor_form" method="post" action="/tools/cryptor">
+        <input type="hidden" name="token" value="{{ csrf_token('token') }}"/>
         <div class="form-group mb-2">
             <textarea id="cryptor_row" class="form-control" name="row" placeholder="Enter row"></textarea>
         </div>

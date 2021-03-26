@@ -15,7 +15,7 @@ class TelebotProcessor
     private $telebotToken;
 
     public function __construct($domain, LoggerInterface $telebotLogger, string $telebotLogDir, string $telebotToken) {
-        $this->domain = 'integratorapp.tk';
+        $this->domain = $domain;
         $this->logger = $telebotLogger;
         $this->telebotLogDir = $telebotLogDir;
         $this->telebotToken = $telebotToken;
@@ -61,6 +61,11 @@ class TelebotProcessor
         $this->makeRequest('setwebhook', 'GET', ['url' => "https://{$this->domain}/telebot"]);
     }
 
+    /**
+     * @param int $chatId
+     * @param string $text
+     * @throws \Throwable
+     */
     private function sendMessage(int $chatId, string $text) {
         $this->makeRequest(__FUNCTION__, 'POST', [
             'chat_id' => $chatId,
@@ -68,6 +73,12 @@ class TelebotProcessor
             'text' => $text]);
     }
 
+    /**
+     * @param string $apiMethod
+     * @param string $httpMethod
+     * @param array $params
+     * @throws \Throwable
+     */
     private function makeRequest(string $apiMethod, string $httpMethod, array $params = []) {
         $this->logger->debug('Sent request to api!', ['method' => $apiMethod, 'httpMethod' => $httpMethod, 'params' => $params]);
         $client = new Client();

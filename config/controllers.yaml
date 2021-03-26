@@ -4,6 +4,7 @@ services:
     arguments:
       $logger: '@monolog.logger'
       $tools: '@tools.collection'
+      $env: $env
 
   app.controller.blog:
     class: App\Controller\BlogController

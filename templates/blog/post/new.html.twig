@@ -6,6 +6,7 @@
 {% endblock %}
 {% block content %}
     <form method="post" action="/blog/post/save">
+        <input type="hidden" name="token" value="{{ csrf_token('token') }}"/>
         <div class="elem">
             <input type="text" class="form-control" placeholder="Post title" name="title" value="{{ post.title is defined ? post.title : '' }}">
         </div>

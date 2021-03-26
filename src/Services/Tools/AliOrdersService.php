@@ -10,11 +10,10 @@ namespace App\Services\Tools;
 
 use App\Response\FileDownloadResponse;
 use App\Services\File\CsvFileManager;
-use App\Utils\StringHelper;
 use League\Csv\AbstractCsv;
 use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Tools\Assistant\StringAssistant;
 
 class AliOrdersService implements Tool
 {
@@ -66,7 +65,7 @@ class AliOrdersService implements Tool
      */
     public function process(array $parameters, $action = null) {
         if (isset($parameters['csv_export']) && !empty($parameters['orders'])) {
-            $csv = $this->generateCsvReportFile(StringHelper::splitId($parameters['orders']));
+            $csv = $this->generateCsvReportFile(StringAssistant::splitId($parameters['orders']));
 
             return new FileDownloadResponse($csv->getPathname(), $this->getFileName());
         }

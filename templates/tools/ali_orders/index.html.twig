@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
 {% block content %}
         <form method="post" action="/tools/ali_orders" id="ali_orders_form">
+            <input type="hidden" name="token" value="{{ csrf_token('token') }}"/>
                 <textarea class="form-control" id="check_field" rows="10" name="orders" placeholder="Paste orders"></textarea>
             <div class="elem">
                 <button class="btn btn-dark" type="submit" name="csv_export" need_check="1">Export to CSV</button>

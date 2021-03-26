@@ -1,10 +1,14 @@
 main_page:
   path: /
-  controller: App\Controller\ToolController::mainPage
+  controller: Symfony\Bundle\FrameworkBundle\Controller\TemplateController
+  defaults:
+    template:  'base.html.twig'
 
 tools:
   path: /tools
-  controller: App\Controller\ToolController::mainPage
+  controller: Symfony\Bundle\FrameworkBundle\Controller\TemplateController
+  defaults:
+    template:  'base.html.twig'
 
 tool.common:
   path: /tools/{tool}/{action}
