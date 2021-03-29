@@ -1,9 +1,7 @@
 security:
-    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
         in_memory: { memory: null }
         users_in_memory: { memory: null }
-        # used to reload user from session & other features (e.g. switch_user)
         users:
             entity:
                 class: App\Entity\User
@@ -12,11 +10,7 @@ security:
         App\Entity\User:
             algorithm: auto
 
-
     firewalls:
-        test:
-            pattern: ^/
-            security: false
         main:
             anonymous: true
             access_denied_handler: App\Security\AccessDeniedHandler
@@ -28,17 +22,7 @@ security:
             provider: users
             logout:
                 path: logout
-#            http_basic:
-#                realm: Secured Area
 
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.htmlReview your new#firewalls-authentication
-
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
-
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
     access_control:
          - { path: ^/telebot, roles: ROLE_ADMIN }
          - { path: ^/logs, roles: ROLE_ADMIN }

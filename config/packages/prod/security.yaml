@@ -1,0 +1,30 @@
+security:
+    providers:
+        in_memory: { memory: null }
+        users_in_memory: { memory: null }
+        users:
+            entity:
+                class: App\Entity\User
+                property: name
+    encoders:
+        App\Entity\User:
+            algorithm: auto
+
+    firewalls:
+        main:
+            anonymous: true
+            access_denied_handler: App\Security\AccessDeniedHandler
+            form_login:
+                csrf_token_generator: security.csrf.token_manager
+                default_target_path: main_page
+                login_path: login
+                check_path: login
+            provider: users
+            logout:
+                path: logout
+
+    access_control:
+         - { path: ^/telebot, roles: ROLE_ADMIN }
+         - { path: ^/logs, roles: ROLE_ADMIN }
+         - { path: ^/tools, roles: ROLE_USER }
+         - { path: ^/blog, roles: ROLE_USER }

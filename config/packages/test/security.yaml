@@ -1,0 +1,16 @@
+security:
+    providers:
+        in_memory: { memory: null }
+        users_in_memory: { memory: null }
+        users:
+            entity:
+                class: App\Entity\User
+                property: name
+    encoders:
+        App\Entity\User:
+            algorithm: auto
+
+    firewalls:
+        main:
+            pattern: '^/'
+            security: false
