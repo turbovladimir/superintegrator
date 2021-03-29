@@ -14,8 +14,8 @@ security:
 
 
     firewalls:
-        dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
+        test:
+            pattern: ^/
             security: false
         main:
             anonymous: true

@@ -28,6 +28,9 @@ services:
         resource: '../src/Services/Tools'
         tags: [ 'tool' ]
 
+    App\Tests\DataFixtures\:
+        resource: '../tests/DataFixtures'
+
     monolog.my_line_formatter:
         class: Monolog\Formatter\LineFormatter
         arguments: [ null, null, true ]

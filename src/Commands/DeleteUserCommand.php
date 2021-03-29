@@ -40,7 +40,7 @@ class DeleteUserCommand extends Command
     }
 
     protected function execute(InputInterface $input, OutputInterface $output) {
-        if (!$user = $this->userRepo->findOneBy(['name' => $input->getOption('name')])) {
+        if (!$user = $this->userRepo->findByName($input->getOption('name'))) {
             $output->writeln('user not found!');
 
             exit();
