@@ -82,6 +82,13 @@ class ToolController extends AbstractController
     }
 
     /**
+     * @return Response
+     */
+    public function renderMainPage() {
+        return $this->render('base.html.twig');
+    }
+
+    /**
      * @param Request $request
      * @return Response
      */

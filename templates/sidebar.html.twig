@@ -1,25 +1,42 @@
 {% block sidebar %}
-    <div class="sidebar-heading">
-        <div>
-            <img style="width: 60px; height: auto" src="https://i.giphy.com/media/4NWT0Ry3dtTLW/giphy.webp">
-            <img style="width: 60px; height: auto" src="https://media.giphy.com/media/l378Bu88CUbQyFniM/giphy.gif">
-            <img style="width: 50px; height: auto" src="https://media.giphy.com/media/4BJCvMoLPePq8/giphy.gif">
-        </div>
-    </div>
-    <div class="list-group list-group-flush">
-        <div class="dropdown show">
-            <a class="list-group-item list-group-item-action bg-light dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Tools
-            </a>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                <a href="/tools/geo" class="dropdown-item">Geo search</a>
-                <a href="/tools/ali_orders" class="dropdown-item">Aliexpress orders</a>
-{#                <a href="/tools/sender" class="dropdown-item">Sender</a>#}
-                <a href="/tools/xml_emulator" class="dropdown-item">Xml emulator</a>
-                <a href="/tools/cryptor" class="dropdown-item">Cryptor</a>
-                <a href="/tools/text_comparator" class="dropdown-item">Text comparator</a>
+    <div class="bg-light border-right" id="sidebar-wrapper">
+        <div class="sidebar-heading">
+            <div class="list-group">
+                {% if app.user.username is defined %}
+                    <label>Hi {{ app.user.username }}!</label>
+                    <a href="{{ path('logout') }}" ><button type="button" class="btn btn-secondary btn-sm">
+                        Logout</button></a>
+                    {% else %}
+                        <a href="{{ path('login') }}" ><button type="button" class="btn btn-secondary btn-sm">
+                                Login</button></a>
+                {% endif %}
+            </div>
+            <div id="menu-toggle">
+                <img style="width: 60px; height: auto" src="https://i.giphy.com/media/4NWT0Ry3dtTLW/giphy.webp">
             </div>
         </div>
-        <a href="/blog" class="list-group-item list-group-item-action bg-light">Blog</a>
+        <div class="list-group list-group-flush">
+            <div class="dropdown show">
+                <a class="list-group-item list-group-item-action bg-light dropdown-toggle" href="#" role="button"
+                   id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Tools
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <a href={{ path('tool.common', {tool: 'geo'}) }} class="dropdown-item">Geo search</a>
+                    <a href={{ path('tool.common', {tool: 'ali_orders'}) }} class="dropdown-item">Aliexpress orders</a>
+                    <a href={{ path('tool.common', {tool: 'xml_emulator'}) }} class="dropdown-item">Xml emulator</a>
+                    <a href={{ path('tool.common', {tool: 'cryptor'}) }} class="dropdown-item">Cryptor</a>
+                    <a href={{ path('tool.common', {tool: 'text_comparator'}) }} class="dropdown-item">Text comparator</a>
+                    <a href="{{ path('logs.show') }}" class="list-group-item list-group-item-action bg-light">Logs(admin only)</a>
+                </div>
+            </div>
+            <a href="{{ path('blog') }}" class="list-group-item list-group-item-action bg-light">Blog</a>
+        </div>
     </div>
+    <script>
+        $("#menu-toggle").click(function(e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
+    </script>
 {% endblock %}

@@ -1,7 +1,8 @@
 {% extends 'base.html.twig' %}
 {% block content %}
+    <!-- Page with posts -->
     <div class="elem">
-        <a href="/blog/post/new">
+        <a href={{ path('blog.post.new') }}>
             <button class="btn btn-dark" type="submit">New post</button>
         </a>
     </div>

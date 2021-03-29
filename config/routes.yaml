@@ -1,14 +1,19 @@
+login:
+  path: /login
+  controller: App\Controller\SecurityController::login
+  methods: GET|POST
+
+logout:
+  path: /logout
+  methods: GET
+
 main_page:
   path: /
-  controller: Symfony\Bundle\FrameworkBundle\Controller\TemplateController
-  defaults:
-    template:  'base.html.twig'
+  controller: App\Controller\ToolController::renderMainPage
 
 tools:
   path: /tools
-  controller: Symfony\Bundle\FrameworkBundle\Controller\TemplateController
-  defaults:
-    template:  'base.html.twig'
+  controller: App\Controller\ToolController::renderMainPage
 
 tool.common:
   path: /tools/{tool}/{action}
@@ -39,6 +44,15 @@ telebot_api.clear_logs:
 telebot_api.set_hook:
   path: /telebot/set_hook
   controller: App\Controller\TelebotController::setHook
+
+#logs
+logs.show:
+  path: /logs
+  controller: App\Controller\LogsController::index
+
+logs.clear:
+  path: /logs/clear
+  controller: App\Controller\LogsController::clear
 
 # blog
 blog:

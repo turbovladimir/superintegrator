@@ -35,41 +35,39 @@
     <body>
     <div class="d-flex" id="wrapper">
         <!-- Sidebar -->
-        <div class="bg-light border-right" id="sidebar-wrapper">{{ include('sidebar.html.twig') }}</div>
-        <!-- /#sidebar-wrapper -->
-
+        {{ include('sidebar.html.twig') }}
         <!-- Page Content -->
         <div id="page-content-wrapper" class="bg-light">
-                <div id="transparent_mask">
-                    <div id="snowfall">
-                        <div id="page-content">
-                            {% block title %}
-                                {% if title is defined %}
-                                    <div class="block rounded bg-light">
+            <div id="transparent_mask">
+                <div id="snowfall">
+                    <div id="page-content">
+                        {% block title %}
+                            {% if title is defined %}
+                                <div class="block rounded bg-light">
                                     <h1>{{ title }}</h1>
-                                    </div>
-                                {% endif %}
-                                {% if description is defined %}
-                                    <div class="block rounded bg-light">
-                                        <button type="button" id="btn-tooltip" class="btn btn-secondary btn-sm" title="{{ description }}">Подсказонька</button>
-                                    </div>
-                                {% endif %}
-                            {% endblock %}
-                            {#Base content block#}
-                            <div class="block rounded bg-light" id="block-content">
-                                {% block content %}
-                                    <div id="timer_season"></div>
-                                {% endblock %}
-                            </div>
-                            {#Response message block#}
-                            {% if message is defined %}
-                                {{ message|raw }}
+                                </div>
                             {% endif %}
+                            {% if description is defined %}
+                                <div class="block rounded bg-light">
+                                    <button type="button" id="btn-tooltip" class="btn btn-secondary btn-sm" title="{{ description }}">Подсказонька</button>
+                                </div>
+                            {% endif %}
+                        {% endblock %}
+                        {#Base content block#}
+                        <div class="block rounded bg-light" id="block-content">
+                            {% block content %}
+                                <div id="timer_season"></div>
+                            {% endblock %}
                         </div>
+                        {#Response message block#}
+                        {% if message is defined %}
+                            {{ message|raw }}
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
     </body>
 {% endblock %}

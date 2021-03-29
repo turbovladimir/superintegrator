@@ -14,6 +14,10 @@ services:
             $domain: '%env(DOMAIN)%'
             $telebotLogDir: '%telebot_log_dir%'
             $telebotToken: '%env(BOT_TOKEN)%'
+            $salt: '%env(APP_SECRET)%'
+            $entityManager: '@doctrine.orm.entity_manager'
+            $twig: '@twig'
+            $userRepo: '@repository.user'
     App\:
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Entity,Migrations,Repositories,Tests,Kernel.php}'

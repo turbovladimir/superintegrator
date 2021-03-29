@@ -2,7 +2,6 @@
 
 namespace App\Entity\Superintegrator;
 
-use App\Controller\ToolController;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\BaseEntity;
 
