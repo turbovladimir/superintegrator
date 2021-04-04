@@ -11,14 +11,15 @@ use Psr\Log\LoggerInterface;
 class TelebotProcessor
 {
     private $client;
-    private $domain;
     private $logger;
     private $telebotLogDir;
     private $telebotToken;
 
-    public function __construct($domain, LoggerInterface $telebotLogger, Client $client, string $telebotLogDir, string $telebotToken) {
-        $this->client = $client;
-        $this->domain = $domain;
+    public function __construct(
+        LoggerInterface $telebotLogger,
+        string $telebotLogDir,
+        string $telebotToken) {
+        $this->client = new Client();
         $this->logger = $telebotLogger;
         $this->telebotLogDir = $telebotLogDir;
         $this->telebotToken = $telebotToken;
@@ -62,10 +63,6 @@ class TelebotProcessor
 
     public function clearDebugLogs() {
         file_put_contents("{$this->telebotLogDir}/telebot.log", "");
-    }
-
-    public function setHook() {
-        $this->makeRequest('setwebhook', 'GET', ['url' => "https://{$this->domain}/telebot"]);
     }
 
     /**

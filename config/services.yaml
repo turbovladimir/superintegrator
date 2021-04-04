@@ -44,8 +44,4 @@ services:
     app.service.telebot.processor:
         class: App\Services\TeleBot\TelebotProcessor
         arguments:
-            $client: '@app.http.client'
             $telebotLogger: '@monolog.logger'
-
-    app.http.client:
-        class: GuzzleHttp\Client
