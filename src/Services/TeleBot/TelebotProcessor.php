@@ -66,7 +66,7 @@ class TelebotProcessor
     }
 
     private function preFormat($message) : string {
-        return nl2br('<pre>'.$message.'<\pre>', false);
+        return nl2br('<pre>'.$message.'</pre>', false);
     }
 
     /**
