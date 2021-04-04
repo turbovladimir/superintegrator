@@ -29,19 +29,19 @@ tool.xml_page:
   controller: App\Controller\ToolController::xmlPage
 
 #telebot
-telebot_api.index:
-  path: /telebot
-  controller: App\Controller\TelebotController::index
+telebot.process:
+  path: /telebot/process
+  controller: App\Controller\TelebotController::process
 
-telebot_api.show_logs:
+telebot.show_logs:
   path: /telebot/show_logs
   controller: App\Controller\TelebotController::showDebugLogs
 
-telebot_api.clear_logs:
+telebot.clear_logs:
   path: /telebot/clear_logs
   controller: App\Controller\TelebotController::clearDebugLogs
 
-telebot_api.set_hook:
+telebot.set_hook:
   path: /telebot/set_hook
   controller: App\Controller\TelebotController::setHook
 

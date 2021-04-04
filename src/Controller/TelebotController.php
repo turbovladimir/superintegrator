@@ -19,10 +19,10 @@ class TelebotController extends AbstractController
         $this->logger = $logger;
     }
 
-    public function index() : Response {
+    public function process() : Response {
         $this->processor->process();
 
-        return $this->redirectToRoute('main_page');
+        return new JsonResponse('Got it!');
     }
 
     public function showDebugLogs() : JsonResponse {

@@ -41,8 +41,8 @@ class TelebotProcessor
         $chatId = $messageData['chat']['id'];
         $text = strtolower($messageData['text']);
 
-        if ($text === 'hi!') {
-            $this->sendMessage($chatId, 'Alohaa its work for you!');
+        if ($text) {
+            $this->sendMessage($chatId, "You say ```{$text}```");
         }
     }
 
