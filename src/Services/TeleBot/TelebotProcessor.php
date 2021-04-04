@@ -32,7 +32,7 @@ class TelebotProcessor
             if ($inputData->isBotCommand()) {
                 $this->processCommand($inputData);
             } else {
-                $this->sendMessage($inputData->getChatId(), "You say {$inputData->getText()}", $this->createKayboard());
+                $this->sendMessage($inputData->getChatId(), "You say {$inputData->getText()}", $this->createKeyboard());
             }
         }
     }
@@ -109,7 +109,7 @@ class TelebotProcessor
     }
 
 
-    private function createKayboard() : array {
+    private function createKeyboard() : array {
         $keyboard = [
             ['7', '8', '9'],
             ['4', '5', '6'],

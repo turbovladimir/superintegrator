@@ -25,7 +25,7 @@ class InputData
     }
 
     public function isBotCommand() : bool {
-        return $this->data['message']['entities']['type'] === 'bot_command';
+        return $this->data['message']['entities'][0]['type'] === 'bot_command';
     }
 
     public function __toString() : string {
