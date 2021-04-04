@@ -74,6 +74,7 @@ class TelebotProcessor
                 //nothing
             }
 
+            sleep(1);
             $messageId--;
         }
     }
