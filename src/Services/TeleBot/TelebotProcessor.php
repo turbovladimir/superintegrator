@@ -26,7 +26,7 @@ class TelebotProcessor
         $inputData = new InputData();
 
         if ($inputData->getMessage()) {
-            $this->sendMessage($inputData->getChatId(), "You say ```{$inputData->getMessage()}```");
+            $this->sendMessage($inputData->getChatId(), "You say {$inputData->getMessage()}", ['button1' => 'Yes','button2' => 'No']);
         }
     }
 
