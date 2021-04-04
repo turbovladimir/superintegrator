@@ -24,7 +24,6 @@ security:
                 path: logout
 
     access_control:
-         - { path: ^/telebot, roles: ROLE_ADMIN }
          - { path: ^/logs, roles: ROLE_ADMIN }
          - { path: ^/tools, roles: ROLE_USER }
          - { path: ^/blog, roles: ROLE_USER }
