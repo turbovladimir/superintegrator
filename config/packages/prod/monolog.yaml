@@ -6,3 +6,11 @@ monolog:
             handler: nested
             level: debug
             max_files: 10
+        telebot:
+            type: stream
+            path: "%telebot_log_dir%/telebot.log"
+            formatter: monolog.my_line_formatter
+            channels: [ "telebot" ]
+
+    channels:
+            - telebot
