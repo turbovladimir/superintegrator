@@ -57,12 +57,18 @@ class TelebotProcessor
      * @param string $text
      * @throws \Throwable
      */
-    private function sendMessage(int $chatId, string $text) {
-        $this->makeRequest(__FUNCTION__, 'POST', [
+    private function sendMessage(int $chatId, string $text, array $keyboard = []) {
+        $message = [
             'chat_id' => $chatId,
             'method' => __FUNCTION__,
             'parse_mode' => 'HTML',
-            'text' => $text]);
+            'text' => $text];
+
+        if (!empty($keyboard)) {
+            $message['reply_markup'] = $keyboard;
+        }
+
+        $this->makeRequest(__FUNCTION__, 'POST', $message);
     }
 
     private function preFormat($message) : string {
