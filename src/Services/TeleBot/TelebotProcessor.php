@@ -32,8 +32,10 @@ class TelebotProcessor
 
     public function debug() {
         $inputData = new InputData();
-        $this->sendMessage($inputData->getChatId(), (string)$inputData);
+        $this->sendMessage($inputData->getChatId(), $this->preFormat((string)$inputData));
     }
+
+
 
     /**
      * @return false|string
@@ -59,7 +61,12 @@ class TelebotProcessor
         $this->makeRequest(__FUNCTION__, 'POST', [
             'chat_id' => $chatId,
             'method' => __FUNCTION__,
+            'parse_mode' => 'HTML',
             'text' => $text]);
+    }
+
+    private function preFormat($message) : string {
+        return nl2br('<pre>'.$message.'<\pre>');
     }
 
     /**
