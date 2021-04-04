@@ -4,6 +4,7 @@
 namespace App\Services\TeleBot;
 
 
+use App\Services\TeleBot\Entity\InputData;
 use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
 
@@ -21,29 +22,17 @@ class TelebotProcessor
         $this->telebotToken = $telebotToken;
     }
 
-    /**
-     *
-     */
     public function process() {
-        $inputData = json_decode(file_get_contents('php://input'), true);
+        $inputData = new InputData();
 
-        if (!$inputData) {
-            return;
+        if ($inputData->getMessage()) {
+            $this->sendMessage($inputData->getChatId(), "You say ```{$inputData->getMessage()}```");
         }
+    }
 
-        $this->logger->debug('Get message from api: ' . print_r($inputData, true));
-        $messageData = $inputData['message'];
-
-        if (empty($messageData['text'])) {
-            return;
-        }
-
-        $chatId = $messageData['chat']['id'];
-        $text = strtolower($messageData['text']);
-
-        if ($text) {
-            $this->sendMessage($chatId, "You say ```{$text}```");
-        }
+    public function debug() {
+        $inputData = new InputData();
+        $this->sendMessage($inputData->getChatId(), (string)$inputData);
     }
 
     /**

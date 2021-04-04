@@ -7,6 +7,7 @@ use App\Services\TeleBot\TelebotProcessor;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class TelebotController extends AbstractController
@@ -19,8 +20,12 @@ class TelebotController extends AbstractController
         $this->logger = $logger;
     }
 
-    public function process() : Response {
-        $this->processor->process();
+    public function process(Request $request) : Response {
+        if (!$request->get('debug')) {
+            $this->processor->process();
+        } else {
+            $this->processor->debug();
+        }
 
         return new JsonResponse('Got it!');
     }
