@@ -59,12 +59,23 @@ class TelebotProcessor
         $command = $inputData->getText();
 
         if ($command === '/clear_history') {
-            $this->deleteHistory();
+            $this->deleteHistory($inputData);
         }
     }
 
-    private function deleteHistory() {
-        $this->makeRequest(__FUNCTION__, ['just_clear' => true]);
+    private function deleteHistory(InputData $inputData) {
+        $chatId = $inputData->getChatId();
+        $messageId = $inputData->getMessageId();
+
+        while ($messageId) {
+            try {
+                $this->makeRequest('deleteMessage', ['chat_id' => $chatId, 'message_id' => $messageId]);
+            } catch (\Throwable $exception) {
+                //nothing
+            }
+
+            $messageId--;
+        }
     }
 
     /**

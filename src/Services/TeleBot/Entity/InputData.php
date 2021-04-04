@@ -8,8 +8,8 @@ class InputData
 {
     private $data;
 
-    public function __construct() {
-        if (!$data = json_decode(file_get_contents('php://input'), true)) {
+    public function __construct(array $data = []) {
+        if (empty($data) && !$data = json_decode(file_get_contents('php://input'), true)) {
             throw new \InvalidArgumentException('Empty data in body!');
         }
 
@@ -18,6 +18,10 @@ class InputData
 
     public function getChatId() {
         return $this->data['message']['chat']['id'] ?? null;
+    }
+
+    public function getMessageId() {
+        return $this->data['message']['message_id'] ?? null;
     }
 
     public function getText() {
