@@ -75,10 +75,12 @@ class TelebotProcessor
         try {
             if ($httpMethod === 'GET') {
                 $query = http_build_query($params);
-                $client->get("https://api.telegram.org/bot{$this->telebotToken}/{$apiMethod}?{$query}");
-            } elseif ($httpMethod === 'POST') {
-                $client->post("https://api.telegram.org/bot{$this->telebotToken}/{$apiMethod}", ['json' => $params]);
+                $response = $client->get("https://api.telegram.org/bot{$this->telebotToken}/{$apiMethod}?{$query}");
+            } else {
+                $response = $client->post("https://api.telegram.org/bot{$this->telebotToken}/{$apiMethod}", ['json' => $params]);
             }
+
+            $this->logger->debug('Getting response info!', ['headers' => $response->getHeaders(), 'body' => $response->getBody()]);
         } catch (\Throwable $exception) {
             $this->logger->debug("Catch exception during send request to api: {$exception->getMessage()}");
             throw $exception;
