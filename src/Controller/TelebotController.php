@@ -21,10 +21,18 @@ class TelebotController extends AbstractController
     }
 
     public function process(Request $request) : Response {
-        if (!$request->get('debug')) {
-            $this->processor->process();
-        } else {
-            $this->processor->debug();
+        try {
+            if (!$request->get('debug')) {
+                $this->processor->process();
+            } else {
+                $this->processor->debug();
+            }
+        } catch (\Throwable $exception) {
+            return new JsonResponse(
+                sprintf('Error happen: %s(%d) `%s`',
+                    $exception->getFile(),
+                    $exception->getLine(),
+                    $exception->getMessage()));
         }
 
         return new JsonResponse('Got it!');

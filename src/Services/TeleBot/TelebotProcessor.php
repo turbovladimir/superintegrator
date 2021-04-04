@@ -10,12 +10,14 @@ use Psr\Log\LoggerInterface;
 
 class TelebotProcessor
 {
+    private $client;
     private $domain;
     private $logger;
     private $telebotLogDir;
     private $telebotToken;
 
-    public function __construct($domain, LoggerInterface $telebotLogger, string $telebotLogDir, string $telebotToken) {
+    public function __construct($domain, LoggerInterface $telebotLogger, Client $client, string $telebotLogDir, string $telebotToken) {
+        $this->client = $client;
         $this->domain = $domain;
         $this->logger = $telebotLogger;
         $this->telebotLogDir = $telebotLogDir;
@@ -25,8 +27,22 @@ class TelebotProcessor
     public function process() {
         $inputData = new InputData();
 
-        if ($inputData->getMessage()) {
-            $this->sendMessage($inputData->getChatId(), "You say {$inputData->getMessage()}", [['button1' => 'Yes'],['button2' => 'No']]);
+        if ($message = $inputData->getMessage()) {
+
+            $keyboard = [
+                ['7', '8', '9'],
+                ['4', '5', '6'],
+                ['1', '2', '3'],
+                ['0']
+            ];
+
+            $replyMarkup = [
+                'keyboard' => $keyboard,
+                'resize_keyboard' => true,
+                'one_time_keyboard' => true
+            ];
+
+            $this->sendMessage($inputData->getChatId(), "You say {$inputData->getMessage()}", $replyMarkup);
         }
     }
 
@@ -57,15 +73,15 @@ class TelebotProcessor
      * @param string $text
      * @throws \Throwable
      */
-    private function sendMessage(int $chatId, string $text, array $keyboard = []) {
+    private function sendMessage(int $chatId, string $text, array $replyMarkup = []) {
         $message = [
             'chat_id' => $chatId,
             'method' => __FUNCTION__,
             'parse_mode' => 'HTML',
             'text' => $text];
 
-        if (!empty($keyboard)) {
-            $message['reply_markup'] = ['keyboard' => $keyboard];
+        if (!empty($replyMarkup)) {
+            $message['reply_markup'] = $replyMarkup;
         }
 
         $this->makeRequest(__FUNCTION__, 'POST', $message);
@@ -83,14 +99,13 @@ class TelebotProcessor
      */
     private function makeRequest(string $apiMethod, string $httpMethod, array $params = []) {
         $this->logger->debug('Sent request to api!', ['method' => $apiMethod, 'httpMethod' => $httpMethod, 'params' => $params]);
-        $client = new Client();
 
         try {
             if ($httpMethod === 'GET') {
                 $query = http_build_query($params);
-                $response = $client->get("https://api.telegram.org/bot{$this->telebotToken}/{$apiMethod}?{$query}");
+                $response = $this->client->get("https://api.telegram.org/bot{$this->telebotToken}/{$apiMethod}?{$query}");
             } else {
-                $response = $client->post("https://api.telegram.org/bot{$this->telebotToken}/{$apiMethod}", ['json' => $params]);
+                $response = $this->client->post("https://api.telegram.org/bot{$this->telebotToken}/{$apiMethod}", ['json' => $params]);
             }
 
             $this->logger->debug('Getting response info!', ['headers' => $response->getHeaders(), 'body' => $response->getBody()]);
