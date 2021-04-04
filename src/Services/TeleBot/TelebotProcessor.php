@@ -65,7 +65,7 @@ class TelebotProcessor
             'text' => $text];
 
         if (!empty($keyboard)) {
-            $message['reply_markup'] = $keyboard;
+            $message['reply_markup'] = ['keyboard' => $keyboard];
         }
 
         $this->makeRequest(__FUNCTION__, 'POST', $message);
