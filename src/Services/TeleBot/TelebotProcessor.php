@@ -66,7 +66,7 @@ class TelebotProcessor
     }
 
     private function preFormat($message) : string {
-        return nl2br('<pre>'.$message.'<\pre>');
+        return nl2br('<pre>'.$message.'<\pre>', false);
     }
 
     /**
@@ -89,7 +89,7 @@ class TelebotProcessor
 
             $this->logger->debug('Getting response info!', ['headers' => $response->getHeaders(), 'body' => $response->getBody()]);
         } catch (\Throwable $exception) {
-            $this->logger->debug("Catch exception during send request to api: {$exception->getMessage()}");
+            $this->logger->error("Catch exception during send request to api: {$exception->getMessage()}");
             throw $exception;
         }
     }
