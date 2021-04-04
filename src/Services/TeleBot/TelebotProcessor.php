@@ -28,22 +28,12 @@ class TelebotProcessor
     public function process() {
         $inputData = new InputData();
 
-        if ($message = $inputData->getMessage()) {
-
-            $keyboard = [
-                ['7', '8', '9'],
-                ['4', '5', '6'],
-                ['1', '2', '3'],
-                ['0']
-            ];
-
-            $replyMarkup = [
-                'keyboard' => $keyboard,
-                'resize_keyboard' => true,
-                'one_time_keyboard' => true
-            ];
-
-            $this->sendMessage($inputData->getChatId(), "You say {$inputData->getMessage()}", $replyMarkup);
+        if ($message = $inputData->getText()) {
+            if ($inputData->isBotCommand()) {
+                $this->processCommand($inputData);
+            } else {
+                $this->sendMessage($inputData->getChatId(), "You say {$inputData->getText()}", $this->createKayboard());
+            }
         }
     }
 
@@ -65,6 +55,18 @@ class TelebotProcessor
         file_put_contents("{$this->telebotLogDir}/telebot.log", "");
     }
 
+    private function processCommand(InputData $inputData) {
+        $command = $inputData->getText();
+
+        if ($command === '/clear_history') {
+            $this->deleteHistory();
+        }
+    }
+
+    private function deleteHistory() {
+        $this->makeRequest(__FUNCTION__, ['just_clear' => true]);
+    }
+
     /**
      * @param int $chatId
      * @param string $text
@@ -81,7 +83,7 @@ class TelebotProcessor
             $message['reply_markup'] = $replyMarkup;
         }
 
-        $this->makeRequest(__FUNCTION__, 'POST', $message);
+        $this->makeRequest(__FUNCTION__, $message);
     }
 
     private function preFormat($message) : string {
@@ -94,21 +96,31 @@ class TelebotProcessor
      * @param array $params
      * @throws \Throwable
      */
-    private function makeRequest(string $apiMethod, string $httpMethod, array $params = []) {
-        $this->logger->debug('Sent request to api!', ['method' => $apiMethod, 'httpMethod' => $httpMethod, 'params' => $params]);
+    private function makeRequest(string $apiMethod, array $params = []) {
+        $this->logger->debug('Sent request to api!', ['method' => $apiMethod, 'params' => $params]);
 
         try {
-            if ($httpMethod === 'GET') {
-                $query = http_build_query($params);
-                $response = $this->client->get("https://api.telegram.org/bot{$this->telebotToken}/{$apiMethod}?{$query}");
-            } else {
-                $response = $this->client->post("https://api.telegram.org/bot{$this->telebotToken}/{$apiMethod}", ['json' => $params]);
-            }
-
+            $response = $this->client->post("https://api.telegram.org/bot{$this->telebotToken}/{$apiMethod}", ['json' => $params]);
             $this->logger->debug('Getting response info!', ['headers' => $response->getHeaders(), 'body' => $response->getBody()]);
         } catch (\Throwable $exception) {
             $this->logger->error("Catch exception during send request to api: {$exception->getMessage()}");
             throw $exception;
         }
+    }
+
+
+    private function createKayboard() : array {
+        $keyboard = [
+            ['7', '8', '9'],
+            ['4', '5', '6'],
+            ['1', '2', '3'],
+            ['0']
+        ];
+
+        return [
+            'keyboard' => $keyboard,
+            'resize_keyboard' => true,
+            'one_time_keyboard' => true
+        ];
     }
 }

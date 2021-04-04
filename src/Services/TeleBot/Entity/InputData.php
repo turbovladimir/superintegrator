@@ -20,8 +20,12 @@ class InputData
         return $this->data['message']['chat']['id'] ?? null;
     }
 
-    public function getMessage() {
+    public function getText() {
         return $this->data['message']['text'] ?? null;
+    }
+
+    public function isBotCommand() : bool {
+        return $this->data['message']['entities']['type'] === 'bot_command';
     }
 
     public function __toString() : string {
