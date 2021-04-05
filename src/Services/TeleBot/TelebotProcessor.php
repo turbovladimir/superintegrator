@@ -79,6 +79,7 @@ class TelebotProcessor
     }
 
     private function saveMessage(InputData $inputData) {
+        $this->logger->debug('save input data to db...', json_decode((string)$inputData, true));
         $history = new History();
         $history
             ->setChatId($inputData->getChatId())
@@ -86,7 +87,6 @@ class TelebotProcessor
             ->setMessageData((string)$inputData);
         $this->entityManager->persist($history);
         $this->entityManager->flush();
-        $this->logger->debug('saved message', json_decode($history->getMessageData(), true));
     }
 
 
