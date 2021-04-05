@@ -15,6 +15,9 @@ class TelebotProcessor
 {
     const COMMAND_LOGIN = '/login';
     const COMMAND_CLEAR_HISTORY = '/clear_history';
+    const COMMAND_CREDENTIALS_NEW = '/credentials_new';
+    const COMMAND_CREDENTIALS_GET = '/credentials_get';
+    const COMMAND_CREDENTIALS_DELETE = '/credentials_delete';
 
     private $sender;
     private $logger;
@@ -40,15 +43,16 @@ class TelebotProcessor
     }
 
     public function process(InputData $inputData): string {
-        if ($inputData->isBotCommand()) {
             try {
                 $this->saveMessage($inputData);
 
-                if (!$inputData->textLike(self::COMMAND_LOGIN)) {
-                    $this->securityProvider->checkUser($inputData->getUserId());
-                }
+                if ($inputData->isBotCommand()) {
+                    if (!$inputData->textLike(self::COMMAND_LOGIN)) {
+                        $this->securityProvider->checkUser($inputData->getUserId());
+                    }
 
-                return $this->processCommand($inputData);
+                    return $this->processCommand($inputData);
+                }
             } catch (UnauthorisedUserException $exception) {
                 $message = $exception->getMessage() . ' Please write: `' . self::COMMAND_LOGIN . ' name:password1234`';
                 $this->sender->sendMessage($inputData->getChatId(), $message);
@@ -64,13 +68,14 @@ class TelebotProcessor
                 $this->logger->critical("Undefined exception in file {$exception->getFile()}");
                 throw $exception;
             }
-        } else {
+
             return 'Only bot command allow for using!';
-        }
     }
 
     public function debug(InputData $inputData) {
-        return $this->sender->sendMessage($inputData->getChatId(), $this->preFormat((string)$inputData));
+        $this->saveMessage($inputData);
+
+        return $this->sender->sendMessage($inputData->getChatId(), $this->preFormat((string)$inputData), $this->createKeyboard());
     }
 
     private function saveMessage(InputData $inputData) {
@@ -97,6 +102,11 @@ class TelebotProcessor
         file_put_contents("{$this->telebotLogDir}/telebot.log", "");
     }
 
+    /**
+     * @param InputData $inputData
+     * @return string
+     * @throws \Throwable
+     */
     private function processCommand(InputData $inputData) {
         switch ($inputData->getCommand()) {
             case self::COMMAND_CLEAR_HISTORY:
@@ -156,17 +166,11 @@ class TelebotProcessor
     }
 
     private function createKeyboard() : array {
-        $keyboard = [
-            ['7', '8', '9'],
-            ['4', '5', '6'],
-            ['1', '2', '3'],
-            ['0']
-        ];
 
         return [
-            'keyboard' => $keyboard,
-            'resize_keyboard' => true,
-            'one_time_keyboard' => true
+            'inline_keyboard' => [
+                [["text" => "My Button Text1", "callback_data" => "myCallbackData"], ["text" => "My Button Text2", "callback_data" => "myCallbackData"]]
+            ]
         ];
     }
 }
