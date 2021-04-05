@@ -44,18 +44,7 @@ class TelebotController extends AbstractController
                     $exception->getLine(),
                     $exception->getMessage());
             }
-        } catch (\Throwable $exception) {
-            $status = 500;
-
-            if ($this->env === 'dev') {
-                $message = sprintf('Error happen: %s(%d) `%s`',
-                    $exception->getFile(),
-                    $exception->getLine(),
-                    $exception->getMessage());
-            }
         }
-
-        $this->logger->debug('Response info!', ['status' => $status, 'message' => $message]);
 
         return new JsonResponse($message, $status);
     }
