@@ -169,7 +169,7 @@ class TelebotProcessor
 
         return [
             'inline_keyboard' => [
-                [["text" => "My Button Text1", "callback_data" => "myCallbackData"], ["text" => "My Button Text2", "callback_data" => "myCallbackData"]]
+                [["text" => "My Button Text1", "callback_data" => "myCallbackData1"], ["text" => "My Button Text2", "callback_data" => "myCallbackData2"]]
             ]
         ];
     }
