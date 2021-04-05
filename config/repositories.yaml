@@ -31,3 +31,9 @@ services:
     arguments:
       - '@doctrine'
       - '@monolog.logger'
+
+  repository.history:
+    class: App\Repository\HistoryRepository
+    arguments:
+      - '@doctrine'
+      - '@monolog.logger'
