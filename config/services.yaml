@@ -12,6 +12,7 @@ services:
         bind:
             $env: '%env(APP_ENV)%'
             $domain: '%env(DOMAIN)%'
+            $cacheIp: '%env(CACHE_IP)%'
             $telebotLogDir: '%telebot_log_dir%'
             $telegramApiUrl: '%telegram_api_url%'
             $telebotToken: '%env(BOT_TOKEN)%'
@@ -20,6 +21,7 @@ services:
             $twig: '@twig'
             $userRepo: '@repository.user'
             $telebotHistoryRepo: '@repository.history'
+            $fileCache: '@docktrine.common.cache.filesystem_cache'
     App\:
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Entity,Migrations,Repositories,Tests,Kernel.php}'
@@ -57,3 +59,8 @@ services:
     app.service.telebot.sender:
         class: App\Services\TeleBot\Sender
         public: true
+
+    docktrine.common.cache.filesystem_cache:
+        class: Doctrine\Common\Cache\FilesystemCache
+        arguments:
+            - '%kernel.logs_dir%/%kernel.environment%'

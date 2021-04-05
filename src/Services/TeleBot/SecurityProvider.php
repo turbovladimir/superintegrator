@@ -6,28 +6,30 @@ namespace App\Services\TeleBot;
 use App\Repository\UserRepository;
 use App\Services\TeleBot\Exception\UnauthorisedUserException;
 use App\Services\TeleBot\Exception\UnknownUserException;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Doctrine\Common\Cache\FilesystemCache;
+use Doctrine\ORM\Cache;
+use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class SecurityProvider
 {
-    private $session;
+    private $cache;
     private $userRepo;
     private $coder;
 
     public function __construct(
         UserRepository $userRepo,
-        SessionInterface $session,
+        FilesystemCache $fileCache,
         UserPasswordEncoderInterface $coder
     ) {
         $this->userRepo = $userRepo;
-        $this->session = $session;
+        $this->cache = $fileCache;
         $this->coder = $coder;
     }
 
     public function checkUser(int $userId) {
-        if (!$this->session->has(md5($userId))) {
-            throw new UnauthorisedUserException('User is unauthorised, please login');
+        if (!$this->cache->contains(md5($userId))) {
+            throw new UnauthorisedUserException('User is unauthorised.');
         }
     }
 
@@ -37,9 +39,9 @@ class SecurityProvider
         }
 
         if (!$this->coder->isPasswordValid($user, $password)) {
-            throw new UnauthorisedUserException('User is unauthorised, please login');
+            throw new UnauthorisedUserException('User is unauthorised.');
         }
 
-        $this->session->set(md5($userId), 1);
+        $this->cache->save(md5($userId), 1, 24 * 3600);
     }
 }
