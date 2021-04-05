@@ -64,6 +64,8 @@ class TelebotProcessor
                 $this->logger->critical("Undefined exception in file {$exception->getFile()}");
                 throw $exception;
             }
+        } else {
+            return 'Only bot command allow for using!';
         }
     }
 
