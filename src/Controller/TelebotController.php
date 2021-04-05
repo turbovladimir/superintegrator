@@ -55,6 +55,8 @@ class TelebotController extends AbstractController
             }
         }
 
+        $this->logger->debug('Response info!', ['status' => $status, 'message' => $message]);
+
         return new JsonResponse($message, $status);
     }
 
