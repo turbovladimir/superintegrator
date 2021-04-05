@@ -3,6 +3,7 @@
 
 namespace App\Controller;
 
+use App\Services\TeleBot\Entity\InputData;
 use App\Services\TeleBot\TelebotProcessor;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,28 +15,47 @@ class TelebotController extends AbstractController
 {
     private $processor;
     private $logger;
+    private $env;
 
-    public function __construct(TelebotProcessor $processor, LoggerInterface $logger) {
+    public function __construct(TelebotProcessor $processor, LoggerInterface $logger, string $env) {
         $this->processor = $processor;
         $this->logger = $logger;
+        $this->env = $env;
     }
 
     public function process(Request $request) : Response {
         try {
+            $inputData = new InputData();
+            $status = 200;
+
             if (!$request->get('debug')) {
-                $this->processor->process();
+                $message = $this->processor->process($inputData);
             } else {
-                $this->processor->debug();
+                $this->processor->debug($inputData);
+                return new JsonResponse('Got it!');
             }
-        } catch (\Throwable $exception) {
-            return new JsonResponse(
-                sprintf('Error happen: %s(%d) `%s`',
+        } catch (\InvalidArgumentException $exception) {
+            $message = '';
+            $status = 400;
+
+            if ($this->env === 'dev') {
+                $message = sprintf('Error happen: %s(%d) `%s`',
                     $exception->getFile(),
                     $exception->getLine(),
-                    $exception->getMessage()));
+                    $exception->getMessage());
+            }
+        } catch (\Throwable $exception) {
+            $status = 500;
+
+            if ($this->env === 'dev') {
+                $message = sprintf('Error happen: %s(%d) `%s`',
+                    $exception->getFile(),
+                    $exception->getLine(),
+                    $exception->getMessage());
+            }
         }
 
-        return new JsonResponse('Got it!');
+        return new JsonResponse($message, $status);
     }
 
     public function showDebugLogs() : JsonResponse {

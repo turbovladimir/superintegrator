@@ -26,4 +26,12 @@ class UserRepository extends ServiceEntityRepository
     public function findByName(string $name) {
         return $this->findOneBy(['name' => $name]);
     }
+
+    /**
+     * @param string $hash
+     * @return User|null
+     */
+    public function findByHash(string $hash) {
+        return $this->findOneBy(['password' => $hash]);
+    }
 }

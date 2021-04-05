@@ -1,2 +1,3 @@
 parameters:
+  telegram_api_url: 'https://api.telegram.org'
   telebot_log_dir: '%kernel.logs_dir%/%kernel.environment%'

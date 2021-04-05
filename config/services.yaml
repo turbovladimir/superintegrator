@@ -13,11 +13,13 @@ services:
             $env: '%env(APP_ENV)%'
             $domain: '%env(DOMAIN)%'
             $telebotLogDir: '%telebot_log_dir%'
+            $telegramApiUrl: '%telegram_api_url%'
             $telebotToken: '%env(BOT_TOKEN)%'
             $salt: '%env(APP_SECRET)%'
             $entityManager: '@doctrine.orm.entity_manager'
             $twig: '@twig'
             $userRepo: '@repository.user'
+            $telebotHistoryRepo: '@repository.history'
     App\:
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Entity,Migrations,Repositories,Tests,Kernel.php}'
@@ -43,5 +45,15 @@ services:
 
     app.service.telebot.processor:
         class: App\Services\TeleBot\TelebotProcessor
+        public: true
         arguments:
             $telebotLogger: '@monolog.logger'
+            $securityProvider: '@app.service.telebot.security_provider'
+            $sender: '@app.service.telebot.sender'
+
+    app.service.telebot.security_provider:
+        class: App\Services\TeleBot\SecurityProvider
+
+    app.service.telebot.sender:
+        class: App\Services\TeleBot\Sender
+        public: true
