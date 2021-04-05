@@ -8,9 +8,7 @@ use App\Repository\HistoryRepository;
 use App\Services\TeleBot\Entity\InputData;
 use App\Services\TeleBot\Exception\UnauthorisedUserException;
 use App\Services\TeleBot\Exception\UnknownUserException;
-
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
 class TelebotProcessor
@@ -81,6 +79,7 @@ class TelebotProcessor
             ->setMessageData((string)$inputData);
         $this->entityManager->persist($history);
         $this->entityManager->flush();
+        $this->logger->debug('saved message', json_decode($history->getMessageData(), true));
     }
 
 
