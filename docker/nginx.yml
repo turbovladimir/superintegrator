@@ -4,6 +4,7 @@ services:
   nginx:
     container_name: c-nginx-super
     image: nginx:alpine
+    restart: always
     ports:
       - '81:80'
       - '444:443'

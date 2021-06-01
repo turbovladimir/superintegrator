@@ -19,6 +19,7 @@
         "fzaninotto/faker": "^1.9",
         "guzzlehttp/guzzle": "^6.3",
         "league/csv": "^9.3",
+        "longman/telegram-bot": "^0.64.0",
         "sensio/framework-extra-bundle": "^5.4",
         "surpaimb/taobao-sdk": "^0.1.0",
         "symfony/apache-pack": "^1.0",
@@ -43,7 +44,7 @@
         "symfony/web-link": "4.3.*",
         "symfony/webpack-encore-bundle": "^1.7",
         "symfony/yaml": "4.3.*",
-        "turbovladimir/tools": "^1.0",
+        "turbovladimir/tools": "1.1",
         "twig/twig": "2.12.1"
     },
     "require-dev": {
@@ -54,8 +55,7 @@
         "symfony/maker-bundle": "^1.30",
         "symfony/phpunit-bridge": "^5.2",
         "symfony/profiler-pack": "*",
-        "symfony/web-server-bundle": "4.3.*",
-        "ext-http": "*"
+        "symfony/web-server-bundle": "4.3.*"
     },
     "repositories": [
         {

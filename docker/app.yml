@@ -1,14 +1,15 @@
 version: '3.5'
-
 services:
   superintegrator:
     container_name: c-superintegrator
-    image: superintegrator
-    build:
-      context: '.'
+    image: webdevops/php-dev:7.2
     environment:
       XDEBUG_CONFIG: "remote_host=${XDEBUG_HOST} remote_port=${XDEBUG_PORT}"
+      XDEBUG_CLIENT_HOST: '${XDEBUG_HOST}'
+      XDEBUG_CLIENT_PORT: '${XDEBUG_PORT}'
       PHP_IDE_CONFIG: serverName="xdebug_server"
+    restart: always
+    working_dir: '/var/www/superintegrator'
     extra_hosts:
       - ${DOMAIN}:${HOST}
     volumes:

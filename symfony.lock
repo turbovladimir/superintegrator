@@ -38,6 +38,9 @@
     "doctrine/dbal": {
         "version": "2.10.4"
     },
+    "doctrine/deprecations": {
+        "version": "v0.5.3"
+    },
     "doctrine/doctrine-bundle": {
         "version": "2.0",
         "recipe": {
@@ -146,6 +149,9 @@
     },
     "league/url": {
         "version": "3.3.5"
+    },
+    "longman/telegram-bot": {
+        "version": "0.64.0"
     },
     "monolog/monolog": {
         "version": "1.26.0"
