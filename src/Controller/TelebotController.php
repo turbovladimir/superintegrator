@@ -8,6 +8,7 @@ use Longman\TelegramBot\Exception\TelegramException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class TelebotController extends AbstractController
@@ -33,7 +34,12 @@ class TelebotController extends AbstractController
         return new JsonResponse($message, $statusCode);
     }
 
-    public function setHook(string $hookUrl) : JsonResponse {
+    public function setHook(Request $request) : JsonResponse {
+
+        if (!$hookUrl = $request->get('hook_url') || empty($hookUrl)) {
+            return new JsonResponse('The hook url not set in request!', 403);
+        }
+
         try {
             $statusCode = 200;
             $response = $this->processor->setWebhook($hookUrl);
