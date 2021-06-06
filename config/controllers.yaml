@@ -1,18 +1,21 @@
 services:
   app.controller.tool:
     class: App\Controller\ToolController
+    tags: ['controller.service_arguments']
     arguments:
-      $logger: '@monolog.logger'
-      $tools: '@tools.collection'
-      $env: $env
+      - '@monolog.logger'
+      - '@tools.collection'
+      - '%kernel.environment%'
 
   app.controller.blog:
     class: App\Controller\BlogController
+    tags: ['controller.service_arguments']
     arguments:
       - '@repository.post'
 
   app.controller.telebot:
     class: App\Controller\TelebotController
+    tags: ['controller.service_arguments']
     arguments:
-      - '@app.service.telebot.processor'
+      - '@app.services.telebot.processor'
       - '@monolog.logger'

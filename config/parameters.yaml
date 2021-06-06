@@ -1,3 +1,6 @@
 parameters:
-  telegram_api_url: 'https://api.telegram.org'
   telebot_log_dir: '%kernel.logs_dir%/%kernel.environment%'
+  telebot.commands_dir: '%kernel.root_dir%/Services/Telebot/Commands'
+  telebot.name: '%env(BOT_NAME)%'
+  telebot.token: '%env(BOT_TOKEN)%'
+  telebot.allow_users: '%env(BOT_ALLOW_USERS)%'

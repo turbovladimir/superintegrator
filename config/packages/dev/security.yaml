@@ -13,7 +13,7 @@ security:
     firewalls:
         main:
             anonymous: true
-            access_denied_handler: App\Security\AccessDeniedHandler
+            access_denied_handler: app.security.access_denied_handler
             form_login:
                 csrf_token_generator: security.csrf.token_manager
                 default_target_path: main_page

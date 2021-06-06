@@ -33,14 +33,6 @@ telebot.process:
   path: /telebot/process
   controller: App\Controller\TelebotController::process
 
-telebot.show_logs:
-  path: /telebot/show_logs
-  controller: App\Controller\TelebotController::showDebugLogs
-
-telebot.clear_logs:
-  path: /telebot/clear_logs
-  controller: App\Controller\TelebotController::clearDebugLogs
-
 telebot.set_hook:
   path: /telebot/set_hook
   controller: App\Controller\TelebotController::setHook

@@ -4,3 +4,15 @@ services:
     abstract: true
     arguments:
       - '@monolog.logger'
+
+  command.create_user:
+    class: App\Commands\CreateUserCommand
+    arguments:
+      - '%env(APP_SECRET)%'
+      - '@doctrine.orm.entity_manager'
+
+  command.delete_user:
+    class: App\Commands\DeleteUserCommand
+    arguments:
+      - '@repository.user'
+      - '@doctrine.orm.entity_manager'

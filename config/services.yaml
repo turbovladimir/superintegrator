@@ -10,30 +10,38 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
-            $env: '%env(APP_ENV)%'
-            $domain: '%env(DOMAIN)%'
-            $cacheIp: '%env(CACHE_IP)%'
-            $telebotLogDir: '%telebot_log_dir%'
-            $telegramApiUrl: '%telegram_api_url%'
-            $telebotToken: '%env(BOT_TOKEN)%'
-            $salt: '%env(APP_SECRET)%'
-            $entityManager: '@doctrine.orm.entity_manager'
-            $twig: '@twig'
-            $userRepo: '@repository.user'
-            $telebotHistoryRepo: '@repository.history'
-            $fileCache: '@docktrine.common.cache.filesystem_cache'
-    App\:
-        resource: '../src/*'
-        exclude: '../src/{DependencyInjection,Entity,Migrations,Repositories,Tests,Kernel.php}'
+            $telebotProcessor: '@app.services.telebot.processor'
+            $tools: '@tools.collection'
+            $environment: '%kernel.environment%'
+
     App\Controller\:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
+
     App\Services\Tools\:
         resource: '../src/Services/Tools'
         tags: [ 'tool' ]
 
+    App\Repository\:
+        resource: '../src/Repository'
+        tags: [ 'doctrine.repository_service' ]
+
     App\Tests\DataFixtures\:
         resource: '../tests/DataFixtures'
+
+    app.security.access_denied_handler:
+        class: App\Security\AccessDeniedHandler
+        arguments:
+            - '@twig'
+
+    app.services.telebot.processor:
+        class: App\Services\TeleBot\Processor
+        arguments:
+            - '%telebot.allow_users%'
+            - '%telebot.token%'
+            - '%telebot.name%'
+        calls:
+            - [ 'addCommandsPath', [ '%telebot.commands_dir%' ] ]
 
     monolog.my_line_formatter:
         class: Monolog\Formatter\LineFormatter
@@ -45,20 +53,8 @@ services:
             - '@repository.message'
             - '@monolog.logger'
 
-    app.service.telebot.processor:
-        class: App\Services\TeleBot\TelebotProcessor
-        public: true
-        arguments:
-            $telebotLogger: '@monolog.logger'
-            $securityProvider: '@app.service.telebot.security_provider'
-            $sender: '@app.service.telebot.sender'
-
     app.service.telebot.security_provider:
         class: App\Services\TeleBot\SecurityProvider
-
-    app.service.telebot.sender:
-        class: App\Services\TeleBot\Sender
-        public: true
 
     docktrine.common.cache.filesystem_cache:
         class: Doctrine\Common\Cache\FilesystemCache

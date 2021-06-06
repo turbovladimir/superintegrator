@@ -3,65 +3,52 @@
 
 namespace App\Controller;
 
-use App\Services\TeleBot\Entity\InputData;
-use App\Services\TeleBot\TelebotProcessor;
+use App\Services\TeleBot\Processor;
+use Longman\TelegramBot\Exception\TelegramException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class TelebotController extends AbstractController
 {
     private $processor;
     private $logger;
-    private $env;
 
-    public function __construct(TelebotProcessor $processor, LoggerInterface $logger, string $env) {
-        $this->processor = $processor;
+    public function __construct(Processor $telebotProcessor, LoggerInterface $logger) {
+        $this->processor = $telebotProcessor;
         $this->logger = $logger;
-        $this->env = $env;
     }
 
-    public function process(Request $request) : Response {
+    public function process() : Response {
         try {
-            $inputData = new InputData();
-            $status = 200;
-
-            if (!$request->get('debug')) {
-                $message = $this->processor->process($inputData);
-            } else {
-                $this->processor->debug($inputData);
-                return new JsonResponse('Got it!');
-            }
-        } catch (\InvalidArgumentException $exception) {
-            $message = '';
-            $status = 400;
-
-            if ($this->env === 'dev') {
-                $message = sprintf('Error happen: %s(%d) `%s`',
-                    $exception->getFile(),
-                    $exception->getLine(),
-                    $exception->getMessage());
-            }
+            $statusCode = 200;
+            $this->processor->handle();
+            $message = 'nice!';
+        } catch (TelegramException $exception) {
+            $statusCode = 400;
+            $message = $exception->getMessage();
         }
 
-        return new JsonResponse($message, $status);
+        return new JsonResponse($message, $statusCode);
     }
 
-    public function showDebugLogs() : JsonResponse {
-        return new JsonResponse(explode("\n", $this->processor->fetchDebugLogs()));
-    }
+    public function setHook(string $hookUrl) : JsonResponse {
+        try {
+            $statusCode = 200;
+            $response = $this->processor->setWebhook($hookUrl);
 
-    public function clearDebugLogs() : JsonResponse {
-        $this->processor->clearDebugLogs();
+            if ($response->isOk()) {
+                $responseData = 'Done!';
+            } else {
+                $statusCode = $response->getErrorCode();
+                $responseData = "Response error : {$response->getDescription()}";
+            }
+        } catch (TelegramException $exception) {
+            $responseData = $exception->getMessage();
+            $statusCode = 400;
+        }
 
-        return new JsonResponse('Done!');
-    }
-
-    public function setHook() : JsonResponse {
-        $this->processor->setHook();
-
-        return new JsonResponse('Done!');
+        return new JsonResponse($responseData, $statusCode);
     }
 }

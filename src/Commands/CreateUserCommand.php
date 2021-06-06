@@ -31,11 +31,11 @@ class CreateUserCommand extends Command
      */
     private $entityManager;
 
-    public function __construct(string $name = null, string $salt, EntityManagerInterface $entityManager) {
+    public function __construct(string $salt, EntityManagerInterface $entityManager) {
         $this->coder = new SodiumPasswordEncoder();
         $this->salt = $salt;
         $this->entityManager = $entityManager;
-        parent::__construct($name);
+        parent::__construct();
     }
 
     protected function configure() {
