@@ -3,3 +3,8 @@ parameters:
   telebot.name: '%env(BOT_NAME)%'
   telebot.token: '%env(BOT_TOKEN)%'
   telebot.allow_users: '%env(BOT_ALLOW_USERS)%'
+
+  database.host: '%env(key:host:url:DATABASE_URL)%'
+  database.user: '%env(key:user:url:DATABASE_URL)%'
+  database.password: '%env(key:pass:url:DATABASE_URL)%'
+  database.database_name: '%env(key:path:url:DATABASE_URL)%'

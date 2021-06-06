@@ -41,7 +41,18 @@ services:
             - '%telebot.token%'
             - '%telebot.name%'
         calls:
-            - [ 'addCommandsPath', [ '%telebot.commands_dir%' ] ]
+            -
+              method: 'addCommandsPath'
+              arguments:
+                  - '%telebot.commands_dir%'
+            -
+              method: 'enableMySql'
+              arguments:
+                  -
+                    host: '%database.host%'
+                    user: '%database.user%'
+                    password: '%database.password%'
+                    database: '%database.database_name%'
 
     app.service.sender.message_manager:
         class: App\Services\Sender\MessageManager
