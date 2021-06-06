@@ -26,8 +26,8 @@ services:
     class: App\Repository\TestXmlRepository
     parent: 'repository.base'
 
-  repository.user:
-    class: App\Repository\UserRepository
+  repository.user_role:
+    class: App\Repository\UserRoleRepository
     arguments:
       - '@doctrine'
       - '@monolog.logger'

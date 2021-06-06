@@ -4,7 +4,7 @@
 namespace App\Commands;
 
 
-use App\Repository\UserRepository;
+use App\Repository\UserRoleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,11 +21,11 @@ class DeleteUserCommand extends Command
     private $entityManager;
 
     /**
-     * @var UserRepository
+     * @var UserRoleRepository
      */
     private $userRepo;
 
-    public function __construct(UserRepository $userRepo, EntityManagerInterface $entityManager) {
+    public function __construct(UserRoleRepository $userRepo, EntityManagerInterface $entityManager) {
         $this->entityManager = $entityManager;
         $this->userRepo = $userRepo;
         parent::__construct();

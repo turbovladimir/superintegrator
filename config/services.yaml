@@ -26,9 +26,6 @@ services:
         resource: '../src/Repository'
         tags: [ 'doctrine.repository_service' ]
 
-    App\Tests\DataFixtures\:
-        resource: '../tests/DataFixtures'
-
     app.security.access_denied_handler:
         class: App\Security\AccessDeniedHandler
         arguments:

@@ -4,7 +4,7 @@
 namespace App\Commands;
 
 
-use App\Entity\User;
+use App\Entity\UserRole;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

@@ -14,5 +14,5 @@ services:
   command.delete_user:
     class: App\Commands\DeleteUserCommand
     arguments:
-      - '@repository.user'
+      - '@repository.user_role'
       - '@doctrine.orm.entity_manager'

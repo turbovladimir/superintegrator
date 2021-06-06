@@ -19,7 +19,7 @@ final class Version20210326144825 extends AbstractMigration
 
     public function up(Schema $schema) : void
     {
-        $this->addSql('CREATE TABLE user (
+        $this->addSql('CREATE TABLE user_roles (
     id INT AUTO_INCREMENT NOT NULL, 
     name VARCHAR(180) NOT NULL, 
     roles text NOT NULL, 
@@ -31,6 +31,6 @@ final class Version20210326144825 extends AbstractMigration
 
     public function down(Schema $schema) : void
     {
-        $this->addSql('DROP TABLE user');
+        $this->addSql('DROP TABLE user_roles');
     }
 }

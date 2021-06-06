@@ -3,12 +3,10 @@
 
 namespace App\Services\TeleBot;
 
-use App\Repository\UserRepository;
+use App\Repository\UserRoleRepository;
 use App\Services\TeleBot\Exception\UnauthorisedUserException;
 use App\Services\TeleBot\Exception\UnknownUserException;
 use Doctrine\Common\Cache\FilesystemCache;
-use Doctrine\ORM\Cache;
-use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class SecurityProvider
@@ -18,7 +16,7 @@ class SecurityProvider
     private $coder;
 
     public function __construct(
-        UserRepository $userRepo,
+        UserRoleRepository $userRepo,
         FilesystemCache $fileCache,
         UserPasswordEncoderInterface $coder
     ) {
