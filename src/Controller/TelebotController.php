@@ -36,7 +36,7 @@ class TelebotController extends AbstractController
 
     public function setHook(Request $request) : JsonResponse {
 
-        if (!$hookUrl = $request->get('hook_url') || empty($hookUrl)) {
+        if (!($hookUrl = $request->get('hook_url')) || empty($hookUrl)) {
             return new JsonResponse('The hook url not set in request!', 403);
         }
 
