@@ -1,14 +1,24 @@
 monolog:
   handlers:
-    telebot:
-      type: stream
-      path: "%telebot_log_dir%/telebot.log"
-      formatter: monolog.my_line_formatter
-      channels: [ "telebot" ]
+    telebot_debug_logger:
+      type: rotating_file
+      path: "%kernel.logs_dir%/%kernel.environment%/telebot/debug.log"
+      level: debug
+      max_files: 10
+      channels: [ "telebot_debug" ]
+    telebot_updates_logger:
+      type: rotating_file
+      path: "%kernel.logs_dir%/%kernel.environment%/telebot/updates.log"
+      level: info
+      max_files: 10
+      channels: [ "telebot_updates" ]
     main:
-      type: console
-      process_psr_3_messages: false
-      channels: [ "!telebot" ]
+      type: rotating_file
+      level: notice
+      path: "%kernel.logs_dir%/%kernel.environment%/main/main.log"
+      max_files: 10
+      channels: [ "!telebot_debug" , "!telebot_updates"]
 
   channels:
-    - telebot
+    - telebot_debug
+    - telebot_updates

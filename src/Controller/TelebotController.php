@@ -45,7 +45,7 @@ class TelebotController extends AbstractController
             $response = $this->processor->setWebhook($hookUrl);
 
             if ($response->isOk()) {
-                $responseData = 'Done!';
+                $responseData = sprintf('Done! Webhook on url %s was set!', $hookUrl);
             } else {
                 $statusCode = $response->getErrorCode();
                 $responseData = "Response error : {$response->getDescription()}";

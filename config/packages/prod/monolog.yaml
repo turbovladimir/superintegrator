@@ -2,15 +2,6 @@ monolog:
     handlers:
         main:
             type: rotating_file
-            path:  '%kernel.logs_dir%/%kernel.environment%.log'
-            handler: nested
-            level: debug
+            level: notice
+            path: "%kernel.logs_dir%/%kernel.environment%/main/main.log"
             max_files: 10
-        telebot:
-            type: stream
-            path: "%telebot_log_dir%/telebot.log"
-            formatter: monolog.my_line_formatter
-            channels: [ "telebot" ]
-
-    channels:
-            - telebot

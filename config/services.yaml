@@ -43,10 +43,6 @@ services:
         calls:
             - [ 'addCommandsPath', [ '%telebot.commands_dir%' ] ]
 
-    monolog.my_line_formatter:
-        class: Monolog\Formatter\LineFormatter
-        arguments: [ null, null, true ]
-
     app.service.sender.message_manager:
         class: App\Services\Sender\MessageManager
         arguments:
