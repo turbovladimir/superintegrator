@@ -39,9 +39,9 @@ services:
             - '%telebot.name%'
         calls:
             -
-              method: 'addCommandsPath'
+              method: 'addCommandsPaths'
               arguments:
-                  - '%telebot.commands_dir%'
+                  - ['%telebot.vendor.commands_dir%', '%telebot.commands_dir%']
             -
               method: 'enableMySql'
               arguments:
