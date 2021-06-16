@@ -1,0 +1,4 @@
+services:
+  app.services.telebot.processor.public:
+    alias: 'app.services.telebot.processor'
+    public: true
