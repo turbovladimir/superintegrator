@@ -38,6 +38,17 @@ class ClearChatCommand extends ConversationTask
 
         // Load the current state of the conversation
         $state = $notes['state'] ?? 0;
+        // Preparing response
+        $data = [
+            'chat_id'      => $chatId,
+            // Remove any keyboard by default
+            'reply_markup' => Keyboard::remove(['selective' => true]),
+        ];
+
+        if ($message->getChat()->isGroupChat() || $message->getChat()->isSuperGroup()) {
+            // Force reply is applied by default so it can work with privacy on
+            $data['reply_markup'] = Keyboard::forceReply(['selective' => true]);
+        }
 
         switch ($state) {
             case 0:

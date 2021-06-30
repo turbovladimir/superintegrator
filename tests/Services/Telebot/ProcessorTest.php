@@ -28,6 +28,7 @@ class ProcessorTest extends  KernelTestCase
         $container = $kernel->getContainer();
         $this->processor = $container->get('app.services.telebot.processor.public');
         $this->processor->enableAdmin(self::ADMIN_USER_ID);
+        define('PHPUNIT_TESTSUITE', 1);
     }
 
     private function configureClient(array $clientHistory) : ClientInterface {
@@ -63,7 +64,7 @@ class ProcessorTest extends  KernelTestCase
 
     private function getUpdateWithCommand(string $command) {
         return sprintf('{
-   "update_id":698094800,
+   "update_id":%d,
    "message":{
       "message_id":1855,
       "from":{
@@ -89,6 +90,6 @@ class ProcessorTest extends  KernelTestCase
          }
       ]
    }
-}', self::ADMIN_USER_ID, $command);
+}', rand(1, 100000), self::ADMIN_USER_ID, $command);
     }
 }

@@ -11,7 +11,6 @@ use Longman\TelegramBot\Entities\ServerResponse;
 use Longman\TelegramBot\Entities\Update;
 use Longman\TelegramBot\Telegram;
 use ReflectionClass;
-use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 abstract class ConversationTask extends UserCommand
 {
@@ -30,7 +29,7 @@ abstract class ConversationTask extends UserCommand
     public function execute() {
         $message = $this->getMessage() ?: $this->getEditedMessage();
         $conversation = new Conversation(
-            $message->getFrom()->getId(), $message->getChat()->getId(), $message->getCommand());
+            $message->getFrom()->getId(), $message->getChat()->getId(), $this->getName());
 
         return $this->executeCommand($message, $conversation);
     }
