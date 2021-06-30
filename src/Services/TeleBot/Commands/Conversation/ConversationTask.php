@@ -10,9 +10,10 @@ use Longman\TelegramBot\Entities\Message;
 use Longman\TelegramBot\Entities\ServerResponse;
 use Longman\TelegramBot\Entities\Update;
 use Longman\TelegramBot\Telegram;
+use ReflectionClass;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
-abstract class ConversationCommand extends UserCommand
+abstract class ConversationTask extends UserCommand
 {
     /**
      * @var bool
@@ -21,7 +22,7 @@ abstract class ConversationCommand extends UserCommand
 
     public function __construct(Telegram $telegram, Update $update = null) {
         $converter = new CamelCaseToSnakeCaseNameConverter();
-        $this->name = $converter->normalize(str_replace('Command', '', self::class));
+        $this->name = $converter->normalize(str_replace('Command', '', (new ReflectionClass($this))->getShortName()));
         $this->usage = "/{$this->name}";
         parent::__construct($telegram, $update);
     }

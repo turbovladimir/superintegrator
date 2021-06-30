@@ -17,6 +17,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class ProcessorTest extends  KernelTestCase
 {
+    private const ADMIN_USER_ID = 1;
     /**
      * @var \App\Services\TeleBot\Processor
      */
@@ -26,7 +27,7 @@ class ProcessorTest extends  KernelTestCase
         $kernel = self::bootKernel();
         $container = $kernel->getContainer();
         $this->processor = $container->get('app.services.telebot.processor.public');
-        $this->processor->enableAdmin(1);
+        $this->processor->enableAdmin(self::ADMIN_USER_ID);
     }
 
     private function configureClient(array $clientHistory) : ClientInterface {
@@ -41,14 +42,11 @@ class ProcessorTest extends  KernelTestCase
         return new Client(['handler' => $handlerStack]);
     }
 
-    /**
-     * @dataProvider dataProvider
-     */
-    public function testCommandCleanup(array $input, string $expected) {
+    public function testCommand() {
         $clientHistory = [];
         $client = $this->configureClient($clientHistory);
         Request::setClient($client);
-        $this->processor->setCustomInput(json_encode($input));
+        $this->processor->setCustomInput($this->getUpdateWithCommand('/clear_chat'));
         $this->processor->handle();
 
         exit();
@@ -63,42 +61,34 @@ class ProcessorTest extends  KernelTestCase
         exit();
     }
 
-    public function dataProvider() {
-        return [
-            [[
-                'update_id' => 698094793,
-                'message' =>
-                    [
-                        'message_id' => 1842,
-                        'from' =>
-                            [
-                                'id' => 1,
-                                'is_bot' => false,
-                                'first_name' => 'Vladimir',
-                                'username' => 'turbo_vladimir',
-                                'language_code' => 'en',
-                           ],
-                        'chat' =>
-                            [
-                                'id' => 1,
-                                'first_name' => 'Vladimir',
-                                'username' => 'turbo_vladimir',
-                                'type' => 'private',
-                           ],
-                        'date' => 1623879074,
-                        'text' => '/cleanup',
-                        'entities' =>
-                            [
-                                0 =>
-                                    [
-                                        'offset' => 0,
-                                        'length' => 8,
-                                        'type' => 'bot_command',
-                                   ],
-                           ],
-                   ],
-           ],
-                '']
-        ];
+    private function getUpdateWithCommand(string $command) {
+        return sprintf('{
+   "update_id":698094800,
+   "message":{
+      "message_id":1855,
+      "from":{
+         "id":%d,
+         "is_bot":false,
+         "first_name":"Vladimir",
+         "username":"turbo_vladimir",
+         "language_code":"en"
+      },
+      "chat":{
+         "id":107465278,
+         "first_name":"Vladimir",
+         "username":"turbo_vladimir",
+         "type":"private"
+      },
+      "date":1625070466,
+      "text":"%s",
+      "entities":[
+         {
+            "offset":0,
+            "length":8,
+            "type":"bot_command"
+         }
+      ]
+   }
+}', self::ADMIN_USER_ID, $command);
     }
 }
