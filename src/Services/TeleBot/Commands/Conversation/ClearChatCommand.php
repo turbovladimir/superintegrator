@@ -9,6 +9,7 @@ use Longman\TelegramBot\Entities\Message;
 use Longman\TelegramBot\Entities\ServerResponse;
 use Longman\TelegramBot\Request;
 use Longman\TelegramBot\TelegramLog;
+use PDO;
 use PDOException;
 
 class ClearChatCommand extends ConversationTask
@@ -86,7 +87,7 @@ class ClearChatCommand extends ConversationTask
                         'select id from message where user_id = %d and chat_id = %d',
                              ] as $query) {
                         $messageIds = array_merge($messageIds,
-                            $pdo->query(sprintf($query, $userId, $chatId))->fetchAll());
+                            $pdo->query(sprintf($query, $userId, $chatId))->fetchAll(PDO::FETCH_COLUMN));
                     }
 
                     foreach ($messageIds as $id) {
@@ -96,7 +97,7 @@ class ClearChatCommand extends ConversationTask
                         ]);
                     }
 
-                    $data['text'] = "Clear messages: " . count($messageIds) . PHP_EOL;
+                    $data['text'] = json_encode($messageIds);
 
                     if($notes['answer'] === 'Yes, clear messages and truncate tables') {
                         $pdo->beginTransaction();
