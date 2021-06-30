@@ -9,6 +9,7 @@ use Longman\TelegramBot\Conversation;
 use Longman\TelegramBot\Entities\Message;
 use Longman\TelegramBot\Entities\ServerResponse;
 use Longman\TelegramBot\Entities\Update;
+use Longman\TelegramBot\Request;
 use Longman\TelegramBot\Telegram;
 use ReflectionClass;
 
@@ -28,10 +29,19 @@ abstract class ConversationTask extends UserCommand
 
     public function execute() {
         $message = $this->getMessage() ?: $this->getEditedMessage();
+        $chatId = $message->getChat()->getId();
         $conversation = new Conversation(
-            $message->getFrom()->getId(), $message->getChat()->getId(), $this->getName());
+            $message->getFrom()->getId(), $chatId, $this->getName());
 
-        return $this->executeCommand($message, $conversation);
+        try {
+            $this->executeCommand($message, $conversation);
+        } catch (\Throwable $exception) {
+            Request::sendMessage([
+                'chat_id' => $chatId,
+                'text' => $exception->getMessage()
+            ]);
+            throw $exception;
+        }
     }
 
     abstract protected function executeCommand(Message $message, Conversation $conversation) : ServerResponse;
