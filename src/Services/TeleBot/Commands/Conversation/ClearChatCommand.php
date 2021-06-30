@@ -11,7 +11,7 @@ use Longman\TelegramBot\Request;
 use Longman\TelegramBot\TelegramLog;
 use PDOException;
 
-class ClearChatCommand extends Conversation
+class ClearChatCommand extends ConversationTask
 {
     const TABLES_FOR_TRUNCATE = [
         'callback_query',
