@@ -21,8 +21,8 @@ abstract class ConversationTask extends UserCommand
     protected $need_mysql = true;
 
     public function __construct(Telegram $telegram, Update $update = null) {
-        $converter = new CamelCaseToSnakeCaseNameConverter();
-        $this->name = $converter->normalize(str_replace('Command', '', (new ReflectionClass($this))->getShortName()));
+        $this->name =
+            strtolower(str_replace('Command', '', (new ReflectionClass($this))->getShortName()));
         $this->usage = "/{$this->name}";
         parent::__construct($telegram, $update);
     }

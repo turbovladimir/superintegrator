@@ -46,7 +46,7 @@ class ProcessorTest extends  KernelTestCase
         $clientHistory = [];
         $client = $this->configureClient($clientHistory);
         Request::setClient($client);
-        $this->processor->setCustomInput($this->getUpdateWithCommand('/clear_chat'));
+        $this->processor->setCustomInput($this->getUpdateWithCommand('/clearchat'));
         $this->processor->handle();
 
         exit();
