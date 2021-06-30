@@ -24,21 +24,36 @@ class Processor extends Telegram
         TelegramLog::$always_log_request_and_response = true;
         $allowUsers = explode(',', $allowUsers);
 
-        if (!empty($allowUsers)) {
-            $this->setUpdateFilter(
-                function (
-                    Update $update,
-                    Telegram $telegram,
-                    &$reason = 'Update denied by update_filter'
-                ) use ($allowUsers){
-                    $user_id = $update->getMessage()->getFrom()->getId();
-                    if (in_array($user_id, $allowUsers)) {
-                        return true;
-                    }
+//        if (!empty($allowUsers)) {
+//            $this->setUpdateFilter(
+//                function (
+//                    Update $update,
+//                    Telegram $telegram,
+//                    &$reason = 'Update denied by update_filter'
+//                ) use ($allowUsers){
+//                    $user_id = $update->getMessage()->getFrom()->getId();
+//                    if (in_array($user_id, $allowUsers)) {
+//                        return true;
+//                    }
+//
+//                    $reason = "Invalid user with ID {$user_id}";
+//                    return false;
+//                });
+//        }
 
-                    $reason = "Invalid user with ID {$user_id}";
-                    return false;
-                });
-        }
+         $this->setCommandConfig('cleanup',
+             [
+                 // Define which tables should be cleaned.
+                  'tables_to_clean' => [
+                      'message',
+                      'edited_message',
+                  ],
+                 // Define how old cleaned entries should be.
+                 'clean_older_than' => [
+                      'message'        => '1 days',
+                      'edited_message' => '1 days',
+                  ]
+             ]
+        );
     }
 }
