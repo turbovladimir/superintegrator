@@ -10,11 +10,25 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
+use Longman\TelegramBot\DB;
 use Longman\TelegramBot\Request;
+use PDO;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class ProcessorTest extends  KernelTestCase
 {
+    /**
+     * @var \App\Services\TeleBot\Processor
+     */
+    private $processor;
+
+    protected function setUp(): void {
+        $kernel = self::bootKernel();
+        $container = $kernel->getContainer();
+        $this->processor = $container->get('app.services.telebot.processor.public');
+        $this->processor->enableAdmin(1);
+    }
+
     private function configureClient(array $clientHistory) : ClientInterface {
         $history = Middleware::history($clientHistory);
         $mock = new MockHandler([
@@ -31,15 +45,20 @@ class ProcessorTest extends  KernelTestCase
      * @dataProvider dataProvider
      */
     public function testCommandCleanup(array $input, string $expected) {
-        $kernel = self::bootKernel();
-        $container = $kernel->getContainer();
         $clientHistory = [];
         $client = $this->configureClient($clientHistory);
         Request::setClient($client);
-        $processor = $container->get('app.services.telebot.processor.public');
-        $processor->setCustomInput(json_encode($input));
-        $processor->enableAdmin(1);
-        $processor->handle();
+        $this->processor->setCustomInput(json_encode($input));
+        $this->processor->handle();
+
+        exit();
+    }
+
+    public function testPdoSelect() {
+        $pdo = DB::getPdo();
+
+        $messageIds =
+            $pdo->query('select id from message')->fetchAll(PDO::FETCH_COLUMN);
 
         exit();
     }
