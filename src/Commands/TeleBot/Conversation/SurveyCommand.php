@@ -16,7 +16,7 @@
  * Example of the Conversation functionality in form of a simple survey.
  */
 
-namespace App\Services\TeleBot\Commands\Conversation;
+namespace App\Commands\TeleBot\Conversation;
 
 use Longman\TelegramBot\Commands\UserCommand;
 use Longman\TelegramBot\Conversation;

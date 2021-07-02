@@ -61,9 +61,6 @@ services:
             - '@repository.message'
             - '@monolog.logger'
 
-    app.service.telebot.security_provider:
-        class: App\Services\TeleBot\SecurityProvider
-
     docktrine.common.cache.filesystem_cache:
         class: Doctrine\Common\Cache\FilesystemCache
         arguments:

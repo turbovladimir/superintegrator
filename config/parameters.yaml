@@ -1,5 +1,5 @@
 parameters:
-  telebot.commands_dir: '%kernel.root_dir%/Services/TeleBot/Commands'
+  telebot.commands_dir: '%kernel.root_dir%/Commands/TeleBot/Conversation'
   telebot.name: '%env(BOT_NAME)%'
   telebot.token: '%env(BOT_TOKEN)%'
   telebot.allow_users: '%env(BOT_ALLOW_USERS)%'

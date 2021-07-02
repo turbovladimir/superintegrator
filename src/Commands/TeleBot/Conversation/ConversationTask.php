@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Services\TeleBot\Commands\Conversation;
+namespace App\Commands\TeleBot\Conversation;
 
 
 use Longman\TelegramBot\Commands\UserCommand;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\TeleBot\Commands\Conversation;
+namespace App\Commands\TeleBot\Conversation;
 
 use Longman\TelegramBot\Conversation;
 use Longman\TelegramBot\DB;

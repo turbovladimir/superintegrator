@@ -19,7 +19,7 @@
  * If no conversation is active, the returned message says so.
  */
 
-namespace App\Services\TeleBot\Commands\Conversation;
+namespace App\Commands\TeleBot\Conversation;
 
 use Longman\TelegramBot\Commands\UserCommand;
 use Longman\TelegramBot\Conversation;
