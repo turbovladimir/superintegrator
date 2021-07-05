@@ -3,9 +3,10 @@
 
 namespace App\Commands\TeleBot\Conversation;
 
-
+use App\Entity\Conversation;
+use App\Services\TeleBot\TelegramWebDriver;
+use Doctrine\ORM\EntityManager;
 use Longman\TelegramBot\Commands\Command;
-use Longman\TelegramBot\Conversation;
 use Longman\TelegramBot\Entities\CallbackQuery;
 use Longman\TelegramBot\Entities\ChosenInlineResult;
 use Longman\TelegramBot\Entities\InlineQuery;
@@ -17,7 +18,6 @@ use Longman\TelegramBot\Entities\Poll;
 use Longman\TelegramBot\Entities\ServerResponse;
 use Longman\TelegramBot\Entities\Update;
 use Longman\TelegramBot\Exception\TelegramException;
-use Longman\TelegramBot\Request;
 
 /**
  * Class Command
@@ -35,13 +35,8 @@ use Longman\TelegramBot\Request;
  * @method PreCheckoutQuery    getPreCheckoutQuery()   Optional. New incoming pre-checkout query. Contains full information about checkout
  * @method Poll                getPoll()               Optional. New poll state. Bots receive only updates about polls, which are sent or stopped by the bot
  */
-abstract class ConversationTask
+abstract class ConversationCommand
 {
-    /**
-     * @var bool
-     */
-    protected $need_mysql = true;
-
     /**
      * @var Conversation
      */
@@ -52,44 +47,43 @@ abstract class ConversationTask
      */
     private $update;
 
+    private $name;
+
+    /**
+     * @var EntityManager
+     */
+    protected $entityManager;
+
     /**
      * @param Message $message
      * @return ServerResponse
      */
     abstract protected function executeCommand(Message $message) : ServerResponse;
 
-    public function isEnabled() : bool {
-        return true;
+    public function __construct(EntityManager $entityManager) {
+        $this->entityManager = $entityManager;
     }
 
-    public function getUsage() : string {
-        return 'some usage';
-    }
-
-    /**
-     * @param Update $update
-     * @throws \Longman\TelegramBot\Exception\TelegramException
-     */
-    public function execute(Update $update) {
+    public function execute(Conversation $conversation, Update $update) {
         $this->update = $update;
+        $this->conversation = $conversation;
+        $this->entityManager->persist($conversation);
+        $this->entityManager->flush();
         $message = $this->getMessage() ?: $this->getEditedMessage();
-        $chatId = $message->getChat()->getId();
-        $this->conversation = new Conversation(
-            $message->getFrom()->getId(), $chatId, $this->getName());
-        !is_array($this->conversation->notes) && $this->conversation->notes = [];
 
         try {
-            $this->executeCommand($message);
+            $response = $this->executeCommand($message);
+            $this->update = $this->conversation = null;
+
+            return $response;
         } catch (\Throwable $exception) {
-            Request::sendMessage([
-                'chat_id' => $chatId,
+            TelegramWebDriver::sendMessage([
+                'chat_id' => $message->getChat()->getId(),
                 'text' => $exception->getMessage()
             ]);
 
             throw $exception;
         }
-
-        $this->update = null;
     }
 
     protected function createChooseResponse(
@@ -103,7 +97,7 @@ abstract class ConversationTask
             ->setOneTimeKeyboard(true)
             ->setSelective(true);
 
-        return Request::sendMessage($data);
+        return TelegramWebDriver::sendMessage($data);
     }
 
     protected function createResponseData(string $text = '') : array {
@@ -118,80 +112,59 @@ abstract class ConversationTask
         return trim($this->getMessage()->getText(true));
     }
 
-    protected function conversationStop() {
-        $this->conversation->stop();
-    }
-
-    protected function conversationCancel() : string {
-        $this->conversation->cancel();
+    protected function closeConversation() : string {
+        $this->conversation->setLastModify(new \DateTime());
+        $this->conversation->setStatus(Conversation::STATUS_CLOSED);
+        $this->entityManager->persist($this->conversation);
+        $this->entityManager->flush();
 
         return 'Conversation "' .  $this->conversation->getCommand() . '" cancelled!';
     }
 
     protected function stateUp() {
-        ++$this->conversation->notes['state'];
-        $this->conversation->update();
+        $this->conversation->setLastModify(new \DateTime());
+        $notes = $this->conversation->getNotes();
+        $state = $notes['state'] ?? 0;
+        $this->conversation->setNotes(array_merge($notes, ['state' => ++$state]));
+        $this->entityManager->persist($this->conversation);
+        $this->entityManager->flush();
     }
 
     protected function fetchAnswer() {
-        return $this->conversation->notes['answer'] ?? null;
+        return $this->conversation->getNotes()['answer'] ?? null;
     }
 
     protected function saveAnswer(string $answer) {
-        $this->conversation->notes['answer'] = $answer;
-        $this->conversation->update();
+        $notes = $this->conversation->getNotes();
+        $this->conversation->setNotes(array_merge($notes, ['answer' => $answer]));
+        $this->entityManager->persist($this->conversation);
+        $this->entityManager->flush();
     }
 
     protected function getCurrentState() {
-        return $this->conversation->notes['state'] ?? $this->conversation->notes['state'] = 0;
+        $notes = $this->conversation->getNotes();
+
+        return $notes['state'] ?? $notes['state'] = 0;
     }
 
     /**
-     * Helper to reply to a chat directly.
-     *
-     * @param string $text
-     * @param array  $data
-     *
-     * @return ServerResponse
-     * @throws TelegramException
+     * @return mixed
      */
-    public function replyToChat($text, array $data = [])
-    {
-        if ($message = $this->getMessage() ?: $this->getEditedMessage() ?: $this->getChannelPost() ?: $this->getEditedChannelPost()) {
-            return Request::sendMessage(array_merge([
-                'chat_id' => $message->getChat()->getId(),
-                'text'    => $text,
-            ], $data));
-        }
-
-        return Request::emptyResponse();
+    public function getName() {
+        return $this->name;
     }
 
     /**
-     * Helper to reply to a user directly.
-     *
-     * @param string $text
-     * @param array  $data
-     *
-     * @return ServerResponse
-     * @throws TelegramException
+     * @param mixed $name
      */
-    public function replyToUser($text, array $data = [])
-    {
-        if ($message = $this->getMessage() ?: $this->getEditedMessage()) {
-            return Request::sendMessage(array_merge([
-                'chat_id' => $message->getFrom()->getId(),
-                'text'    => $text,
-            ], $data));
-        }
-
-        return Request::emptyResponse();
+    public function setName($name): void {
+        $this->name = $name;
     }
 
     /**
      * Relay any non-existing function calls to Update object.
      *
-     * This is purely a helper method to make requests from within execute() method easier.
+     * This is purely a helper method to make TelegramWebDrivers from within execute() method easier.
      *
      * @param string $name
      * @param array  $arguments

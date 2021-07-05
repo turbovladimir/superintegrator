@@ -6,11 +6,11 @@ use Longman\TelegramBot\Entities\Message;
 use Longman\TelegramBot\Entities\ServerResponse;
 use Longman\TelegramBot\Exception\TelegramException;
 
-class CancelCommand extends ConversationTask
+class CancelCommand extends ConversationCommand
 {
     public function executeCommand(Message $message): ServerResponse
     {
-        return $this->removeKeyboard($this->conversationCancel());
+        return $this->removeKeyboard($this->closeConversation());
     }
 
     /**

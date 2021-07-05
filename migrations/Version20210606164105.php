@@ -361,6 +361,8 @@ CREATE TABLE IF NOT EXISTS `request_limiter` (
 
     public function down(Schema $schema) : void
     {
+        $this->addSql('SET FOREIGN_KEY_CHECKS = 0');
+
         foreach ([
                      'user',
                      'chat',
@@ -379,7 +381,9 @@ CREATE TABLE IF NOT EXISTS `request_limiter` (
                      'conversation',
                      'request_limiter'
                  ] as $table) {
-            $this->addSql("drop table {$table};");
+            $this->addSql("drop table if exists {$table};");
         }
+
+        $this->addSql('SET FOREIGN_KEY_CHECKS = 1');
     }
 }

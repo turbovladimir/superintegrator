@@ -18,7 +18,7 @@ class TelebotKey
     private $id;
 
     /**
-     * @ORM\Column(type="datetime_immutable")
+     * @ORM\Column(type="datetime")
      */
     private $added_at;
 
@@ -37,12 +37,12 @@ class TelebotKey
         return $this->id;
     }
 
-    public function getAddedAt(): ?\DateTimeImmutable
+    public function getAddedAt(): ?\DateTimeInterface
     {
         return $this->added_at;
     }
 
-    public function setAddedAt(\DateTimeImmutable $added_at): self
+    public function setAddedAt(\DateTimeInterface $added_at): self
     {
         $this->added_at = $added_at;
 

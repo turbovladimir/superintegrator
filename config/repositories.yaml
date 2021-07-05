@@ -41,3 +41,8 @@ services:
     class: App\Repository\TelebotKeyRepository
     arguments:
       - '@doctrine'
+      -
+  repository.conversation:
+    class: App\Repository\ConversationRepository
+    arguments:
+      - '@doctrine'

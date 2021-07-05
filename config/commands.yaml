@@ -25,12 +25,20 @@ services:
     tags:
       - { name: telebot.command, command: mykeys }
 
+  command.telebot.conversation.conversation_command:
+    class: App\Commands\TeleBot\Conversation\ConversationCommand
+    abstract: true
+    arguments:
+      - '@doctrine.orm.entity_manager'
+
   command.telebot.conversation.clear_chat:
+    parent: command.telebot.conversation.conversation_command
     class: App\Commands\TeleBot\Conversation\ClearChatCommand
     tags:
       - { name: telebot.command, command: clearchat }
 
   command.telebot.conversation.cancel:
+    parent: command.telebot.conversation.conversation_command
     class: App\Commands\TeleBot\Conversation\CancelCommand
     tags:
       - { name: telebot.command, command: cancel }

@@ -3,58 +3,91 @@
 
 namespace App\Services\TeleBot;
 
-
+use App\Commands\TeleBot\Conversation\ConversationCommand;
+use App\Entity\Conversation;
+use App\Repository\ConversationRepository;
+use Longman\TelegramBot\Entities\ServerResponse;
 use Longman\TelegramBot\Entities\Update;
-use Longman\TelegramBot\Telegram;
 use Longman\TelegramBot\TelegramLog;
 use Psr\Log\LoggerInterface;
 use Traversable;
 
-class Processor extends Telegram
+class Processor
 {
+    private $botName;
+    private $conversationRepository;
+    private $allowUsers;
+    private $commands;
 
     public function __construct(
+        ConversationRepository $conversationRepository,
         Traversable $commands,
         string $allowUsers,
-        string $api_key,
-        string $bot_username,
+        string $apiKey,
+        string $botName,
         LoggerInterface $telebotDebugLogger,
         LoggerInterface $telebotUpdatesLogger
     ) {
-        parent::__construct($api_key, $bot_username);
+        $this->conversationRepository = $conversationRepository;
+        $this->botName = $botName;
+        TelegramWebDriver::init($botName, $apiKey);
         TelegramLog::initialize($telebotDebugLogger, $telebotUpdatesLogger);
         TelegramLog::$always_log_request_and_response = true;
-        $allowUsers = explode(',', $allowUsers);
-
-        if (!empty($allowUsers)) {
-            $this->setUpdateFilter(
-                function (
-                    Update $update,
-                    Telegram $telegram,
-                    &$reason = 'Update denied by update_filter'
-                ) use ($allowUsers){
-                    $user_id = $update->getMessage()->getFrom()->getId();
-                    if (in_array($user_id, $allowUsers)) {
-                        return true;
-                    }
-
-                    $reason = "Invalid user with ID {$user_id}";
-                    return false;
-                });
-        }
-
-         $this->commands_objects = iterator_to_array($commands);
+        $this->allowUsers = explode(',', $allowUsers);
+         $this->commands = iterator_to_array($commands);
     }
 
-    public function getCommandsList() {
-        return $this->commands_objects;
-    }
+    public function handle(string $input = null) : ServerResponse {
+        $update = $this->createUpdate($input);
+        $userId = $update->getMessage()->getFrom()->getId();
+        $chatId = $update->getMessage()->getChat()->getId();
+        $updateId = $update->getUpdateId();
 
-    public function executeCommand($command) {
-        if (empty($this->commands_objects[$command])) {
-            throw new \InvalidArgumentException("The command {$command} not configured!");
+        if (!in_array($userId, $this->allowUsers)) {
+            throw new \InvalidArgumentException('I\'m sorry, who are you? I do not know you');
         }
 
-        return $this->last_command_response = $this->commands_objects[$command]->execute($this->update);
+        $conversation = $this->conversationRepository->findOneBy(['userId' => $userId, 'chatId' => $chatId, 'status' => Conversation::STATUS_OPENED]);
+
+        if ($conversation && $conversation->getLastUpdateId() === $updateId) {
+            return TelegramWebDriver::emptyResponse();
+        } elseif ($conversation && $conversation->getLastUpdateId() !== $updateId) {
+            $conversation->setLastUpdateId($updateId);
+            $commandName = $conversation->getCommand();
+        } else {
+            $commandName = $update->getMessage()->getCommand();
+            $conversation = (new Conversation())
+                ->setUserId($userId)
+                ->setChatId($chatId)
+                ->setStatus(Conversation::STATUS_OPENED)
+                ->setCommand($commandName)
+                ->setLastModify(new \DateTime())
+                ->setLastUpdateId($updateId);
+        }
+
+        if (empty($this->commands[$commandName])) {
+            throw new \InvalidArgumentException("The command {$commandName} not configured!");
+        }
+
+        return $this->commands[$commandName]->execute($conversation, $update);
+    }
+
+    private function createUpdate(string $input = null) : Update {
+
+        if (!$input) {
+            $input = file_get_contents('php://input');
+        }
+
+        if (!is_string($input)) {
+            throw new \InvalidArgumentException('Input must be a string!');
+        }
+
+        if (empty($input)) {
+            throw new \InvalidArgumentException('Input is empty!');
+        }
+
+        $post = json_decode($input, true);
+
+        return new Update($post, $this->botName);
     }
 }

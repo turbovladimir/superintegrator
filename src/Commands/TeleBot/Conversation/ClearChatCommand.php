@@ -9,7 +9,7 @@ use Longman\TelegramBot\Request;
 use Longman\TelegramBot\TelegramLog;
 use PDO;
 
-class ClearChatCommand extends ConversationTask
+class ClearChatCommand extends ConversationCommand
 {
     const TABLES_FOR_TRUNCATE = [
         'telegram_update',

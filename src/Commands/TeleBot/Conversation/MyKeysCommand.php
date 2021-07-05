@@ -4,22 +4,18 @@ namespace App\Commands\TeleBot\Conversation;
 
 use App\Entity\TelebotKey;
 use App\Repository\TelebotKeyRepository;
+use App\Services\TeleBot\TelegramWebDriver;
 use Doctrine\ORM\EntityManager;
 use Longman\TelegramBot\Entities\Message;
 use Longman\TelegramBot\Entities\ServerResponse;
 use Longman\TelegramBot\Request;
 
-class MyKeysCommand extends ConversationTask
+class MyKeysCommand extends ConversationCommand
 {
     /**
      * @var TelebotKeyRepository
      */
     private $keyRepo;
-
-    /**
-     * @var EntityManager
-     */
-    private $entityManager;
 
     /**
      * @var string
@@ -28,65 +24,75 @@ class MyKeysCommand extends ConversationTask
 
     public function __construct(TelebotKeyRepository $keyRepo, EntityManager $entityManager) {
         $this->keyRepo = $keyRepo;
-        $this->entityManager = $entityManager;
+        parent::__construct($entityManager);
     }
 
 
     protected function executeCommand(Message $message): ServerResponse {
         $text = $this->getTextMessage();
-        $state = $this->getCurrentState();
+        $buttons = ['save', 'delete', 'get'];
 
-        if ($state === 0) {
-            $buttons = ['save', 'delete', 'get'];
-
-            if (empty($text) || !in_array($text, $buttons , true)) {
-                return $this->createChooseResponse($buttons);
-            }
-
-            $this->saveAnswer($text);
-            $this->stateUp();
-        } elseif ($state === 1) {
-            if ($this->fetchAnswer() === 'save') {
-                $serverResponse = $this->save($text);
-            } elseif ($this->fetchAnswer() === 'delete') {
-                $serverResponse = $this->delete($text);
-            } elseif ($this->fetchAnswer() === 'get') {
-                $serverResponse = $this->findValueByKey($text);
-            }
-
-            $this->conversationStop();
+        if (empty($text)) {
+            return $this->createChooseResponse($buttons);
         }
+
+        preg_match('#(\w+)\s(\w+)(\s(\w+))?#', $text, $matches);
+
+        if (empty($matches)) {
+            throw new \InvalidArgumentException('Incorrect action message!');
+        }
+
+        $action = $matches[1];
+
+        if ($action === 'save') {
+            if (empty($matches[2]) || empty($matches[4])) {
+                throw new \InvalidArgumentException('For saving you have to send pair with key and value like "save avito mypass1234"');
+            }
+
+            $serverResponse = $this->save($matches[2], $matches[4]);
+        } elseif ($action === 'delete') {
+            if (empty($matches[2])) {
+                throw new \InvalidArgumentException('For deletion you have to send key like "delete avito"');
+            }
+
+            $serverResponse = $this->delete($matches[2]);
+        } elseif ($action === 'get') {
+            if (empty($matches[2])) {
+                throw new \InvalidArgumentException('For fetching you have to send key like "get avito"');
+            }
+            $serverResponse = $this->findValueByKey($matches[2]);
+        }
+
+        $this->stateUp();
+        $this->conversationStop();
+
 
         return $serverResponse;
     }
 
-    private function save(string $text) : ServerResponse {
-        if (empty($pair = explode(' ', $text))) {
-            throw new \InvalidArgumentException('For saving you have to send pair with key and value like "avito mypass1234"');
-        }
-
-        $this->entityManager->persist((new TelebotKey())->setName($pair[0])->setValue($pair[1]));
+    private function save(string $key, string $value): ServerResponse {
+        $this->entityManager->persist((new TelebotKey())->setName($key)->setValue($value)->setAddedAt(new \DateTime()));
         $this->entityManager->flush();
 
-        return Request::sendMessage($this->createResponseData('Saved complete my master!'));
+        return TelegramWebDriver::sendMessage($this->createResponseData('Saved complete my master!'));
     }
 
-    private function delete(string $text) : ServerResponse {
-        if (empty($key = $this->keyRepo->findOneBy(['name' => $text]))) {
-            throw new \InvalidArgumentException("Key not found by name {$text}");
+    private function delete(string $name): ServerResponse {
+        if (empty($key = $this->keyRepo->findOneBy(['name' => $name]))) {
+            throw new \InvalidArgumentException("Key not found by name {$name}");
         }
 
         $this->entityManager->remove($key);
         $this->entityManager->flush();
 
-        return Request::sendMessage($this->createResponseData('Deletion complete my master!'));
+        return TelegramWebDriver::sendMessage($this->createResponseData('Deletion complete my master!'));
     }
 
-    private function findValueByKey(string $text) : ServerResponse {
-        if (empty($key = $this->keyRepo->findOneBy(['name' => $text]))) {
-            throw new \InvalidArgumentException("Key not found by name {$text}");
+    private function findValueByKey(string $name): ServerResponse {
+        if (empty($key = $this->keyRepo->findOneBy(['name' => $name]))) {
+            throw new \InvalidArgumentException("Key not found by name {$name}");
         }
 
-        return Request::sendMessage($this->createResponseData($key->getValue()));
+        return TelegramWebDriver::sendMessage($this->createResponseData($key->getValue()));
     }
 }

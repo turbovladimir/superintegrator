@@ -34,27 +34,11 @@ services:
     app.services.telebot.processor:
         class: App\Services\TeleBot\Processor
         arguments:
+            - '@repository.conversation'
             - !tagged { tag: 'telebot.command', index_by: 'command' }
             - '%telebot.allow_users%'
             - '%telebot.token%'
             - '%telebot.name%'
-        calls:
-            -
-              method: 'enableAdmin'
-              arguments:
-                  - '%telebot.admin%'
-            -
-              method: 'addCommandsPath'
-              arguments:
-                  - '%telebot.commands_dir%'
-            -
-              method: 'enableMySql'
-              arguments:
-                  -
-                    host: '%database.host%'
-                    user: '%database.user%'
-                    password: '%database.password%'
-                    database: '%database.database_name%'
 
     app.service.sender.message_manager:
         class: App\Services\Sender\MessageManager
