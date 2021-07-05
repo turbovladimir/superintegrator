@@ -16,6 +16,7 @@ use Longman\TelegramBot\Entities\Payments\ShippingQuery;
 use Longman\TelegramBot\Entities\Poll;
 use Longman\TelegramBot\Entities\ServerResponse;
 use Longman\TelegramBot\Entities\Update;
+use Longman\TelegramBot\Exception\TelegramException;
 use Longman\TelegramBot\Request;
 
 /**
@@ -143,6 +144,48 @@ abstract class ConversationTask
 
     protected function getCurrentState() {
         return $this->conversation->notes['state'] ?? $this->conversation->notes['state'] = 0;
+    }
+
+    /**
+     * Helper to reply to a chat directly.
+     *
+     * @param string $text
+     * @param array  $data
+     *
+     * @return ServerResponse
+     * @throws TelegramException
+     */
+    public function replyToChat($text, array $data = [])
+    {
+        if ($message = $this->getMessage() ?: $this->getEditedMessage() ?: $this->getChannelPost() ?: $this->getEditedChannelPost()) {
+            return Request::sendMessage(array_merge([
+                'chat_id' => $message->getChat()->getId(),
+                'text'    => $text,
+            ], $data));
+        }
+
+        return Request::emptyResponse();
+    }
+
+    /**
+     * Helper to reply to a user directly.
+     *
+     * @param string $text
+     * @param array  $data
+     *
+     * @return ServerResponse
+     * @throws TelegramException
+     */
+    public function replyToUser($text, array $data = [])
+    {
+        if ($message = $this->getMessage() ?: $this->getEditedMessage()) {
+            return Request::sendMessage(array_merge([
+                'chat_id' => $message->getFrom()->getId(),
+                'text'    => $text,
+            ], $data));
+        }
+
+        return Request::emptyResponse();
     }
 
     /**
