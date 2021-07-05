@@ -30,6 +30,7 @@ services:
     abstract: true
     arguments:
       - '@doctrine.orm.entity_manager'
+      - '@repository.conversation'
 
   command.telebot.conversation.clear_chat:
     parent: command.telebot.conversation.conversation_command
