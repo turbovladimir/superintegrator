@@ -12,6 +12,7 @@ class CancelCommand extends ConversationCommand
     {
         $data = $this->createResponseData();
         $data['reply_markup'] = Keyboard::remove(['selective' => true]);
+        $this->closeConversation();
 
         $response = TelegramWebDriver::sendMessage($data);
 
