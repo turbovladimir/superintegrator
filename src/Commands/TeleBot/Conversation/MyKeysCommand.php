@@ -30,10 +30,12 @@ class MyKeysCommand extends ConversationCommand
 
     protected function executeCommand(Message $message): ServerResponse {
         $text = $this->getTextMessage();
-        $buttons = ['save', 'delete', 'get'];
 
         if (empty($text)) {
-            return $this->createChooseResponse($buttons);
+            $data = $this->createResponseData(
+                sprintf('Choose what you want? %s', implode(' or ', ['save', 'delete', 'get'])));
+
+            return TelegramWebDriver::sendMessage($data);
         }
 
         preg_match('#(\w+)\s(\w+)(\s(\w+))?#', $text, $matches);
