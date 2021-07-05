@@ -36,4 +36,8 @@ services:
     class: App\Repository\HistoryRepository
     arguments:
       - '@doctrine'
-      - '@monolog.logger'
+
+  repository.telebot_key:
+    class: App\Repository\TelebotKeyRepository
+    arguments:
+      - '@doctrine'

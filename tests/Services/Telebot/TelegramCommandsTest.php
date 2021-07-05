@@ -1,0 +1,61 @@
+<?php
+
+
+namespace App\Tests\Services\Telebot;
+
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+
+class TelegramCommandsTest extends  KernelTestCase
+{
+    private const ADMIN_USER_ID = 1;
+    /**
+     * @var \App\Services\TeleBot\Processor
+     */
+    private $processor;
+
+    protected function setUp(): void {
+        $kernel = self::bootKernel();
+        $container = $kernel->getContainer();
+        $this->processor = $container->get('app.services.telebot.processor.public');
+        $this->processor->enableAdmin(self::ADMIN_USER_ID);
+        define('PHPUNIT_TESTSUITE', 1);
+    }
+
+    public function testCommands() {
+        foreach (['/mykeys', '/clearchat'] as $command) {
+            $this->processor->setCustomInput($this->getUpdateWithCommand($command));
+            $this->assertEquals(true, $this->processor->handle());
+        }
+    }
+
+    private function getUpdateWithCommand(string $command) {
+        return sprintf('{
+   "update_id":%d,
+   "message":{
+      "message_id":1855,
+      "from":{
+         "id":%d,
+         "is_bot":false,
+         "first_name":"Vladimir",
+         "username":"turbo_vladimir",
+         "language_code":"en"
+      },
+      "chat":{
+         "id":107465278,
+         "first_name":"Vladimir",
+         "username":"turbo_vladimir",
+         "type":"private"
+      },
+      "date":1625070466,
+      "text":"%s",
+      "entities":[
+         {
+            "offset":0,
+            "length":8,
+            "type":"bot_command"
+         }
+      ]
+   }
+}', rand(1, 100000), self::ADMIN_USER_ID, $command);
+    }
+}

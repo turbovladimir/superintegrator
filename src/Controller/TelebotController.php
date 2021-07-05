@@ -22,16 +22,9 @@ class TelebotController extends AbstractController
     }
 
     public function process() : Response {
-        try {
-            $statusCode = 200;
-            $this->processor->handle();
-            $message = 'nice!';
-        } catch (TelegramException $exception) {
-            $statusCode = 400;
-            $message = $exception->getMessage();
-        }
+        $this->processor->handle();
 
-        return new JsonResponse($message, $statusCode);
+        return new JsonResponse('nice!', 200);
     }
 
     public function setHook(Request $request) : JsonResponse {

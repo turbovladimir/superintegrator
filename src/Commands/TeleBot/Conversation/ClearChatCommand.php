@@ -2,15 +2,12 @@
 
 namespace App\Commands\TeleBot\Conversation;
 
-use Longman\TelegramBot\Conversation;
 use Longman\TelegramBot\DB;
-use Longman\TelegramBot\Entities\Keyboard;
 use Longman\TelegramBot\Entities\Message;
 use Longman\TelegramBot\Entities\ServerResponse;
 use Longman\TelegramBot\Request;
 use Longman\TelegramBot\TelegramLog;
 use PDO;
-use PDOException;
 
 class ClearChatCommand extends ConversationTask
 {
@@ -29,68 +26,41 @@ class ClearChatCommand extends ConversationTask
     protected $description = 'Clear all chat data';
 
 
-    protected function executeCommand(Message $message, Conversation $conversation): ServerResponse {
+    protected function executeCommand(Message $message): ServerResponse {
         $chatId = $message->getChat()->getId();
         $userId = $message->getFrom()->getId();
-        $text = trim($message->getText(true));
-        // Load any existing notes from this conversation
-        $notes = &$conversation->notes;
-        !is_array($notes) && $notes = [];
+        $text = $this->getTextMessage();
+        $state = $this->getCurrentState();
 
-        // Load the current state of the conversation
-        $state = $notes['state'] ?? 0;
-        // Preparing response
-        $data = [
-            'chat_id'      => $chatId,
-            'reply_markup' => Keyboard::remove(['selective' => true]),
-        ];
+        $buttons = ['Clear messages', 'Truncate tables', 'Clear and truncate', 'NO'];
 
+        if ($state === 0) {
+            if (empty($text) || !in_array($text, $buttons , true)) {
+                return $this->createChooseResponse($buttons, 'Are you sure?');
+            } else {
+                $this->saveAnswer($text);
+                $this->stateUp();
+            }
+        } elseif ($state === 1) {
+            $this->conversationStop();
 
-        switch ($state) {
-            case 0:
-                $keys = ['Clear messages', 'Truncate tables', 'Clear and truncate', 'NO'];
+            switch ($text) {
+                case 'NO':
+                    return Request::sendMessage($this->createResponseData('Okay, miss click happens'));
+                case 'Clear messages':
+                    return Request::sendMessage($this->createResponseData(sprintf('Clear messages: %d', $this->clearMessages(DB::getPdo(), $userId, $chatId))));
+                case 'Truncate tables':
+                    return Request::sendMessage($this->createResponseData($this->truncateTables(DB::getPdo())));
+                case 'Clear and truncate':
+                    $pdo = DB::getPdo();
+                    $responseText = $this->clearMessages($pdo, $userId, $chatId);
+                    $responseText .= $this->truncateTables($pdo);
 
-                if (empty($text) || !in_array($text, $keys , true)) {
-                    $data['text'] = 'Are you sure?';
-                    $data['reply_markup'] = (new Keyboard($keys))
-                        ->setResizeKeyboard(true)
-                        ->setOneTimeKeyboard(true)
-                        ->setSelective(true);
-                    $result = Request::sendMessage($data);
-
-                    break;
-                }
-
-                $notes['answer'] = $text;
-
-                $notes['state'] = 1;
-                $conversation->update();
-
-            case 1:
-                if ($notes['answer'] === 'NO') {
-                    $conversation->stop();
-                    $data['text'] = 'Okay, miss click happens';
-                    $result = Request::sendMessage($data);
-
-                    break;
-                } elseif($notes['answer'] === 'Clear messages') {
-                    $messageCount = $this->clearMessages(DB::getPdo(), $userId, $chatId);
-                    $data['text'] = "Clear messages: {$messageCount}" . PHP_EOL;
-                } elseif($notes['answer'] === 'Truncate tables') {
-                    $data['text'] = $this->truncateTables(DB::getPdo());
-                } elseif($notes['answer'] === 'Clear and truncate') {
-                    $messageCount = $this->clearMessages(DB::getPdo(), $userId, $chatId);
-                    $data['text'] = "Clear messages: {$messageCount}" . PHP_EOL;
-                    $data['text'] .= $this->truncateTables(DB::getPdo());
-                }
-
-                TelegramLog::debug("Conversation stopped?: {$conversation->stop()}");
-                $result = Request::sendMessage($data);
-
-                break;
+                    return Request::sendMessage($this->createResponseData($responseText));
+            }
         }
 
-        return $result;
+        return Request::emptyResponse();
     }
 
     private function clearMessages(PDO $pdo, $userId, $chatId) : int {

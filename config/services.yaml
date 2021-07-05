@@ -34,6 +34,7 @@ services:
     app.services.telebot.processor:
         class: App\Services\TeleBot\Processor
         arguments:
+            - !tagged { tag: 'telebot.command', index_by: 'command' }
             - '%telebot.allow_users%'
             - '%telebot.token%'
             - '%telebot.name%'
