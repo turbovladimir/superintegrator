@@ -6,6 +6,7 @@ namespace App\Services\TeleBot;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Psr7\Stream;
 use Longman\TelegramBot\DB;
 use Longman\TelegramBot\Entities\Message;
 use Longman\TelegramBot\Entities\ServerResponse;
@@ -90,8 +91,33 @@ class TelegramWebDriver
 {
     private static $config;
 
+    /**
+     * Available fields for InputFile helper
+     *
+     * This is basically the list of all fields that allow InputFile objects
+     * for which input can be simplified by providing local path directly  as string.
+     *
+     * @var array
+     */
+    private static $input_file_fields = [
+        'setWebhook'          => ['certificate'],
+        'sendPhoto'           => ['photo'],
+        'sendAudio'           => ['audio', 'thumb'],
+        'sendDocument'        => ['document', 'thumb'],
+        'sendVideo'           => ['video', 'thumb'],
+        'sendAnimation'       => ['animation', 'thumb'],
+        'sendVoice'           => ['voice', 'thumb'],
+        'sendVideoNote'       => ['video_note', 'thumb'],
+        'setChatPhoto'        => ['photo'],
+        'sendSticker'         => ['sticker'],
+        'uploadStickerFile'   => ['png_sticker'],
+        'createNewStickerSet' => ['png_sticker', 'tgs_sticker'],
+        'addStickerToSet'     => ['png_sticker', 'tgs_sticker'],
+        'setStickerSetThumb'  => ['thumb'],
+    ];
+
     public static function init(string $botName, string $apiKey) {
-        self::$config = ['bot_name' => $botName, 'api_key' => $apiKey];
+        self::$config = ['base_uri' => 'https://api.telegram.org' ,'bot_name' => $botName, 'api_key' => $apiKey];
     }
 
     public static function __callStatic($action, array $data): ServerResponse {
@@ -162,11 +188,11 @@ class TelegramWebDriver
     private static function execute($action, array $data = []) {
         $result = null;
         $response = null;
-        $request_params = self::setUpRequestParams($data);
+        $request_params = self::setUpRequestParams($action, $data);
         $request_params['debug'] = TelegramLog::getDebugLogTempStream();
 
         try {
-            $response = (new Client())->post(
+            $response = (new Client(['base_uri' => self::$config['base_uri']]))->post(
                 '/bot' . self::$config['api_key'] . '/' . $action,
                 $request_params
             );
@@ -189,5 +215,37 @@ class TelegramWebDriver
         }
 
         return $result;
+    }
+
+    private static function setUpRequestParams(string $action, array $data)
+    {
+        $has_resource = false;
+        $multipart    = [];
+
+        foreach ($data as $key => &$item) {
+            if ($key === 'media') {
+                // Magical media input helper.
+                $item = self::mediaInputHelper($item, $has_resource, $multipart);
+            } elseif (array_key_exists($action, self::$input_file_fields) && in_array($key, self::$input_file_fields[$action], true)) {
+                // Allow absolute paths to local files.
+                if (is_string($item) && file_exists($item)) {
+                    $item = new Stream(self::encodeFile($item));
+                }
+            } elseif (is_array($item) || is_object($item)) {
+                // Convert any nested arrays or objects into JSON strings.
+                $item = json_encode($item);
+            }
+
+            // Reformat data array in multipart way if it contains a resource
+            $has_resource = $has_resource || is_resource($item) || $item instanceof Stream;
+            $multipart[]  = ['name' => $key, 'contents' => $item];
+        }
+        unset($item);
+
+        if ($has_resource) {
+            return ['multipart' => $multipart];
+        }
+
+        return ['form_params' => $data];
     }
 }
