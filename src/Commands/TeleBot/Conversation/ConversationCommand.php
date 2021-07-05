@@ -4,6 +4,7 @@
 namespace App\Commands\TeleBot\Conversation;
 
 use App\Entity\Conversation;
+use App\Repository\ConversationRepository;
 use App\Services\TeleBot\TelegramWebDriver;
 use Doctrine\ORM\EntityManager;
 use Longman\TelegramBot\Commands\Command;
@@ -55,13 +56,19 @@ abstract class ConversationCommand
     protected $entityManager;
 
     /**
+     * @var ConversationRepository
+     */
+    protected $conversationRepository;
+
+    /**
      * @param Message $message
      * @return ServerResponse
      */
     abstract protected function executeCommand(Message $message) : ServerResponse;
 
-    public function __construct(EntityManager $entityManager) {
+    public function __construct(EntityManager $entityManager, ConversationRepository $conversationRepository) {
         $this->entityManager = $entityManager;
+        $this->conversationRepository = $conversationRepository;
     }
 
     public function execute(Conversation $conversation, Update $update) {
@@ -112,13 +119,17 @@ abstract class ConversationCommand
         return trim($this->getMessage()->getText(true));
     }
 
-    protected function closeConversation() : string {
-        $this->conversation->setLastModify(new \DateTime());
-        $this->conversation->setStatus(Conversation::STATUS_CLOSED);
-        $this->entityManager->persist($this->conversation);
+    protected function closeAllConversation() : string {
+        $openConversations = $this->conversationRepository->findBy(['status' => Conversation::STATUS_OPENED]);
+
+        foreach ($openConversations as $conversation) {
+            $conversation->setStatus(Conversation::STATUS_CLOSED);
+            $this->entityManager->persist($conversation);
+        }
+
         $this->entityManager->flush();
 
-        return 'Conversation "' .  $this->conversation->getCommand() . '" cancelled!';
+        return 'Conversations cancelled!';
     }
 
     protected function stateUp() {
