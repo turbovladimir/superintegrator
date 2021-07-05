@@ -20,14 +20,14 @@ final class Version20210702133851 extends AbstractMigration
     public function up(Schema $schema) : void
     {
         $this->addSql('
-        CREATE TABLE telebot_key 
-        (id INT AUTO_INCREMENT NOT NULL, 
-        added_at DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', 
-        name VARCHAR(255) NOT NULL, 
-        value LONGTEXT NOT NULL, 
-        PRIMARY KEY(id)) 
-        DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('create unique index ix_name_value on super.telebot_key(name(15), value(100));');
+        CREATE TABLE `telebot_key` (
+                               `id` int(11) NOT NULL AUTO_INCREMENT,
+                               `added_at` datetime NOT NULL COMMENT \'(DC2Type:datetime_immutable)\',
+                               `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                               `value` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+                               PRIMARY KEY (`id`),
+                               UNIQUE KEY `ix_name` (`name`(15),`value`(100))
+)');
     }
 
     public function down(Schema $schema) : void
