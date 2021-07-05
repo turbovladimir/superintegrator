@@ -27,7 +27,7 @@ final class Version20210702133851 extends AbstractMigration
         value LONGTEXT NOT NULL, 
         PRIMARY KEY(id)) 
         DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('create unique index ix_name_value on telebot_key(name, value);');
+        $this->addSql('create unique index ix_name_value on super.telebot_key(name(15), value(100));');
     }
 
     public function down(Schema $schema) : void
