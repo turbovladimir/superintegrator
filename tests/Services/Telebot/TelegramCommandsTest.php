@@ -38,7 +38,7 @@ class TelegramCommandsTest extends  KernelTestCase
     }
 
     public function testCommands() {
-        foreach (['/mykeys', 'save avito pass123', 'get avito', 'delete avito', '/clearchat'] as $text) {
+        foreach (['/mykeys', '/cancel', '/mykeys', 'save avito pass123', 'get avito', 'delete avito', '/clearchat'] as $text) {
             $result = $this->processor->handle($this->getUpdate($text));
             $this->assertEquals(true, $result->isOk());
         }

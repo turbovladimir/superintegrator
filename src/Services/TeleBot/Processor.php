@@ -51,7 +51,7 @@ class Processor
 
         if ($conversation && $conversation->getLastUpdateId() === $updateId) {
             return TelegramWebDriver::emptyResponse();
-        } elseif ($conversation && $conversation->getLastUpdateId() !== $updateId) {
+        } elseif ($conversation && $conversation->getLastUpdateId() !== $updateId && !$update->getMessage()->getCommand()) {
             $conversation->setLastUpdateId($updateId);
             $commandName = $conversation->getCommand();
         } else {

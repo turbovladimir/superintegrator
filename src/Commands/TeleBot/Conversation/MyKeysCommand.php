@@ -8,7 +8,6 @@ use App\Services\TeleBot\TelegramWebDriver;
 use Doctrine\ORM\EntityManager;
 use Longman\TelegramBot\Entities\Message;
 use Longman\TelegramBot\Entities\ServerResponse;
-use Longman\TelegramBot\Request;
 
 class MyKeysCommand extends ConversationCommand
 {
@@ -64,9 +63,6 @@ class MyKeysCommand extends ConversationCommand
             }
             $serverResponse = $this->findValueByKey($matches[2]);
         }
-
-        $this->stateUp();
-        $this->conversationStop();
 
 
         return $serverResponse;
