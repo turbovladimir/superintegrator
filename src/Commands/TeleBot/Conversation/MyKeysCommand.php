@@ -3,6 +3,7 @@
 namespace App\Commands\TeleBot\Conversation;
 
 use App\Entity\TelebotKey;
+use App\Repository\ConversationRepository;
 use App\Repository\TelebotKeyRepository;
 use App\Services\TeleBot\TelegramWebDriver;
 use Doctrine\ORM\EntityManager;
@@ -21,9 +22,13 @@ class MyKeysCommand extends ConversationCommand
      */
     protected $description = 'Store key for accessing to some service';
 
-    public function __construct(TelebotKeyRepository $keyRepo, EntityManager $entityManager) {
+    public function __construct(
+        ConversationRepository $conversationRepository,
+        TelebotKeyRepository $keyRepo,
+        EntityManager $entityManager
+    ) {
         $this->keyRepo = $keyRepo;
-        parent::__construct($entityManager);
+        parent::__construct($conversationRepository, $entityManager);
     }
 
 

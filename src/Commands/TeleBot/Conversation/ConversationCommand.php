@@ -66,7 +66,7 @@ abstract class ConversationCommand
      */
     abstract protected function executeCommand(Message $message) : ServerResponse;
 
-    public function __construct(EntityManager $entityManager, ConversationRepository $conversationRepository) {
+    public function __construct(ConversationRepository $conversationRepository, EntityManager $entityManager) {
         $this->entityManager = $entityManager;
         $this->conversationRepository = $conversationRepository;
     }

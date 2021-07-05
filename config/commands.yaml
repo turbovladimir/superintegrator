@@ -17,20 +17,21 @@ services:
       - '@repository.user_role'
       - '@doctrine.orm.entity_manager'
 
-  command.telebot.conversation.my_keys:
-    class: App\Commands\TeleBot\Conversation\MyKeysCommand
-    arguments:
-      - '@repository.telebot_key'
-      - '@doctrine.orm.entity_manager'
-    tags:
-      - { name: telebot.command, command: mykeys }
-
   command.telebot.conversation.conversation_command:
     class: App\Commands\TeleBot\Conversation\ConversationCommand
     abstract: true
     arguments:
-      - '@doctrine.orm.entity_manager'
       - '@repository.conversation'
+      - '@doctrine.orm.entity_manager'
+
+  command.telebot.conversation.my_keys:
+    class: App\Commands\TeleBot\Conversation\MyKeysCommand
+    arguments:
+      - '@repository.conversation'
+      - '@repository.telebot_key'
+      - '@doctrine.orm.entity_manager'
+    tags:
+      - { name: telebot.command, command: mykeys }
 
   command.telebot.conversation.clear_chat:
     parent: command.telebot.conversation.conversation_command
