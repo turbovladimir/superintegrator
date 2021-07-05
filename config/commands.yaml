@@ -29,3 +29,8 @@ services:
     class: App\Commands\TeleBot\Conversation\ClearChatCommand
     tags:
       - { name: telebot.command, command: clearchat }
+      -
+  command.telebot.conversation.cancel:
+    class: App\Commands\TeleBot\Conversation\CancelCommand
+    tags:
+      - { name: telebot.command, command: cancel }

@@ -40,7 +40,7 @@ class MyKeysCommand extends ConversationTask
             $buttons = ['save', 'delete', 'get'];
 
             if (empty($text) || !in_array($text, $buttons , true)) {
-                $serverResponse = $this->createChooseResponse($buttons);
+                return $this->createChooseResponse($buttons);
             }
 
             $this->saveAnswer($text);

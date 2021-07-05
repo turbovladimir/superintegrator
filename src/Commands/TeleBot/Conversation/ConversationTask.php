@@ -121,6 +121,12 @@ abstract class ConversationTask
         $this->conversation->stop();
     }
 
+    protected function conversationCancel() : string {
+        $this->conversation->cancel();
+
+        return 'Conversation "' .  $this->conversation->getCommand() . '" cancelled!';
+    }
+
     protected function stateUp() {
         ++$this->conversation->notes['state'];
         $this->conversation->update();
