@@ -189,7 +189,7 @@ abstract class ConversationCommand
     public function __call($name, array $arguments)
     {
         if ($this->update === null) {
-            throw new \BadMethodCallException("Trying to call method non exist method {$name} or update entity was not init");
+            throw new \BadMethodCallException("Trying to call non exist method {$name} or update entity was not init");
         }
         return call_user_func_array([$this->update, $name], $arguments);
     }

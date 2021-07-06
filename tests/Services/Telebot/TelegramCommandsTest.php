@@ -18,7 +18,7 @@ class TelegramCommandsTest extends  KernelTestCase
         $kernel = self::bootKernel();
         $container = $kernel->getContainer();
         $this->processor = $container->get('app.services.telebot.processor.public');
-        $this->em = $container->get('doctrine.orm.default_entity_manager');
+        $this->em = $container->get('doctrine.orm.entity_manager');
         $this->truncateTables();
         define('PHPUNIT_TESTSUITE', 1);
     }
@@ -38,7 +38,7 @@ class TelegramCommandsTest extends  KernelTestCase
     }
 
     public function testCommands() {
-        foreach (['/mykeys', '/cancel', '/mykeys', 'save avito pass123', 'get avito', 'delete avito', '/clearchat'] as $text) {
+        foreach (['some text', '/mykeys', '/cancel', '/mykeys', 'save avito pass123', 'get avito', 'delete avito', '/clearchat'] as $text) {
             $result = $this->processor->handle($this->getUpdate($text));
             $this->assertEquals(true, $result->isOk());
         }

@@ -60,7 +60,7 @@ class Processor
                 ->setUserId($userId)
                 ->setChatId($chatId)
                 ->setStatus(Conversation::STATUS_OPENED)
-                ->setCommand($commandName)
+                ->setCommand($commandName ?? 'undefined')
                 ->setLastModify(new \DateTime())
                 ->setLastUpdateId($updateId);
         }
