@@ -75,9 +75,6 @@ abstract class ConversationCommand
         $this->update = $update;
         $message = $this->getMessage() ?: $this->getEditedMessage();
         $this->conversation = $conversation;
-        $conversation->addMessageInHistory($message);
-        $this->entityManager->persist($conversation);
-        $this->entityManager->flush();
 
 
         try {

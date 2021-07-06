@@ -44,20 +44,46 @@ class Processor
     public function handle(string $input = null) : ServerResponse {
         $update = $this->createUpdate($input);
         $userId = $update->getMessage()->getFrom()->getId();
-        $chatId = $update->getMessage()->getChat()->getId();
-        $updateId = $update->getUpdateId();
 
         if (!in_array($userId, $this->allowUsers)) {
             throw new \InvalidArgumentException('I\'m sorry, who are you? I do not know you');
         }
 
+        $conversation = $this->getConversation($update);
+
+        if (!$conversation) {
+            return TelegramWebDriver::emptyResponse();
+        }
+
+        $conversation->addMessageInHistory($update->getMessage());
+        $this->entityManager->persist($conversation);
+        $this->entityManager->flush();
+        $commandName = $conversation->getCommand();
+
+        if (!$commandName) {
+            return TelegramWebDriver::emptyResponse();
+        }
+
+        /**
+         * @var ConversationCommand $command
+         */
+        if (empty($command = $this->commands[$commandName])) {
+            throw new \InvalidArgumentException("The command {$commandName} not configured!");
+        }
+
+        return $command->execute($conversation, $update);
+    }
+
+    private function getConversation(Update $update) {
+        $chatId = $update->getMessage()->getChat()->getId();
+        $updateId = $update->getUpdateId();
+        $userId = $update->getMessage()->getFrom()->getId();
         $conversation = $this->conversationRepository->findOneBy(['userId' => $userId, 'chatId' => $chatId, 'status' => Conversation::STATUS_OPENED]);
 
         if ($conversation && $conversation->getLastUpdateId() === $updateId) {
-            return TelegramWebDriver::emptyResponse();
+            return null;
         } elseif ($conversation && $conversation->getLastUpdateId() !== $updateId && !$update->getMessage()->getCommand()) {
             $conversation->setLastUpdateId($updateId);
-            $commandName = $conversation->getCommand();
         } else {
             $commandName = $update->getMessage()->getCommand();
             $conversation = (new Conversation())
@@ -69,18 +95,7 @@ class Processor
                 ->setLastUpdateId($updateId);
         }
 
-        if (!$commandName) {
-            $this->entityManager->persist($conversation);
-            $this->entityManager->flush();
-
-            return TelegramWebDriver::emptyResponse();
-        }
-
-        if (empty($this->commands[$commandName])) {
-            throw new \InvalidArgumentException("The command {$commandName} not configured!");
-        }
-
-        return $this->commands[$commandName]->execute($conversation, $update);
+        return $conversation;
     }
 
     private function createUpdate(string $input = null) : Update {
