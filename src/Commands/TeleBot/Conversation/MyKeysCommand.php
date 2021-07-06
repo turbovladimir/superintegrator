@@ -59,7 +59,13 @@ class MyKeysCommand extends ConversationCommand
 
         if ($action === 'save') {
             $this->validate($matches, ['salt', 'key', 'value']);
-            $serverResponse = $this->save($matches['salt'], $matches['key'], $matches['value']);
+            try {
+                $this->save($matches['salt'], $matches['key'], $matches['value']);
+
+                return TelegramWebDriver::sendMessage($this->createResponseData('Saved complete my master!'));
+            } catch (\Throwable $exception) {
+                return TelegramWebDriver::sendMessage($this->createResponseData('Saved fail my master(( Perhaps this key already set!'));
+            }
         } elseif ($action === 'delete') {
             $this->validate($matches, ['salt', 'key']);
             $serverResponse = $this->delete($matches['key']);
@@ -72,12 +78,10 @@ class MyKeysCommand extends ConversationCommand
         return $serverResponse;
     }
 
-    private function save(string $salt,string $key, string $value): ServerResponse {
+    private function save(string $salt,string $key, string $value) {
         $value = $this->cruptor->encrypt($value, $salt);
         $this->entityManager->persist((new TelebotKey())->setName($key)->setValue($value)->setAddedAt(new \DateTime()));
         $this->entityManager->flush();
-
-        return TelegramWebDriver::sendMessage($this->createResponseData('Saved complete my master!'));
     }
 
     private function delete(string $name): ServerResponse {
