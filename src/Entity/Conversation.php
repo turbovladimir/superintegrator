@@ -141,4 +141,19 @@ class Conversation
 
         return $this;
     }
+
+    public function addNote(string $name, $value)
+    {
+        $this->notes = array_merge($this->notes, [$name => $value]);
+    }
+
+    public function addMessageInHistory(\Longman\TelegramBot\Entities\Message $message)
+    {
+        $this->notes['messages'][] = $message->getMessageId();
+    }
+
+    public function getMessageHistory() : array
+    {
+        return $this->notes['messages'] ?? [];
+    }
 }

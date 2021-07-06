@@ -12,7 +12,16 @@ class CancelCommand extends ConversationCommand
     {
         $data = $this->createResponseData();
         $data['reply_markup'] = Keyboard::remove(['selective' => true]);
-        $this->closeAllConversation();
+        $messagesForDeletion = $this->closeAllConversation();
+        $chatId = $message->getChat()->getId();
+
+        foreach ($messagesForDeletion as $messageId) {
+            TelegramWebDriver::deleteMessage([
+                'chat_id' => $chatId,
+                'message_id' => $messageId,
+            ]);
+        }
+
 
         $response = TelegramWebDriver::sendMessage($data);
 

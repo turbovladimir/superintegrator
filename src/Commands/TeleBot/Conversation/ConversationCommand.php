@@ -72,11 +72,13 @@ abstract class ConversationCommand
     }
 
     public function execute(Conversation $conversation, Update $update) {
+        $message = $this->getMessage() ?: $this->getEditedMessage();
         $this->update = $update;
         $this->conversation = $conversation;
+        $conversation->addMessageInHistory($message);
         $this->entityManager->persist($conversation);
         $this->entityManager->flush();
-        $message = $this->getMessage() ?: $this->getEditedMessage();
+
 
         try {
             $response = $this->executeCommand($message);
@@ -119,17 +121,19 @@ abstract class ConversationCommand
         return trim($this->getMessage()->getText(true));
     }
 
-    protected function closeAllConversation() : string {
+    protected function closeAllConversation() : array {
         $openConversations = $this->conversationRepository->findBy(['status' => Conversation::STATUS_OPENED]);
+        $messagesForDeletion = [];
 
         foreach ($openConversations as $conversation) {
+            $messagesForDeletion = array_merge($messagesForDeletion, $conversation->getMessageHistory());
             $conversation->setStatus(Conversation::STATUS_CLOSED);
             $this->entityManager->persist($conversation);
         }
 
         $this->entityManager->flush();
 
-        return 'Conversations cancelled!';
+        return $messagesForDeletion;
     }
 
     protected function stateUp() {

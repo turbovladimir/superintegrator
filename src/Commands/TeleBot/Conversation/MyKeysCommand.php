@@ -9,6 +9,7 @@ use App\Services\TeleBot\TelegramWebDriver;
 use Doctrine\ORM\EntityManager;
 use Longman\TelegramBot\Entities\Message;
 use Longman\TelegramBot\Entities\ServerResponse;
+use Tools\Cryptor;
 
 class MyKeysCommand extends ConversationCommand
 {
@@ -16,6 +17,11 @@ class MyKeysCommand extends ConversationCommand
      * @var TelebotKeyRepository
      */
     private $keyRepo;
+
+    /**
+     * @var Cryptor
+     */
+    private $cruptor;
 
     /**
      * @var string
@@ -28,6 +34,7 @@ class MyKeysCommand extends ConversationCommand
         EntityManager $entityManager
     ) {
         $this->keyRepo = $keyRepo;
+        $this->cruptor = new Cryptor();
         parent::__construct($conversationRepository, $entityManager);
     }
 
@@ -42,38 +49,39 @@ class MyKeysCommand extends ConversationCommand
             return TelegramWebDriver::sendMessage($data);
         }
 
-        preg_match('#(\w+)\s(\w+)(\s(\w+))?#', $text, $matches);
+        preg_match('#(?P<action>\w+)\s(?P<salt>\w+)\s(?P<key>\w+)(\s(?P<value>\w+))?#', $text, $matches);
 
         if (empty($matches)) {
             throw new \InvalidArgumentException('Incorrect action message!');
         }
 
-        $action = $matches[1];
+        $action = $matches['action'];
 
         if ($action === 'save') {
             if (empty($matches[2]) || empty($matches[4])) {
                 throw new \InvalidArgumentException('For saving you have to send pair with key and value like "save avito mypass1234"');
             }
 
-            $serverResponse = $this->save($matches[2], $matches[4]);
+            $serverResponse = $this->save($matches['salt'], $matches['key'], $matches['value']);
         } elseif ($action === 'delete') {
             if (empty($matches[2])) {
                 throw new \InvalidArgumentException('For deletion you have to send key like "delete avito"');
             }
 
-            $serverResponse = $this->delete($matches[2]);
+            $serverResponse = $this->delete($matches['key']);
         } elseif ($action === 'get') {
             if (empty($matches[2])) {
                 throw new \InvalidArgumentException('For fetching you have to send key like "get avito"');
             }
-            $serverResponse = $this->findValueByKey($matches[2]);
+            $serverResponse = $this->findValueByKey($matches['salt'], $matches['key']);
         }
 
 
         return $serverResponse;
     }
 
-    private function save(string $key, string $value): ServerResponse {
+    private function save(string $salt,string $key, string $value): ServerResponse {
+        $value = $this->cruptor->encrypt($value, $salt);
         $this->entityManager->persist((new TelebotKey())->setName($key)->setValue($value)->setAddedAt(new \DateTime()));
         $this->entityManager->flush();
 
@@ -91,11 +99,13 @@ class MyKeysCommand extends ConversationCommand
         return TelegramWebDriver::sendMessage($this->createResponseData('Deletion complete my master!'));
     }
 
-    private function findValueByKey(string $name): ServerResponse {
+    private function findValueByKey(string $salt, string $name): ServerResponse {
         if (empty($key = $this->keyRepo->findOneBy(['name' => $name]))) {
             throw new \InvalidArgumentException("Key not found by name {$name}");
         }
 
-        return TelegramWebDriver::sendMessage($this->createResponseData($key->getValue()));
+        $value = $this->cruptor->decrypt($key->getValue(), $salt);
+
+        return TelegramWebDriver::sendMessage($this->createResponseData($value));
     }
 }
