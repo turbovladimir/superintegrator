@@ -34,6 +34,7 @@ services:
     app.services.telebot.processor:
         class: App\Services\TeleBot\Processor
         arguments:
+            - '@doctrine.orm.entity_manager'
             - '@repository.conversation'
             - !tagged { tag: 'telebot.command', index_by: 'command' }
             - '%telebot.allow_users%'

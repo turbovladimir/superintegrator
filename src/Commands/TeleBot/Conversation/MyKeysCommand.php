@@ -58,21 +58,13 @@ class MyKeysCommand extends ConversationCommand
         $action = $matches['action'];
 
         if ($action === 'save') {
-            if (empty($matches[2]) || empty($matches[4])) {
-                throw new \InvalidArgumentException('For saving you have to send pair with key and value like "save avito mypass1234"');
-            }
-
+            $this->validate($matches, ['salt', 'key', 'value']);
             $serverResponse = $this->save($matches['salt'], $matches['key'], $matches['value']);
         } elseif ($action === 'delete') {
-            if (empty($matches[2])) {
-                throw new \InvalidArgumentException('For deletion you have to send key like "delete avito"');
-            }
-
+            $this->validate($matches, ['salt', 'key']);
             $serverResponse = $this->delete($matches['key']);
         } elseif ($action === 'get') {
-            if (empty($matches[2])) {
-                throw new \InvalidArgumentException('For fetching you have to send key like "get avito"');
-            }
+            $this->validate($matches, ['salt', 'key']);
             $serverResponse = $this->findValueByKey($matches['salt'], $matches['key']);
         }
 
@@ -107,5 +99,15 @@ class MyKeysCommand extends ConversationCommand
         $value = $this->cruptor->decrypt($key->getValue(), $salt);
 
         return TelegramWebDriver::sendMessage($this->createResponseData($value));
+    }
+
+    private function validate(array $matches, array $paramNames) {
+        foreach ($paramNames as $paramName) {
+            if (empty($matches[$paramName])) {
+                throw new \InvalidArgumentException(
+                    sprintf('Required parameters not set: %s', implode(',', $paramNames)));
+            }
+        }
+
     }
 }

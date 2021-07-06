@@ -6,6 +6,7 @@ namespace App\Services\TeleBot;
 use App\Commands\TeleBot\Conversation\ConversationCommand;
 use App\Entity\Conversation;
 use App\Repository\ConversationRepository;
+use Doctrine\ORM\EntityManager;
 use Longman\TelegramBot\Entities\ServerResponse;
 use Longman\TelegramBot\Entities\Update;
 use Longman\TelegramBot\TelegramLog;
@@ -18,8 +19,10 @@ class Processor
     private $conversationRepository;
     private $allowUsers;
     private $commands;
+    private $entityManager;
 
     public function __construct(
+        EntityManager $entityManager,
         ConversationRepository $conversationRepository,
         Traversable $commands,
         string $allowUsers,
@@ -28,6 +31,7 @@ class Processor
         LoggerInterface $telebotDebugLogger,
         LoggerInterface $telebotUpdatesLogger
     ) {
+        $this->entityManager = $entityManager;
         $this->conversationRepository = $conversationRepository;
         $this->botName = $botName;
         TelegramWebDriver::init($botName, $apiKey);
@@ -60,9 +64,16 @@ class Processor
                 ->setUserId($userId)
                 ->setChatId($chatId)
                 ->setStatus(Conversation::STATUS_OPENED)
-                ->setCommand($commandName ?? 'undefined')
+                ->setCommand($commandName)
                 ->setLastModify(new \DateTime())
                 ->setLastUpdateId($updateId);
+        }
+
+        if (!$commandName) {
+            $this->entityManager->persist($conversation);
+            $this->entityManager->flush();
+
+            return TelegramWebDriver::emptyResponse();
         }
 
         if (empty($this->commands[$commandName])) {

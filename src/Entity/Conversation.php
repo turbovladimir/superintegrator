@@ -51,7 +51,7 @@ class Conversation
     private $status;
 
     /**
-     * @ORM\Column(type="json")
+     * @ORM\Column(type="json", nullable=true)
      */
     private $notes = [];
 
@@ -111,7 +111,7 @@ class Conversation
         return $this->command;
     }
 
-    public function setCommand(string $command): self
+    public function setCommand(string $command = null): self
     {
         $this->command = $command;
 

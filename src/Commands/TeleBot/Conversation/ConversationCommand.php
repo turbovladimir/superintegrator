@@ -72,8 +72,8 @@ abstract class ConversationCommand
     }
 
     public function execute(Conversation $conversation, Update $update) {
-        $message = $this->getMessage() ?: $this->getEditedMessage();
         $this->update = $update;
+        $message = $this->getMessage() ?: $this->getEditedMessage();
         $this->conversation = $conversation;
         $conversation->addMessageInHistory($message);
         $this->entityManager->persist($conversation);
