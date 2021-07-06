@@ -26,7 +26,7 @@ final class Version20210702133851 extends AbstractMigration
                                `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
                                `value` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
                                PRIMARY KEY (`id`),
-                               UNIQUE KEY `ix_name` (`name`(15),`value`(100))
+                               UNIQUE KEY `ix_name` (`name`(15))
 )');
     }
 
