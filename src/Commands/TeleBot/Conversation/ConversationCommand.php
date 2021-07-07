@@ -3,6 +3,7 @@
 
 namespace App\Commands\TeleBot\Conversation;
 
+use App\Commands\TeleBot\Conversation\Exception\ConversationNotice;
 use App\Entity\Conversation;
 use App\Repository\ConversationRepository;
 use App\Services\TeleBot\TelegramWebDriver;
@@ -71,7 +72,7 @@ abstract class ConversationCommand
         $this->conversationRepository = $conversationRepository;
     }
 
-    public function execute(Conversation $conversation, Update $update) {
+    public function execute(Conversation $conversation, Update $update) : ServerResponse {
         $this->update = $update;
         $message = $this->getMessage() ?: $this->getEditedMessage();
         $this->conversation = $conversation;
@@ -82,14 +83,14 @@ abstract class ConversationCommand
             $this->update = $this->conversation = null;
 
             return $response;
-        } catch (\Throwable $exception) {
+        } catch (ConversationNotice $notice) {
             TelegramWebDriver::sendMessage([
                 'chat_id' => $message->getChat()->getId(),
-                'text' => $exception->getMessage()
+                'text' => $notice->getMessage()
             ]);
-
-            throw $exception;
         }
+
+        return TelegramWebDriver::emptyResponse();
     }
 
     protected function createChooseResponse(

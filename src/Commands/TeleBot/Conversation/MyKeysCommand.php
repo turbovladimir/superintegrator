@@ -2,6 +2,7 @@
 
 namespace App\Commands\TeleBot\Conversation;
 
+use App\Commands\TeleBot\Conversation\Exception\ConversationNotice;
 use App\Entity\TelebotKey;
 use App\Repository\ConversationRepository;
 use App\Repository\TelebotKeyRepository;
@@ -14,10 +15,10 @@ use Tools\Cryptor;
 class MyKeysCommand extends ConversationCommand
 {
     private $actionsPatterns = [
-        'get' => '#(?P<action>\w+)\s(?P<salt>\w+)\s(?P<key>\w+)#',
-        'get_all' => '#(?P<action>\w+)\s(?P<salt>\w+)#',
-        'save' => '#(?P<action>\w+)\s(?P<salt>\w+)\s(?P<key>\w+)\s(?P<value>\w+)#',
-        'delete' => '#(?P<action>\w+)\s(?P<key>\w+)#',
+        'get' => '#(?P<action>\w+)\s(?P<salt>\d+)\s(?P<key>.+)#',
+        'get_all' => '#(?P<action>\w+)\s(?P<salt>\d+)#',
+        'save' => '#(?P<action>\w+)\s(?P<salt>\d+)\s(?P<key>.+)\s(?P<value>.+)#',
+        'delete' => '#(?P<action>\w+)\s(?P<key>.+)#',
     ];
 
     /**
@@ -59,7 +60,7 @@ class MyKeysCommand extends ConversationCommand
         preg_match('#(?P<action>\w+).*#', $text, $matches);
 
         if (empty($matches['action']) || !in_array($matches['action'], array_keys($this->actionsPatterns), true)) {
-            throw new \InvalidArgumentException('Undefined action message!');
+            throw new ConversationNotice('Undefined action message!');
         }
 
         $action = $matches['action'];
@@ -69,7 +70,7 @@ class MyKeysCommand extends ConversationCommand
         preg_match($this->actionsPatterns[$action], $text, $matches);
 
         if (empty($matches)) {
-            throw new \InvalidArgumentException("Incorrect parameters for pattern of action `{$action}`");
+            throw new ConversationNotice("Incorrect parameters for pattern of action `{$action}`");
         }
 
         if ($action === 'save') {
@@ -110,7 +111,7 @@ class MyKeysCommand extends ConversationCommand
 
     private function findValueByKey(int $userId, string $salt, string $name): ServerResponse {
         if (empty($key = $this->keyRepo->findOneBy(['name' => $name, 'userId' => $userId]))) {
-            throw new \InvalidArgumentException("Key not found by name {$name}");
+            throw new ConversationNotice("Key not found by name {$name}");
         }
 
         $value = $this->cruptor->decrypt($key->getValue(), $salt);
