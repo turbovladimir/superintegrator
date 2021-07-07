@@ -71,7 +71,16 @@ class Processor
             throw new \InvalidArgumentException("The command {$commandName} not configured!");
         }
 
-        return $command->execute($conversation, $update);
+        $response = $command->execute($conversation, $update);
+
+        if ($response->isOk()) {
+            $message = $response->getResult();
+            $conversation->addMessageInHistory($message);
+            $this->entityManager->persist($conversation);
+            $this->entityManager->flush();
+        }
+
+        return $response;
     }
 
     private function getConversation(Update $update) {

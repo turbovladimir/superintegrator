@@ -100,7 +100,7 @@ class MyKeysCommand extends ConversationCommand
 
     private function delete(int $userId, string $name): ServerResponse {
         if (empty($key = $this->keyRepo->findOneBy(['name' => $name, 'userId' => $userId]))) {
-            throw new \InvalidArgumentException("Key not found by name {$name}");
+            throw new ConversationNotice("Cant delete kay: not found by name {$name}");
         }
 
         $this->entityManager->remove($key);

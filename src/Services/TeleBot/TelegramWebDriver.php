@@ -5,6 +5,7 @@ namespace App\Services\TeleBot;
 
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Stream;
 use Longman\TelegramBot\DB;
@@ -146,12 +147,12 @@ class TelegramWebDriver
 
         $response = new ServerResponse($response, $bot_username);
 
-        if (!$response->isOk() && $response->getErrorCode() === 401 && $response->getDescription() === 'Unauthorized') {
-            throw new InvalidBotTokenException();
-        }
-
-        if ($response->isOk() && ($message = $response->getResult()) && ($message instanceof Message) && $poll = $message->getPoll()) {
-            DB::insertPollRequest($poll);
+        if (!$response->isOk()) {
+            if ($response->getErrorCode() === 401 && $response->getDescription() === 'Unauthorized') {
+                throw new InvalidBotTokenException();
+            } else {
+                throw new \InvalidArgumentException('Bad response! ' . $response->printError());
+            }
         }
 
         return $response;
@@ -187,35 +188,21 @@ class TelegramWebDriver
     }
 
     private static function execute($action, array $data = []) {
-        $result = null;
-        $response = null;
         $request_params = self::setUpRequestParams($action, $data);
-        $request_params['debug'] = TelegramLog::getDebugLogTempStream();
 
         try {
             $response = (new Client(['base_uri' => self::$config['base_uri']]))->post(
                 '/bot' . self::$config['api_key'] . '/' . $action,
                 $request_params
             );
-            $result = (string)$response->getBody();
 
-            //Logging getUpdates Update
-            if ($action === 'getUpdates') {
-                TelegramLog::update($result);
-            }
+            return (string)$response->getBody();
         } catch (RequestException $e) {
-            $response = null;
-            $result = $e->getResponse() ? (string)$e->getResponse()->getBody() : '';
-        } finally {
-            //Logging verbose debug output
-            if (TelegramLog::$always_log_request_and_response || $response === null) {
-                TelegramLog::debug('Request data:' . PHP_EOL . print_r($data, true));
-                TelegramLog::debug('Response data:' . PHP_EOL . $result);
-                TelegramLog::endDebugLogTempStream('Verbose HTTP Request output:' . PHP_EOL . '%s' . PHP_EOL);
-            }
+            $response = (string)$e->getResponse()->getBody();
+            TelegramLog::notice('Request Exception: ' . $response);
         }
 
-        return $result;
+        return $response;
     }
 
     private static function setUpRequestParams(string $action, array $data)

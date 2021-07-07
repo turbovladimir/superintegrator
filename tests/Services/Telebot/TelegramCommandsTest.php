@@ -46,7 +46,7 @@ class TelegramCommandsTest extends  KernelTestCase
                      '/mykeys',
                      'save 0102 avito pass123',
                      'get 0102 avito',
-                     'delete 0102 avito',
+                     'delete avito',
                      '/clearchat'] as $text) {
             $result = $this->processor->handle($this->getUpdate($text));
             $this->assertEquals(true, $result->isOk());
