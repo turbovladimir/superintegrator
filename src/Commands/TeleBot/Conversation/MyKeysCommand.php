@@ -13,6 +13,13 @@ use Tools\Cryptor;
 
 class MyKeysCommand extends ConversationCommand
 {
+    private $actionsPatterns = [
+        'get' => '#(?P<action>\w+)\s(?P<salt>\w+)\s(?P<key>\w+)#',
+        'get_all' => '#(?P<action>\w+)\s(?P<salt>\w+)#',
+        'save' => '#(?P<action>\w+)\s(?P<salt>\w+)\s(?P<key>\w+)\s(?P<value>\w+)#',
+        'delete' => '#(?P<action>\w+)\s(?P<key>\w+)#',
+    ];
+
     /**
      * @var TelebotKeyRepository
      */
@@ -44,37 +51,42 @@ class MyKeysCommand extends ConversationCommand
 
         if (empty($text)) {
             $data = $this->createResponseData(
-                sprintf('Choose what you want? %s', implode(' or ', ['save', 'delete', 'get'])));
+                sprintf('Choose what you want? %s', implode(' or ', array_keys($this->actionsPatterns))));
 
             return TelegramWebDriver::sendMessage($data);
         }
 
-        preg_match('#(?P<action>\w+)\s(?P<salt>\w+)\s(?P<key>\w+)(\s(?P<value>\w+))?#', $text, $matches);
+        preg_match('#(?P<action>\w+).*#', $text, $matches);
 
-        if (empty($matches)) {
-            throw new \InvalidArgumentException('Incorrect action message!');
+        if (empty($matches['action']) || !in_array($matches['action'], array_keys($this->actionsPatterns), true)) {
+            throw new \InvalidArgumentException('Undefined action message!');
         }
 
         $action = $matches['action'];
         $userId = $message->getFrom()->getId();
 
+
+        preg_match($this->actionsPatterns[$action], $text, $matches);
+
+        if (empty($matches)) {
+            throw new \InvalidArgumentException("Incorrect parameters for pattern of action `{$action}`");
+        }
+
         if ($action === 'save') {
-            $this->validate($matches, ['salt', 'key', 'value']);
             try {
                 $this->save($userId, $matches['salt'], $matches['key'], $matches['value']);
 
-                return TelegramWebDriver::sendMessage($this->createResponseData('Saved complete my master!'));
+                $serverResponse = TelegramWebDriver::sendMessage($this->createResponseData('Saved complete my master!'));
             } catch (\Throwable $exception) {
-                return TelegramWebDriver::sendMessage($this->createResponseData('Saved fail my master(( Perhaps this key already set!'));
+                $serverResponse = TelegramWebDriver::sendMessage($this->createResponseData('Saved fail my master(( Perhaps this key already set!'));
             }
         } elseif ($action === 'delete') {
-            $this->validate($matches, ['salt', 'key']);
             $serverResponse = $this->delete($userId, $matches['key']);
         } elseif ($action === 'get') {
-            $this->validate($matches, ['salt', 'key']);
             $serverResponse = $this->findValueByKey($userId, $matches['salt'], $matches['key']);
+        } elseif ($action === 'get_all') {
+            $serverResponse = $this->findAll($userId, $matches['salt']);
         }
-
 
         return $serverResponse;
     }
@@ -106,13 +118,17 @@ class MyKeysCommand extends ConversationCommand
         return TelegramWebDriver::sendMessage($this->createResponseData($value));
     }
 
-    private function validate(array $matches, array $paramNames) {
-        foreach ($paramNames as $paramName) {
-            if (empty($matches[$paramName])) {
-                throw new \InvalidArgumentException(
-                    sprintf('Required parameters not set: %s', implode(',', $paramNames)));
-            }
+    private function findAll(int $userId, string $salt) : ServerResponse  {
+        $keys = $this->keyRepo->findBy(['userId' => $userId]);
+        $report = '';
+
+        /**
+         * @var TelebotKey $key
+         */
+        foreach ($keys as $key) {
+            $report .= "**{$key->getName()}**: {$this->cruptor->decrypt($key->getValue(), $salt)}" .PHP_EOL;
         }
 
+        return TelegramWebDriver::sendMessage($this->createResponseData($report));
     }
 }
