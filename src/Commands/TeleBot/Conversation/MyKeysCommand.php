@@ -56,11 +56,12 @@ class MyKeysCommand extends ConversationCommand
         }
 
         $action = $matches['action'];
+        $userId = $message->getFrom()->getId();
 
         if ($action === 'save') {
             $this->validate($matches, ['salt', 'key', 'value']);
             try {
-                $this->save($matches['salt'], $matches['key'], $matches['value']);
+                $this->save($userId, $matches['salt'], $matches['key'], $matches['value']);
 
                 return TelegramWebDriver::sendMessage($this->createResponseData('Saved complete my master!'));
             } catch (\Throwable $exception) {
@@ -68,24 +69,24 @@ class MyKeysCommand extends ConversationCommand
             }
         } elseif ($action === 'delete') {
             $this->validate($matches, ['salt', 'key']);
-            $serverResponse = $this->delete($matches['key']);
+            $serverResponse = $this->delete($userId, $matches['key']);
         } elseif ($action === 'get') {
             $this->validate($matches, ['salt', 'key']);
-            $serverResponse = $this->findValueByKey($matches['salt'], $matches['key']);
+            $serverResponse = $this->findValueByKey($userId, $matches['salt'], $matches['key']);
         }
 
 
         return $serverResponse;
     }
 
-    private function save(string $salt,string $key, string $value) {
+    private function save(int $userId, string $salt,string $key, string $value) {
         $value = $this->cruptor->encrypt($value, $salt);
-        $this->entityManager->persist((new TelebotKey())->setName($key)->setValue($value)->setAddedAt(new \DateTime()));
+        $this->entityManager->persist((new TelebotKey())->setUserId($userId)->setName($key)->setValue($value)->setAddedAt(new \DateTime()));
         $this->entityManager->flush();
     }
 
-    private function delete(string $name): ServerResponse {
-        if (empty($key = $this->keyRepo->findOneBy(['name' => $name]))) {
+    private function delete(int $userId, string $name): ServerResponse {
+        if (empty($key = $this->keyRepo->findOneBy(['name' => $name, 'userId' => $userId]))) {
             throw new \InvalidArgumentException("Key not found by name {$name}");
         }
 
@@ -95,8 +96,8 @@ class MyKeysCommand extends ConversationCommand
         return TelegramWebDriver::sendMessage($this->createResponseData('Deletion complete my master!'));
     }
 
-    private function findValueByKey(string $salt, string $name): ServerResponse {
-        if (empty($key = $this->keyRepo->findOneBy(['name' => $name]))) {
+    private function findValueByKey(int $userId, string $salt, string $name): ServerResponse {
+        if (empty($key = $this->keyRepo->findOneBy(['name' => $name, 'userId' => $userId]))) {
             throw new \InvalidArgumentException("Key not found by name {$name}");
         }
 

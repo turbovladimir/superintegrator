@@ -24,9 +24,10 @@ final class Version20210702133851 extends AbstractMigration
                                `id` int(11) NOT NULL AUTO_INCREMENT,
                                `added_at` datetime NOT NULL COMMENT \'(DC2Type:datetime_immutable)\',
                                `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                               `user_id` int(11) NOT NULL,
                                `value` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
                                PRIMARY KEY (`id`),
-                               UNIQUE KEY `ix_name` (`name`(15))
+                               UNIQUE KEY `ix_name_user` (`name`(15), `user_id`)
 )');
     }
 

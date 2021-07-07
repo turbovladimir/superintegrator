@@ -28,6 +28,11 @@ class TelebotKey
     private $name;
 
     /**
+     * @ORM\Column (type="integer")
+     */
+    private $userId;
+
+    /**
      * @ORM\Column(type="text")
      */
     private $value;
@@ -35,6 +40,24 @@ class TelebotKey
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    /**
+     * @return int
+     */
+    public function getUserId() : ?int
+    {
+        return $this->userId;
+    }
+
+    /**
+     * @param int $userId
+     */
+    public function setUserId($userId): self
+    {
+        $this->userId = $userId;
+
+        return $this;
     }
 
     public function getAddedAt(): ?\DateTimeInterface
