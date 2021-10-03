@@ -18,4 +18,3 @@ services:
     tags: ['controller.service_arguments']
     arguments:
       - '@app.services.telebot.processor'
-      - '@monolog.logger'

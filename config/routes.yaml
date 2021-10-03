@@ -28,14 +28,16 @@ tool.xml_page:
   path: /xml
   controller: App\Controller\ToolController::xmlPage
 
+#content
+content.sticker:
+  path: /content/sticker/{sticker}
+  controller: App\Controller\ContentController::getSticker
+
 #telebot
 telebot.process:
   path: /telebot/process
   controller: App\Controller\TelebotController::process
-
-telebot.set_hook:
-  path: /telebot/set_hook
-  controller: App\Controller\TelebotController::setHook
+  methods: POST
 
 #logs
 logs.show:

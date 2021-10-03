@@ -2,3 +2,15 @@ services:
   app.services.telebot.processor.public:
     alias: 'app.services.telebot.processor'
     public: true
+
+  app.tests.tools.db_purger:
+    class: App\Tests\Tools\DBPurger
+    public: true
+    arguments:
+      - '@doctrine.orm.entity_manager'
+
+  app.tests.mocks.my_command:
+    parent: command.telebot.conversation.conversation_command
+    class: App\Tests\Mocks\MyCommand
+    tags:
+      - { name: telebot.command, command: my_command }

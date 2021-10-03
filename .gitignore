@@ -3,6 +3,7 @@ public/cgi-bin/
 public/PHP_errors.log
 cgi-bin/
 .env
+.env.test
 .idea
 ###> symfony/framework-bundle ###
 /.env.local

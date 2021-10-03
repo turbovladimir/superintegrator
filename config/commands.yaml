@@ -21,26 +21,21 @@ services:
     class: App\Commands\TeleBot\Conversation\ConversationCommand
     abstract: true
     arguments:
-      - '@repository.conversation'
-      - '@doctrine.orm.entity_manager'
+      $dispatcher: '@event_dispatcher'
 
   command.telebot.conversation.my_keys:
     class: App\Commands\TeleBot\Conversation\MyKeysCommand
+    parent: command.telebot.conversation.conversation_command
     arguments:
-      - '@repository.conversation'
-      - '@repository.telebot_key'
-      - '@doctrine.orm.entity_manager'
+      $keyRepo: '@repository.telebot_key'
+      $entityManager: '@doctrine.orm.entity_manager'
     tags:
       - { name: telebot.command, command: mykeys }
-
-  command.telebot.conversation.clear_chat:
-    parent: command.telebot.conversation.conversation_command
-    class: App\Commands\TeleBot\Conversation\ClearChatCommand
-    tags:
-      - { name: telebot.command, command: clearchat }
 
   command.telebot.conversation.cancel:
     parent: command.telebot.conversation.conversation_command
     class: App\Commands\TeleBot\Conversation\CancelCommand
+    arguments:
+      $conversationRepository: '@repository.conversation'
     tags:
       - { name: telebot.command, command: cancel }

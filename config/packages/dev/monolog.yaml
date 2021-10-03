@@ -6,12 +6,6 @@ monolog:
       level: debug
       max_files: 10
       channels: [ "telebot_debug" ]
-    telebot_updates_logger:
-      type: rotating_file
-      path: "%kernel.logs_dir%/%kernel.environment%/telebot/updates.log"
-      level: info
-      max_files: 10
-      channels: [ "telebot_updates" ]
     main:
       type: rotating_file
       level: notice
@@ -21,4 +15,3 @@ monolog:
 
   channels:
     - telebot_debug
-    - telebot_updates

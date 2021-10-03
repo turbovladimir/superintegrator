@@ -13,6 +13,7 @@ services:
             $telebotProcessor: '@app.services.telebot.processor'
             $tools: '@tools.collection'
             $environment: '%kernel.environment%'
+            $projectDir: '%kernel.project_dir%'
 
     App\Controller\:
         resource: '../src/Controller'
@@ -31,15 +32,35 @@ services:
         arguments:
             - '@twig'
 
+    app.telebot.http.driver:
+        class: App\Services\TeleBot\Http\Driver
+        arguments:
+            - '%telebot.url%'
+            - '%telebot.token%'
+
+    app.telebot.event.subscriber:
+        class: App\Services\TeleBot\Event\ConversationEventsSubscriber
+        arguments:
+            - '@app.services.telebot.log.conversation_debug_processor'
+            - '@doctrine.orm.entity_manager'
+            - '@app.telebot.http.driver'
+        tags:
+            - { name: kernel.event_subscriber}
+
+    app.services.telebot.log.conversation_debug_processor:
+        class: App\Services\TeleBot\Log\ConversationDebugProcessor
+        arguments:
+            - '@event_dispatcher'
+        tags:
+            - { name: monolog.processor, handler: telebot_debug_logger }
+
     app.services.telebot.processor:
         class: App\Services\TeleBot\Processor
         arguments:
-            - '@doctrine.orm.entity_manager'
+            - '@event_dispatcher'
             - '@repository.conversation'
             - !tagged { tag: 'telebot.command', index_by: 'command' }
             - '%telebot.allow_users%'
-            - '%telebot.token%'
-            - '%telebot.name%'
 
     app.service.sender.message_manager:
         class: App\Services\Sender\MessageManager

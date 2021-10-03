@@ -44,5 +44,6 @@ services:
       -
   repository.conversation:
     class: App\Repository\ConversationRepository
+    parent: 'repository.base'
     arguments:
       - '@doctrine'

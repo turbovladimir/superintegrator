@@ -2,14 +2,13 @@
 
 namespace App\Commands\TeleBot\Conversation;
 
-use App\Commands\TeleBot\Conversation\Exception\ConversationNotice;
+Use App\Services\TeleBot\Exception\ChatWarning;
+use App\Entity\Conversation;
 use App\Entity\TelebotKey;
-use App\Repository\ConversationRepository;
 use App\Repository\TelebotKeyRepository;
-use App\Services\TeleBot\TelegramWebDriver;
-use Doctrine\ORM\EntityManager;
-use Longman\TelegramBot\Entities\Message;
-use Longman\TelegramBot\Entities\ServerResponse;
+use App\Services\TeleBot\Event\SendMessageEvent;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Tools\Cryptor;
 
 class MyKeysCommand extends ConversationCommand
@@ -36,60 +35,60 @@ class MyKeysCommand extends ConversationCommand
      */
     protected $description = 'Store key for accessing to some service';
 
+    /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
+
     public function __construct(
-        ConversationRepository $conversationRepository,
+        EventDispatcherInterface $dispatcher,
         TelebotKeyRepository $keyRepo,
-        EntityManager $entityManager
+        EntityManagerInterface $entityManager
     ) {
         $this->keyRepo = $keyRepo;
         $this->cruptor = new Cryptor();
-        parent::__construct($conversationRepository, $entityManager);
+        parent::__construct($dispatcher);
+        $this->entityManager = $entityManager;
     }
 
 
-    protected function executeCommand(Message $message): ServerResponse {
-        $text = $this->getTextMessage();
+    public function execute(Conversation $conversation) : void {
+        $text = $conversation->getLastMessage()->getText(true);
 
         if (empty($text)) {
-            $data = $this->createResponseData(
-                sprintf('Choose what you want? %s', implode(' or ', array_keys($this->actionsPatterns))));
-
-            return TelegramWebDriver::sendMessage($data);
+            $this->dispatcher->dispatch(new SendMessageEvent($conversation,
+                sprintf('Choose what you want? %s', implode(' or ', array_keys($this->actionsPatterns)))));
         }
 
         preg_match('#(?P<action>\w+).*#', $text, $matches);
 
         if (empty($matches['action']) || !in_array($matches['action'], array_keys($this->actionsPatterns), true)) {
-            throw new ConversationNotice('Undefined action message!');
+            throw new ChatWarning('Undefined action message!');
         }
 
         $action = $matches['action'];
-        $userId = $message->getFrom()->getId();
-
-
+        $userId = $conversation->getLastMessage()->getFrom()->getId();
         preg_match($this->actionsPatterns[$action], $text, $matches);
 
         if (empty($matches)) {
-            throw new ConversationNotice("Incorrect parameters for pattern of action `{$action}`");
+            throw new ChatWarning("Incorrect parameters for pattern of action `{$action}`");
         }
+
+        $response = '';
 
         if ($action === 'save') {
-            try {
-                $this->save($userId, $matches['salt'], $matches['key'], $matches['value']);
-
-                $serverResponse = TelegramWebDriver::sendMessage($this->createResponseData('Saved complete my master!'));
-            } catch (\Throwable $exception) {
-                $serverResponse = TelegramWebDriver::sendMessage($this->createResponseData('Saved fail my master(( Perhaps this key already set!'));
-            }
+            $this->save($userId, $matches['salt'], $matches['key'], $matches['value']);
+            $response = 'Save completed!';
         } elseif ($action === 'delete') {
-            $serverResponse = $this->delete($userId, $matches['key']);
+            $this->delete($userId, $matches['key']);
+            $response = 'Delete completed!';
         } elseif ($action === 'get') {
-            $serverResponse = $this->findValueByKey($userId, $matches['salt'], $matches['key']);
+            $response = $this->findValueByKey($userId, $matches['salt'], $matches['key']);
         } elseif ($action === 'get_all') {
-            $serverResponse = $this->findAll($userId, $matches['salt']);
+            $response = $this->findAll($userId, $matches['salt']);
         }
 
-        return $serverResponse;
+        $this->dispatcher->dispatch(new SendMessageEvent($conversation, $response));
     }
 
     private function save(int $userId, string $salt,string $key, string $value) {
@@ -98,38 +97,31 @@ class MyKeysCommand extends ConversationCommand
         $this->entityManager->flush();
     }
 
-    private function delete(int $userId, string $name): ServerResponse {
+    private function delete(int $userId, string $name) {
         if (empty($key = $this->keyRepo->findOneBy(['name' => $name, 'userId' => $userId]))) {
-            throw new ConversationNotice("Cant delete kay: not found by name {$name}");
+            throw new ChatWarning("Cant delete kay: not found by name {$name}");
         }
 
         $this->entityManager->remove($key);
         $this->entityManager->flush();
-
-        return TelegramWebDriver::sendMessage($this->createResponseData('Deletion complete my master!'));
     }
 
-    private function findValueByKey(int $userId, string $salt, string $name): ServerResponse {
-        if (empty($key = $this->keyRepo->findOneBy(['name' => $name, 'userId' => $userId]))) {
-            throw new ConversationNotice("Key not found by name {$name}");
+    private function findValueByKey(int $userId, string $salt, string $nameLike) : string {
+        if (empty($key = $this->keyRepo->fetchKeyByUserIdAndServiceName($userId, $nameLike))) {
+            throw new ChatWarning("Key not found by name {$nameLike}");
         }
 
-        $value = $this->cruptor->decrypt($key->getValue(), $salt);
-
-        return TelegramWebDriver::sendMessage($this->createResponseData($value));
+        return $this->cruptor->decrypt($key->getValue(), $salt);
     }
 
-    private function findAll(int $userId, string $salt) : ServerResponse  {
+    private function findAll(int $userId, string $salt)  {
         $keys = $this->keyRepo->findBy(['userId' => $userId]);
         $report = '';
 
-        /**
-         * @var TelebotKey $key
-         */
         foreach ($keys as $key) {
             $report .= "**{$key->getName()}**: {$this->cruptor->decrypt($key->getValue(), $salt)}" .PHP_EOL;
         }
 
-        return TelegramWebDriver::sendMessage($this->createResponseData($report));
+        return $report;
     }
 }

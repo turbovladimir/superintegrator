@@ -3,10 +3,12 @@
 
 namespace App\Controller;
 
+use App\Services\TeleBot\Exception\ChatError;
+use App\Services\TeleBot\Exception\ChatWarning;
 use App\Services\TeleBot\Processor;
 use Longman\TelegramBot\Exception\TelegramException;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,17 +16,32 @@ use Symfony\Component\HttpFoundation\Response;
 class TelebotController extends AbstractController
 {
     private $processor;
-    private $logger;
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
 
-    public function __construct(Processor $telebotProcessor, LoggerInterface $logger) {
+    public function __construct(Processor $telebotProcessor, EventDispatcherInterface $dispatcher) {
         $this->processor = $telebotProcessor;
-        $this->logger = $logger;
+        $this->dispatcher = $dispatcher;
     }
 
-    public function process() : Response {
-        $this->processor->handle();
+    public function process(Request $request) : Response {
+        $updateData = $request->getContent();
 
-        return new JsonResponse('nice!', 200);
+        if (empty($updateData) || !($updateData = json_decode($updateData, true))) {
+            return new JsonResponse(['error' => 'Empty body data!'], 400);
+        }
+
+        try {
+            $this->processor->handle($updateData);
+        } catch (ChatError|ChatWarning $error) {
+            return new JsonResponse(['error' => $error->getMessage()], 400);
+        } catch (\Throwable $error) {
+            return new JsonResponse(['error' => $error->getMessage()], 500);
+        }
+
+        return new JsonResponse(['message' => 'nice!'], 200);
     }
 
     public function setHook(Request $request) : JsonResponse {

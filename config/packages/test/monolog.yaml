@@ -1,5 +1,11 @@
 monolog:
     handlers:
+        telebot_debug_logger:
+            type: rotating_file
+            path: "%kernel.logs_dir%/%kernel.environment%/telebot/debug.log"
+            level: debug
+            max_files: 10
+            channels: [ "telebot_debug" ]
         main:
             type: fingers_crossed
             action_level: error
@@ -10,3 +16,6 @@ monolog:
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%.log"
             level: debug
+
+    channels:
+        - telebot_debug

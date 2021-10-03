@@ -3,8 +3,6 @@
 namespace App\Repository;
 
 use App\Entity\Conversation;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Conversation|null find($id, $lockMode = null, $lockVersion = null)
@@ -12,39 +10,42 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Conversation[]    findAll()
  * @method Conversation[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ConversationRepository extends ServiceEntityRepository
+class ConversationRepository extends BaseRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
-        parent::__construct($registry, Conversation::class);
+    /**
+     * @param string $statusFrom
+     * @param string $statusTo
+     * @return int[]
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function updateStatus(string $statusFrom, string $statusTo) : array {
+        $openConversations = $this->findBy(['status' => $statusFrom]);
+        $messageIds = [];
+
+        foreach ($openConversations as $conversation) {
+            $messageIds = array_merge($messageIds, $conversation->getMessageIdsFromHistory());
+            $conversation->setStatus($statusTo);
+            $this->_em->persist($conversation);
+        }
+
+        $this->_em->flush();
+
+        return $messageIds;
     }
 
-    // /**
-    //  * @return Conversation[] Returns an array of Conversation objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+    public function cancelConversation(Conversation $conversation) {
+        if ($conversation->getStatus() === Conversation::STATUS_CLOSED) {
+            throw new \InvalidArgumentException('Conversation already canceled!');
+        }
 
-    /*
-    public function findOneBySomeField($value): ?Conversation
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $conversation->setStatus(Conversation::STATUS_CLOSED);
+        $this->_em->persist($conversation);
+        $this->_em->flush();
     }
-    */
+
+    protected function getEntityName()
+    {
+        return Conversation::class;
+    }
 }

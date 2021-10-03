@@ -16,7 +16,7 @@
         <server name="SYMFONY_PHPUNIT_VERSION" value="7.5" />
 
         <!-- ###+ symfony/framework-bundle ### -->
-        <env name="APP_ENV" value="dev"/>
+        <env name="APP_ENV" value="test"/>
         <env name="APP_SECRET" value="40137f66609dee8fd63c63dc8f146a80"/>
         <env name="MAILER_URL" value="null://localhost"/>
         <!-- ###- symfony/swiftmailer-bundle ### -->

@@ -19,32 +19,11 @@ class TelebotKeyRepository extends ServiceEntityRepository
         parent::__construct($registry, TelebotKey::class);
     }
 
-    // /**
-    //  * @return TelebotKey[] Returns an array of TelebotKey objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('t.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+    public function fetchKeyByUserIdAndServiceName(int $userId, string $nameLike) {
+        return $this->_em->createQuery('
+            SELECT k FROM App\Entity\TelebotKey k WHERE k.userId = :user_id AND k.name LIKE :name_like')
+            ->setParameter('user_id', $userId)
+            ->setParameter('name_like' , "%{$nameLike}%")
+            ->getOneOrNullResult();
     }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?TelebotKey
-    {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

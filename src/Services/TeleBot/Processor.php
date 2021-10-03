@@ -4,125 +4,145 @@
 namespace App\Services\TeleBot;
 
 use App\Commands\TeleBot\Conversation\ConversationCommand;
+Use App\Services\TeleBot\Exception\ChatWarning;
 use App\Entity\Conversation;
 use App\Repository\ConversationRepository;
-use Doctrine\ORM\EntityManager;
-use Longman\TelegramBot\Entities\ServerResponse;
-use Longman\TelegramBot\Entities\Update;
+use App\Services\TeleBot\Event\ConversationStartEvent;
+use App\Services\TeleBot\Event\SendMessageEvent;
+use App\Services\TeleBot\Event\SendStickerEvent;
+use App\Services\TeleBot\Exception\ChatError;
+use App\Services\TeleBot\Exception\ConversationAwareException;
 use Longman\TelegramBot\TelegramLog;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Throwable;
 use Traversable;
 
 class Processor
 {
-    private $botName;
     private $conversationRepository;
     private $allowUsers;
+
+    /**
+     * @var ConversationCommand[]
+     */
     private $commands;
-    private $entityManager;
+    private $dispatcher;
+    private $telebotDebugLogger;
 
     public function __construct(
-        EntityManager $entityManager,
+        EventDispatcherInterface $dispatcher,
         ConversationRepository $conversationRepository,
         Traversable $commands,
         string $allowUsers,
-        string $apiKey,
-        string $botName,
-        LoggerInterface $telebotDebugLogger,
-        LoggerInterface $telebotUpdatesLogger
+        LoggerInterface $telebotDebugLogger
     ) {
-        $this->entityManager = $entityManager;
+        $this->telebotDebugLogger = $telebotDebugLogger;
+        $this->dispatcher = $dispatcher;
         $this->conversationRepository = $conversationRepository;
-        $this->botName = $botName;
-        TelegramWebDriver::init($botName, $apiKey);
-        TelegramLog::initialize($telebotDebugLogger, $telebotUpdatesLogger);
         TelegramLog::$always_log_request_and_response = true;
         $this->allowUsers = explode(',', $allowUsers);
          $this->commands = iterator_to_array($commands);
     }
 
-    public function handle(string $input = null) : ServerResponse {
-        $update = $this->createUpdate($input);
-        $userId = $update->getMessage()->getFrom()->getId();
+    public function handle(array $updateData): void {
+        $conversation = null;
 
-        if (!in_array($userId, $this->allowUsers)) {
-            throw new \InvalidArgumentException('I\'m sorry, who are you? I do not know you');
+        try {
+            $this->checkConversationParams($conversation = $this->fetchConversationByUpdate($updateData));
+            $this->commands[$conversation->getCommand()]->execute($conversation);
+        } catch (Throwable $exception) {
+            $this->handleExceptions($exception, $updateData);
         }
 
-        $conversation = $this->getConversation($update);
-
-        if (!$conversation) {
-            return TelegramWebDriver::emptyResponse();
-        }
-
-        $conversation->addMessageInHistory($update->getMessage());
-        $this->entityManager->persist($conversation);
-        $this->entityManager->flush();
-        $commandName = $conversation->getCommand();
-
-        if (!$commandName) {
-            return TelegramWebDriver::emptyResponse();
-        }
-
-        /**
-         * @var ConversationCommand $command
-         */
-        if (empty($command = $this->commands[$commandName])) {
-            throw new \InvalidArgumentException("The command {$commandName} not configured!");
-        }
-
-        $response = $command->execute($conversation, $update);
-
-        if ($response->isOk()) {
-            $message = $response->getResult();
-            $conversation->addMessageInHistory($message);
-            $this->entityManager->persist($conversation);
-            $this->entityManager->flush();
-        }
-
-        return $response;
+        $this->dispatcher->dispatch(new SendStickerEvent($conversation, SendStickerEvent::STICKER_TOM_LAUNGHT));
     }
 
-    private function getConversation(Update $update) {
-        $chatId = $update->getMessage()->getChat()->getId();
-        $updateId = $update->getUpdateId();
-        $userId = $update->getMessage()->getFrom()->getId();
+    public function fetchConversationByUpdate(array $updateData) : Conversation {
+        $chatId = $updateData['message']['chat']['id'] ?? null;
+        $messageId = $updateData['message']['message_id'] ?? null;
+        $updateId = $updateData['update_id'] ?? null;
+        $userId = $updateData['message']['from']['id'] ?? null;
+        $command = null;
+
+        if(!empty($updateData['message']['command'])) {
+            $command = ltrim($updateData['message']['command'], '/');
+        }
+
+        if (!$command && !empty($updateData['message']['text']) && strpos($updateData['message']['text'], '/') === 0) {
+            $command = ltrim($updateData['message']['text'], '/');
+        }
+
+        if (!$chatId || !$updateId || !$userId) {
+            throw new \InvalidArgumentException('Incorrect data from telegram!');
+        }
+
         $conversation = $this->conversationRepository->findOneBy(['userId' => $userId, 'chatId' => $chatId, 'status' => Conversation::STATUS_OPENED]);
 
-        if ($conversation && $conversation->getLastUpdateId() === $updateId) {
-            return null;
-        } elseif ($conversation && $conversation->getLastUpdateId() !== $updateId && !$update->getMessage()->getCommand()) {
-            $conversation->setLastUpdateId($updateId);
-        } else {
-            $commandName = $update->getMessage()->getCommand();
+        if (!$conversation) {
+            $isNewConversation = true;
             $conversation = (new Conversation())
                 ->setUserId($userId)
                 ->setChatId($chatId)
                 ->setStatus(Conversation::STATUS_OPENED)
-                ->setCommand($commandName)
                 ->setLastModify(new \DateTime())
                 ->setLastUpdateId($updateId);
+        } else {
+            $isNewConversation = false;
+            $conversation
+                ->setLastUpdateId($updateId)
+                ->setLastModify(new \DateTime());
+        }
+
+        $conversation->addMessageInHistory($messageId, $command ?? $updateData['message']['text']);
+        $this->conversationRepository->save($conversation);
+        $this->dispatcher->dispatch(new ConversationStartEvent($conversation));
+
+        if ($isNewConversation) {
+            if (!$command) {
+                throw new ChatWarning('Please use command for starting our conversation!', $conversation);
+            }
+
+            $conversation->setCommand($command);
+            $this->conversationRepository->save($conversation);
         }
 
         return $conversation;
     }
 
-    private function createUpdate(string $input = null) : Update {
+    private function handleExceptions(Throwable $trowable, array $updateData) {
+        $logLvl = LogLevel::CRITICAL;
 
-        if (!$input) {
-            $input = file_get_contents('php://input');
+        if ($trowable instanceof ConversationAwareException) {
+            $conversation = $trowable->getConversation();
+            $this->conversationRepository->cancelConversation($conversation);
+
+            if ($trowable instanceof ChatWarning) {
+                $logLvl = LogLevel::WARNING;
+                $this->dispatcher->dispatch(new SendStickerEvent($conversation, SendStickerEvent::STICKER_TOM_ANGRY));
+                $this->dispatcher->dispatch(new SendMessageEvent($conversation, $trowable->getMessage()));
+            } elseif ($trowable instanceof ChatError) {
+                $logLvl = LogLevel::ERROR;
+                $this->dispatcher->dispatch(new SendStickerEvent($conversation, SendStickerEvent::STICKER_TOM_ERROR));
+                $this->dispatcher->dispatch(new SendMessageEvent($conversation, $trowable->getMessage()));
+            }
         }
 
-        if (!is_string($input)) {
-            throw new \InvalidArgumentException('Input must be a string!');
+        $this->telebotDebugLogger->log($logLvl, $trowable->getMessage(), $updateData);
+
+        throw $trowable;
+    }
+
+    private function checkConversationParams(Conversation $conversation) {
+        if (!in_array($conversation->getUserId(), $this->allowUsers)) {
+            throw new ChatError("I'm sorry, who are you?", $conversation);
         }
 
-        if (empty($input)) {
-            throw new \InvalidArgumentException('Input is empty!');
+        $commandName = $conversation->getCommand();
+
+        if (!$commandName || !isset($this->commands[$commandName])) {
+            throw new ChatError("Command not found or not initialize!", $conversation);
         }
-
-        $post = json_decode($input, true);
-
-        return new Update($post, $this->botName);
     }
 }

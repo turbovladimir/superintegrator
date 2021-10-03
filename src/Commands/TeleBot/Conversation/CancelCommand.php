@@ -1,30 +1,32 @@
 <?php
 namespace App\Commands\TeleBot\Conversation;
 
-use App\Services\TeleBot\TelegramWebDriver;
-use Longman\TelegramBot\Entities\Keyboard;
-use Longman\TelegramBot\Entities\Message;
-use Longman\TelegramBot\Entities\ServerResponse;
+use App\Entity\Conversation;
+use App\Repository\ConversationRepository;
+use App\Services\TeleBot\Event\DeleteMessageEvent;
+use App\Services\TeleBot\Event\SendMessageEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CancelCommand extends ConversationCommand
 {
-    public function executeCommand(Message $message): ServerResponse
+    private $conversationRepository;
+
+    public function __construct(
+        EventDispatcherInterface $dispatcher,
+        ConversationRepository $conversationRepository)
     {
-        $data = $this->createResponseData();
-        $data['reply_markup'] = Keyboard::remove(['selective' => true]);
-        $messagesForDeletion = $this->closeAllConversation();
-        $chatId = $message->getChat()->getId();
+        $this->conversationRepository = $conversationRepository;
+        parent::__construct($dispatcher);
+    }
+
+    public function execute(Conversation $conversation) : void {
+        $messagesForDeletion = $this->conversationRepository
+            ->updateStatus(Conversation::STATUS_OPENED, Conversation::STATUS_CLOSED);
 
         foreach ($messagesForDeletion as $messageId) {
-            TelegramWebDriver::deleteMessage([
-                'chat_id' => $chatId,
-                'message_id' => $messageId,
-            ]);
+            $this->dispatcher->dispatch(new DeleteMessageEvent($conversation, $messageId));
         }
 
-
-        $response = TelegramWebDriver::sendMessage($data);
-
-        return $response;
+        $this->dispatcher->dispatch(new SendMessageEvent($conversation, 'Deletion done!'));
     }
 }

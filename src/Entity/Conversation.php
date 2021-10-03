@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass=ConversationRepository::class)
  */
-class Conversation
+class Conversation implements EntityInterface
 {
     const STATUS_OPENED = 'opened';
     const STATUS_CLOSED = 'closed';
@@ -142,18 +142,32 @@ class Conversation
         return $this;
     }
 
-    public function addNote(string $name, $value)
+    public function addMessageInHistory(int $messageId, string $messageText) : self
     {
-        $this->notes = array_merge($this->notes, [$name => $value]);
+        $this->notes['messages'][$messageId] = $messageText;
+
+        return $this;
     }
 
-    public function addMessageInHistory(\Longman\TelegramBot\Entities\Message $message)
+    public function getMessageIdsFromHistory() : array
     {
-        $this->notes['messages'][] = $message->getMessageId();
+        if (!empty($this->notes['messages'])) {
+            return array_keys($this->notes['messages']);
+        }
+
+        return [];
     }
 
-    public function getMessageHistory() : array
+    public function getLastMessage() : ?string
     {
-        return $this->notes['messages'] ?? [];
+        if (empty($messages = $this->notes['messages'])) {
+            return null;
+        }
+
+        ksort($messages);
+        $messages = array_values($messages);
+        end($messages);
+
+        return $messages;
     }
 }
