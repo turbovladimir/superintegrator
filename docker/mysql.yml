@@ -1,0 +1,22 @@
+version: '3.7'
+
+services:
+  c-mysql-server:
+    container_name: c-mysql-super
+    image: mysql:5.6
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+    ports:
+      - '3307:3307'
+    volumes:
+      - ./mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      default:
+        ipv4_address: 172.20.0.4
+
+
+networks:
+  default:
+    external:
+      name: super_network

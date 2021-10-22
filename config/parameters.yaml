@@ -6,6 +6,7 @@ parameters:
   telebot.admin: '%env(int:BOT_ADMIN)%'
 
   database.host: '%env(key:host:url:DATABASE_URL)%'
+  database.port: '%env(key:port:url:DATABASE_URL)%'
   database.user: '%env(key:user:url:DATABASE_URL)%'
   database.password: '%env(key:pass:url:DATABASE_URL)%'
   database.database_name: '%env(key:path:url:DATABASE_URL)%'

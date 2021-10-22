@@ -11,7 +11,7 @@ services:
     restart: always
     working_dir: '/var/www/superintegrator'
     extra_hosts:
-      - ${DOMAIN}:${HOST}
+      - super.test:${HOST}
     volumes:
       - ${APP_PATH}:/var/www/superintegrator
     networks:

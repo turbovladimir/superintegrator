@@ -10,7 +10,6 @@ services:
       - '444:443'
     volumes:
       - ${APP_PATH}:/var/www/superintegrator
-      - ./nginx/hosts:/etc/hosts
       - ./nginx/conf.d:/etc/nginx/conf.d
     networks:
       default:
