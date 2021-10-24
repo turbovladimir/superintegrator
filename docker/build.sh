@@ -19,9 +19,6 @@ function up() {
     docker network create --subnet=172.20.0.0/16 super_network
   fi
 
-  setEnv 'Enter host (default 127.0.0.1)' '^\d+\.\d+\.\d+\.\d+$' HOST 127.0.0.1
-  setEnv 'Enter xdebug host (default like host)' '\S+' XDEBUG_HOST "$HOST"
-  setEnv 'Enter xdebug port (default 9011)' '^\d+' XDEBUG_PORT 9011
   cd ../
   APP_PATH=$(pwd)
   cd docker/
