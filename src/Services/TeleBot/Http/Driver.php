@@ -2,12 +2,11 @@
 
 namespace App\Services\TeleBot\Http;
 
-use App\Services\TeleBot\Exception\ChatError;
+use App\Services\TeleBot\Entity\TelegramUpdate;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Stream;
 use Longman\TelegramBot\Entities\InputMedia\InputMedia;
-use Longman\TelegramBot\Entities\Message;
 use Longman\TelegramBot\Exception\TelegramException;
 
 class Driver
@@ -22,57 +21,22 @@ class Driver
      * @var string
      */
     private $baseUri;
-    /**
-     * @var string
-     */
-    private $environment;
 
     public function __construct(
         string $baseUri,
-        string $botToken,
-        string $environment
+        string $botToken
     ) {
         $this->client = new Client();
         $this->baseUri = $baseUri;
         $this->botToken = $botToken;
-        $this->environment = $environment;
     }
 
-    public function makeRequest($action, array $data = []) : Message {
-        if ($this->environment === 'test') {
-            return new Message(json_decode('{
-                      "ok": true,
-                      "result": {
-                        "message_id": 1,
-                        "from": {
-                          "id": 1629302802,
-                          "is_bot": true,
-                          "first_name": "bot",
-                          "username": "bot"
-                        },
-                        "chat": {
-                          "id": 107465278,
-                          "first_name": "user",
-                          "username": "username",
-                          "type": "private"
-                        },
-                        "date": 1632088128,
-                        "text": "text"
-                      }
-                    }', true));
-        }
-
+    public function makeRequest($action, array $data = []) : TelegramUpdate {
         $params = $this->setUpRequestParams($action, $data);
         $url = str_replace(['{token}', '{action}'], [$this->botToken, $action], $this->baseUri);
         $response = $this->client->post($url, $params);
-        $responseData = json_decode((string)$response->getBody(), true);
 
-
-        if (!$responseData) {
-            throw new ChatError('Telegram returned an invalid response!');
-        }
-
-        return new Message($responseData);
+        return new TelegramUpdate(json_decode((string)$response->getBody(), true));
     }
 
     private function setUpRequestParams(string $action, array $data)

@@ -14,3 +14,10 @@ services:
     class: App\Tests\Mocks\MyCommand
     tags:
       - { name: telebot.command, command: my_command }
+
+  app.telebot.http.driver:
+    public: true
+    class: App\Services\TeleBot\Http\Driver
+    arguments:
+      - '%telebot.url%'
+      - '%telebot.token%'

@@ -4,6 +4,7 @@
 namespace App\Services\TeleBot;
 
 use App\Commands\TeleBot\Conversation\ConversationCommand;
+use App\Services\TeleBot\Entity\TelegramUpdate;
 Use App\Services\TeleBot\Exception\ChatWarning;
 use App\Entity\Conversation;
 use App\Repository\ConversationRepository;
@@ -46,38 +47,25 @@ class Processor
          $this->commands = iterator_to_array($commands);
     }
 
-    public function handle(array $updateData): void {
+    public function handle(TelegramUpdate $requestData): void {
         $conversation = null;
 
         try {
-            $this->checkConversationParams($conversation = $this->fetchConversationByUpdate($updateData));
+            $this->checkConversationParams($conversation = $this->fetchOrComposeConversation($requestData));
             $this->commands[$conversation->getCommand()]->execute($conversation);
         } catch (Throwable $exception) {
-            $this->handleExceptions($exception, $updateData);
+            $this->handleExceptions($exception, $requestData);
         }
 
         $this->dispatcher->dispatch(new SendStickerEvent($conversation, SendStickerEvent::STICKER_TOM_LAUNGHT));
     }
 
-    public function fetchConversationByUpdate(array $updateData) : Conversation {
-        $chatId = $updateData['message']['chat']['id'] ?? null;
-        $messageId = $updateData['message']['message_id'] ?? null;
-        $updateId = $updateData['update_id'] ?? null;
-        $userId = $updateData['message']['from']['id'] ?? null;
-        $command = null;
-
-        if(!empty($updateData['message']['command'])) {
-            $command = ltrim($updateData['message']['command'], '/');
-        }
-
-        if (!$command && !empty($updateData['message']['text']) && strpos($updateData['message']['text'], '/') === 0) {
-            $command = ltrim($updateData['message']['text'], '/');
-        }
-
-        if (!$chatId || !$updateId || !$userId) {
-            throw new \InvalidArgumentException('Incorrect data from telegram!');
-        }
-
+    public function fetchOrComposeConversation(TelegramUpdate $requestData) : Conversation {
+        $chatId = $requestData->chatId();
+        $messageId = $requestData->messageId();
+        $updateId = $requestData->updateId();
+        $userId = $requestData->fromId();
+        $command = $requestData->getCommand();
         $conversation = $this->conversationRepository->findOneBy(['userId' => $userId, 'chatId' => $chatId, 'status' => Conversation::STATUS_OPENED]);
 
         if (!$conversation) {
@@ -95,7 +83,7 @@ class Processor
                 ->setLastModify(new \DateTime());
         }
 
-        $conversation->addMessageInHistory($messageId, $command ?? $updateData['message']['text']);
+        $conversation->addMessageInHistory($messageId, $command ?? $requestData->text());
         $this->conversationRepository->save($conversation);
         $this->dispatcher->dispatch(new ConversationStartEvent($conversation));
 
@@ -111,7 +99,7 @@ class Processor
         return $conversation;
     }
 
-    private function handleExceptions(Throwable $trowable, array $updateData) {
+    private function handleExceptions(Throwable $trowable, TelegramUpdate $requestData) {
         $logLvl = LogLevel::CRITICAL;
 
         if ($trowable instanceof ConversationAwareException) {
@@ -129,7 +117,7 @@ class Processor
             }
         }
 
-        $this->telebotDebugLogger->log($logLvl, $trowable->getMessage(), $updateData);
+        $this->telebotDebugLogger->log($logLvl, $trowable->getMessage(), $requestData->toArray());
 
         throw $trowable;
     }

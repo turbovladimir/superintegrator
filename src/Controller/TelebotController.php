@@ -3,8 +3,10 @@
 
 namespace App\Controller;
 
+use App\Services\TeleBot\Entity\TelegramUpdate;
 use App\Services\TeleBot\Exception\ChatError;
 use App\Services\TeleBot\Exception\ChatWarning;
+use App\Services\TeleBot\Exception\UpdateParseError;
 use App\Services\TeleBot\Processor;
 use Longman\TelegramBot\Exception\TelegramException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,17 +29,12 @@ class TelebotController extends AbstractController
     }
 
     public function process(Request $request) : Response {
-        $updateData = $request->getContent();
-
-        if (empty($updateData) || !($updateData = json_decode($updateData, true))) {
-            return new JsonResponse(['error' => 'Empty body data!'], 400);
-        }
-
         try {
-            $this->processor->handle($updateData);
-        } catch (ChatError|ChatWarning $error) {
+            $this->processor->handle(new TelegramUpdate($request->getContent()));
+        } catch (ChatError|ChatWarning|UpdateParseError $error) {
             return new JsonResponse(['error' => $error->getMessage()], 400);
         } catch (\Throwable $error) {
+
             return new JsonResponse(['error' => $error->getMessage()], 500);
         }
 

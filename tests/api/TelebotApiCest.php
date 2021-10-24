@@ -1,7 +1,10 @@
 <?php
 namespace App\Tests;
 
+use App\Services\TeleBot\Entity\TelegramUpdate;
+use App\Services\TeleBot\Http\Driver;
 use App\Tests\Tools\DBPurger;
+use Codeception\Stub;
 
 class TelebotApiCest
 {
@@ -11,13 +14,17 @@ class TelebotApiCest
         $purger = $I->grabService('app.tests.tools.db_purger');
         $purger->purge();
         $I->haveHttpHeader('Content-Type', 'application/json');
+
+        $mockDriver = Stub::make(Driver::class, ['makeRequest' => function () { return new TelegramUpdate(json_encode($this->update)); }]);
+        $container = $I->grabService('service_container');
+        $container->set('app.telebot.http.driver', $mockDriver);
     }
 
     public function errorIncorrectInputData(ApiTester $I)
     {
         $I->sendPost('/telebot/process');
         $I->seeResponseCodeIs(\Codeception\Util\HttpCode::BAD_REQUEST);
-        $I->seeResponseContainsJson(['error' => 'Empty body data!']);
+        $I->seeResponseContainsJson(['error' => 'Invalid or empty data: `null`']);
     }
 
     public function errorUserDenied(ApiTester $I)
@@ -61,7 +68,8 @@ class TelebotApiCest
                 'username' => 'user_name'
             ],
             'date' => '1625070466',
-            'text' => 'text'
+            'command' => '/command',
+            'text' => ''
         ]
     ];
 }

@@ -46,9 +46,9 @@ class ConversationEventsSubscriber implements EventSubscriberInterface
     }
 
     public function onSendDataTelegramEvent(SendDataTelegramEvent $event) {
-        $message = $this->driver->makeRequest($event->getTelegramMethod(), $event->getData());
+        $requestData = $this->driver->makeRequest($event->getTelegramMethod(), $event->getData());
         $conversation = $event->getConversation();
-        $conversation->addMessageInHistory($message->getMessageId(), $message->getText());
+        $conversation->addMessageInHistory($requestData->messageId(), $requestData->text());
         $this->entityManager->persist($conversation);
         $this->entityManager->flush();
     }
