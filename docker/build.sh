@@ -20,7 +20,6 @@ function up() {
   fi
 
   cd ../
-  APP_PATH=$(pwd)
   cd docker/
   echo "Starting container with app and nginx"
   composeEnvFile
@@ -51,7 +50,6 @@ function composeEnvFile() {
   echo "HOST=$HOST" >>.env
   echo "XDEBUG_HOST=$XDEBUG_HOST" >>.env
   echo "XDEBUG_PORT=$XDEBUG_PORT" >>.env
-  echo "APP_PATH=$APP_PATH" >>.env
   echo "-------------"
   cat .env
   echo "-------------"

@@ -12,7 +12,7 @@ services:
     extra_hosts:
       - super.test:172.20.0.1
     volumes:
-      - ${APP_PATH}:/var/www/superintegrator
+      - ./../:/var/www/superintegrator
     networks:
       default:
         ipv4_address: 172.20.0.2

@@ -9,7 +9,7 @@ services:
       - '81:80'
       - '444:443'
     volumes:
-      - ${APP_PATH}:/var/www/superintegrator
+      - ./../:/var/www/superintegrator
       - ./nginx/conf.d:/etc/nginx/conf.d
     networks:
       default:
