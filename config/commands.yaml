@@ -16,6 +16,13 @@ services:
     arguments:
       - '@repository.user_role'
       - '@doctrine.orm.entity_manager'
+      -
+  command.keys_fetch:
+    class: App\Commands\KeysFetchCommand
+    arguments:
+      - '@repository.telebot_key'
+    tags:
+      - { name: console.command, command: keys:fetch }
 
   command.telebot.conversation.conversation_command:
     class: App\Commands\TeleBot\Conversation\ConversationCommand
